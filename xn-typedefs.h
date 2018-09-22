@@ -23,10 +23,16 @@ public:
 
 struct LocoAddr {
 	uint16_t addr;
+
 	LocoAddr(uint16_t addr) : addr(addr) {
 		if (addr > 9999)
 			throw EInvalidAddr("Invalid loco address!");
 	}
+
+	LocoAddr(uint8_t lo, uint8_t hi) : LocoAddr(lo + ((hi-0xC0) << 8)) {}
+
+	uint8_t lo() { return addr & 0xFF; }
+	uint8_t hi() { return ((addr >> 8) & 0xFF) + 0xC0; }
 };
 
 struct XnCmd {

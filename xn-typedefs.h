@@ -5,7 +5,29 @@
 #include <QByteArray>
 #include <vector>
 
+#include "../q-str-exception.h"
+
 typedef void (*XnCommandCallback)(void* sender, void* data);
+
+typedef enum class _xn_trk_status {
+	UNKNOWN,
+	OFF,
+	ON,
+	PROGRAMMING,
+} XnTrkStatus;
+
+class EInvalidAddr : public QStrException {
+public:
+	EInvalidAddr(const QString str) : QStrException(str) {}
+};
+
+struct LocoAddr {
+	uint16_t addr;
+	LocoAddr(uint16_t addr) : addr(addr) {
+		if (addr > 9999)
+			throw EInvalidAddr("Invalid loco address!");
+	}
+};
 
 struct XnCmd {
 	virtual std::vector<uint8_t> getBytes() = 0;

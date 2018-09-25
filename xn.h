@@ -1,7 +1,7 @@
 #ifndef _XN_H_
 #define _XN_H_
 
-/* This file implemens a low-level class XpressNet, wchich allow PC to
+/* This file implements a low-level XpressNet class, wchich allows PC to
  * communicate with XpressNET command station over virtual serial port.
  */
 

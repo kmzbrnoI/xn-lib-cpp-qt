@@ -30,6 +30,24 @@ void XpressNet::send(std::vector<uint8_t> data) {
 	}
 }
 
+void XpressNet::send(XnCmd& cmd) {
+	XnHistoryItem hist(cmd, QDateTime::currentDateTime(), 1, nullptr, nullptr); // TODO
+	m_hist.push(hist);
+	send(cmd.getBytes());
+}
+
+void XpressNet::send(XnCmd&& cmd) {
+	XnCmd& cmd2(cmd);
+	send(cmd2);
+}
+
+void XpressNet::send(XnHistoryItem& hist) {
+	hist.no_sent++;
+	hist.last_sent = QDateTime::currentDateTime();
+	m_hist.push(hist);
+	send(hist.cmd.getBytes());
+}
+
 void XpressNet::handleReadyRead() {
 	// check timeout
 	if (m_receiveTimeout < QDateTime::currentDateTime() && m_readData.size() > 0) {
@@ -65,3 +83,27 @@ void XpressNet::handleError(QSerialPort::SerialPortError serialPortError) {
 
 void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+void XpressNet::setTrkStatus(XnTrkStatus status) {
+	if (status == XnTrkStatus::OFF) {
+		send(XnCmdOff());
+	} else if (status == XnTrkStatus::ON) {
+		send(XnCmdOn());
+	} else if (status == XnTrkStatus::PROGRAMMING) {
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void XpressNet::hist_ok() {
+}
+
+void XpressNet::hist_err() {
+}
+
+void XpressNet::hist_send() {
+}
+
+///////////////////////////////////////////////////////////////////////////////

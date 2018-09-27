@@ -56,6 +56,13 @@ private:
 
 	void parseMessage(std::vector<uint8_t> msg);
 	void send(std::vector<uint8_t>);
+	void send(XnCmd&);
+	void send(XnCmd&&);
+	void send(XnHistoryItem&);
+
+	void hist_ok();
+	void hist_err();
+	void hist_send();
 };
 
 #endif

@@ -29,7 +29,7 @@ class XpressNet : public QObject {
 	Q_OBJECT
 
 public:
-	XpressNet(QString portname);
+	XpressNet(QString portname, QObject *parent = nullptr);
 
 	void setTrkStatus(XnTrkStatus);
 	void emergencyStop(LocoAddr);
@@ -44,6 +44,9 @@ public:
 private slots:
 	void handleReadyRead();
 	void handleError(QSerialPort::SerialPortError);
+
+signals:
+	void onError(QString error);
 
 private:
 	QSerialPort m_serialPort;

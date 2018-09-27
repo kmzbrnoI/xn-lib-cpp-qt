@@ -8,8 +8,26 @@ XpressNet::XpressNet(QString portname, QObject *parent)
 	m_serialPort.setPortName(portname);
 	m_serialPort.setReadBufferSize(256);
 
-	if (!m_serialPort.open(QIODevice::ReadOnly))
+	if (!m_serialPort.open(QIODevice::ReadWrite))
 		throw EOpenError(m_serialPort.errorString());
+}
+
+void XpressNet::send(std::vector<uint8_t> data) {
+	QByteArray qdata(reinterpret_cast<const char*>(data.data()), data.size());
+
+	uint8_t x = 0;
+	for (uint8_t d : data)
+		x ^= d;
+	qdata.append(x);
+
+	int sent = m_serialPort.write(qdata);
+
+	if (sent == -1) {
+		// TODO
+	}
+	if (sent != qdata.size()) {
+		// TODO
+	}
 }
 
 void XpressNet::handleReadyRead() {

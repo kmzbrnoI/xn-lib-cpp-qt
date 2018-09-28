@@ -34,8 +34,8 @@ public:
 
 	XpressNet(QString portname, QObject *parent = nullptr);
 
-	void setTrkStatus(XnTrkStatus);
-	void emergencyStop(LocoAddr);
+	void setTrkStatus(const XnTrkStatus);
+	void emergencyStop(const LocoAddr);
 	void emergencyStop();
 	void getCommandStationVersion();
 	void getLIVersion();
@@ -61,15 +61,18 @@ private:
 	QTimer m_hist_timer;
 
 	void parseMessage(std::vector<uint8_t> msg);
-	void send(std::vector<uint8_t>);
-	void send(XnCmd&);
-	void send(XnCmd&&);
+	void send(const std::vector<uint8_t>);
+	void send(const XnCmd&);
+	void send(const XnCmd&&);
 	void send(XnHistoryItem&);
 
 	void hist_ok();
 	void hist_err();
 	void hist_send();
-	void log(QString message, XnLogLevel loglevel);
+	void log(const QString message, const XnLogLevel loglevel);
+
+	template<typename T>
+	QString dataToStr(T, size_t len = 0);
 };
 
 #endif

@@ -9,10 +9,16 @@
 
 typedef void (*XnCommandCallbackFunc)(void* sender, void* data);
 
-typedef struct {
+struct XnCommandCallback {
 	XnCommandCallbackFunc func;
 	void* data;
-} XnCommandCallback;
+
+	XnCommandCallback(XnCommandCallbackFunc func, void* data = nullptr)
+		: func(func), data(data) {}
+};
+
+using XnCallback = XnCommandCallback;
+
 
 typedef enum class _xn_trk_status {
 	Unknown,
@@ -21,10 +27,12 @@ typedef enum class _xn_trk_status {
 	Programming,
 } XnTrkStatus;
 
+
 class EInvalidAddr : public QStrException {
 public:
 	EInvalidAddr(const QString str) : QStrException(str) {}
 };
+
 
 struct LocoAddr {
 	uint16_t addr;
@@ -40,33 +48,36 @@ struct LocoAddr {
 	uint8_t hi() { return ((addr >> 8) & 0xFF) + 0xC0; }
 };
 
+
 struct XnCmd {
-	virtual std::vector<uint8_t> getBytes() = 0;
-	virtual QString msg() = 0;
+	virtual std::vector<uint8_t> getBytes() const = 0;
+	virtual QString msg() const = 0;
 };
 
 struct XnCmdOff : public XnCmd {
-	std::vector<uint8_t> getBytes() override { return {0x21, 0x80}; }
-	QString msg() override { return "Track Off"; }
+	std::vector<uint8_t> getBytes() const override { return {0x21, 0x80}; }
+	QString msg() const override { return "Track Off"; }
 };
 
 struct XnCmdOn : public XnCmd {
-	std::vector<uint8_t> getBytes() override { return {0x21, 0x81}; }
-	QString msg() override { return "Track On"; }
+	std::vector<uint8_t> getBytes() const override { return {0x21, 0x81}; }
+	QString msg() const override { return "Track On"; }
 };
 
+
 struct XnHistoryItem {
-	XnHistoryItem(XnCmd& cmd, QDateTime timeout, size_t no_sent,
-	              XnCommandCallback* callback_err, XnCommandCallback* callback_ok)
+	XnHistoryItem(const XnCmd& cmd, QDateTime timeout, size_t no_sent,
+	              const XnCommandCallback* callback_err, const XnCommandCallback* callback_ok)
 		: cmd(cmd), timeout(timeout), no_sent(no_sent), callback_err(callback_err),
 		  callback_ok(callback_ok) {}
 
-	XnCmd& cmd;
+	const XnCmd& cmd;
 	QDateTime timeout;
 	size_t no_sent;
-	XnCommandCallback* callback_err;
-	XnCommandCallback* callback_ok;
+	const XnCommandCallback* callback_err;
+	const XnCommandCallback* callback_ok;
 };
+
 
 typedef enum class _xn_log_level {
 	None = 0,

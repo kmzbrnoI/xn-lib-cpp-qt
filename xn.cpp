@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "xn.h"
 
 
@@ -15,13 +17,15 @@ XpressNet::XpressNet(QString portname, QObject *parent)
 	m_hist_timer.start(_HIST_CHECK_INTERVAL);
 }
 
-void XpressNet::send(std::vector<uint8_t> data) {
+void XpressNet::send(const std::vector<uint8_t> data) {
 	QByteArray qdata(reinterpret_cast<const char*>(data.data()), data.size());
 
 	uint8_t x = 0;
 	for (uint8_t d : data)
 		x ^= d;
 	qdata.append(x);
+
+	log("PUT: " + dataToStr(qdata), XnLogLevel::Data);
 
 	int sent = m_serialPort.write(qdata);
 
@@ -33,14 +37,16 @@ void XpressNet::send(std::vector<uint8_t> data) {
 	}
 }
 
-void XpressNet::send(XnCmd& cmd) {
+void XpressNet::send(const XnCmd& cmd) {
 	XnHistoryItem hist(cmd, QDateTime::currentDateTime(), 1, nullptr, nullptr); // TODO
 	m_hist.push(hist);
+
+	log("PUT: " + dataToStr(cmd.getBytes()), XnLogLevel::Data);
 	send(cmd.getBytes());
 }
 
-void XpressNet::send(XnCmd&& cmd) {
-	XnCmd& cmd2(cmd);
+void XpressNet::send(const XnCmd&& cmd) {
+	const XnCmd& cmd2(cmd);
 	send(cmd2);
 }
 
@@ -48,6 +54,8 @@ void XpressNet::send(XnHistoryItem& hist) {
 	hist.no_sent++;
 	hist.timeout = QDateTime::currentDateTime().addMSecs(_HIST_TIMEOUT);
 	m_hist.push(hist);
+
+	log("PUT: " + dataToStr(hist.cmd.getBytes()), XnLogLevel::Data);
 	send(hist.cmd.getBytes());
 }
 
@@ -65,11 +73,14 @@ void XpressNet::handleReadyRead() {
 		unsigned int length = (m_readData[0] & 0x0F)+2; // including header byte & xor
 		uint8_t x = 0;
 		for (uint i = 0; i < length; i++)
-			x ^= m_readData[i] & 0x7F;
+			x ^= m_readData[i];
+
+		log("GET: " + dataToStr(m_readData, length), XnLogLevel::Data);
 
 		if (x != 0) {
 			// XOR error
 			m_readData.remove(0, static_cast<int>(length));
+			log("XOR error: " + dataToStr(m_readData, length), XnLogLevel::Warning);
 			continue;
 		}
 
@@ -89,7 +100,7 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void XpressNet::setTrkStatus(XnTrkStatus status) {
+void XpressNet::setTrkStatus(const XnTrkStatus status) {
 	if (status == XnTrkStatus::Off) {
 		send(XnCmdOff());
 	} else if (status == XnTrkStatus::On) {
@@ -151,9 +162,21 @@ void XpressNet::m_hist_timer_tick() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void XpressNet::log(QString message, XnLogLevel loglevel) {
+void XpressNet::log(const QString message, const XnLogLevel loglevel) {
 	if (loglevel <= this->loglevel)
 		onLog(message, loglevel);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+template<typename T>
+QString XpressNet::dataToStr(T data, size_t len) {
+	QString out;
+	size_t i = 0;
+	for (auto d = data.begin(); (d != data.end() && (len == 0 || i < len)); d++, i++)
+		out += QString("%1 ").arg(*d, 2, 16, QLatin1Char('0'));
+
+	return out;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

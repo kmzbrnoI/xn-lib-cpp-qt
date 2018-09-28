@@ -116,7 +116,18 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 			log("GET: GET: Buffer overflow in the LI", XnLogLevel::Error);
 		}
 	} else if (0x02 == msg[0]) {
-		// LI version
+		// Got LI version
+		unsigned hw = (msg[1] & 0x0F) + 10*(msg[1] >> 4);
+		unsigned sw = (msg[2] & 0x0F) + 10*(msg[2] >> 4);
+
+		log("GET: LI version; HW: " + QString(hw) + ", SW: " + QString(sw), XnLogLevel::Info);
+
+		if (dynamic_cast<const XnCmdGetLIVersion*>(&m_hist.front().cmd) != nullptr) {
+			hist_ok();
+			dynamic_cast<const XnCmdGetLIVersion&>(m_hist.front().cmd).callback(
+				this, hw, sw
+			);
+		}
 	} else if (0x61 == msg[0]) {
 		if (0x00 == msg[1]) {
 			log("GET: Status Off", XnLogLevel::Info);
@@ -154,6 +165,10 @@ void XpressNet::emergencyStop(const LocoAddr addr, CPXnCb ok, CPXnCb err) {
 
 void XpressNet::emergencyStop(CPXnCb ok, CPXnCb err) {
 	send(XnCmdEmergencyStop(), ok, err);
+}
+
+void XpressNet::getLIVersion(XnGotLIVersion const callback, CPXnCb err) {
+	send(XnCmdGetLIVersion(callback), nullptr, err);
 }
 
 void XpressNet::PomWriteCv(LocoAddr addr, uint16_t cv, uint8_t value, CPXnCb ok,

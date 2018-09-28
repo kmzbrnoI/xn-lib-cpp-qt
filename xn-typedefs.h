@@ -88,6 +88,16 @@ struct XnCmdEmergencyStopLoco : public XnCmd {
 	}
 };
 
+using XnGotLIVersion = void (*)(void* sender, unsigned hw, unsigned sw);
+
+struct XnCmdGetLIVersion : public XnCmd {
+	XnGotLIVersion const callback;
+
+	XnCmdGetLIVersion(XnGotLIVersion const callback) : callback(callback) {}
+	std::vector<uint8_t> getBytes() const override { return {0xF0}; }
+	QString msg() const override { return "LI Get Version"; }
+};
+
 struct XnCmdPomWriteCv : public XnCmd {
 	const LocoAddr loco;
 	const uint16_t cv;

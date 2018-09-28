@@ -143,7 +143,22 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 	} else if (0x63 == msg[0]) {
 		// command station version
 	} else if (0xF2 == msg[0]) {
-		// LI address
+		if (0x01 == msg[1]) {
+			// LI address
+			log("GET: LI Address is " + QString(msg[2]), XnLogLevel::Info);
+			if (m_hist.size() > 0 &&
+			    dynamic_cast<const XnCmdGetLIAddress*>(&m_hist.front().cmd) != nullptr) {
+
+				hist_ok();
+				dynamic_cast<const XnCmdGetLIAddress&>(m_hist.front().cmd).callback(
+					this, msg[2]
+				);
+			} else if (m_hist.size() > 0 &&
+			           dynamic_cast<const XnCmdSetLIAddress*>(&m_hist.front().cmd) != nullptr) {
+				hist_ok();
+			}
+
+		}
 	}
 }
 
@@ -169,6 +184,14 @@ void XpressNet::emergencyStop(CPXnCb ok, CPXnCb err) {
 
 void XpressNet::getLIVersion(XnGotLIVersion const callback, CPXnCb err) {
 	send(XnCmdGetLIVersion(callback), nullptr, err);
+}
+
+void XpressNet::getLIAddress(XnGotLIAddress const callback, CPXnCb err) {
+	send(XnCmdGetLIAddress(callback), nullptr, err);
+}
+
+void XpressNet::setLIAddress(uint8_t addr, CPXnCb ok, CPXnCb err) {
+	send(XnCmdSetLIAddress(addr), ok, err);
 }
 
 void XpressNet::PomWriteCv(LocoAddr addr, uint16_t cv, uint8_t value, CPXnCb ok,

@@ -104,6 +104,26 @@ struct XnCmdGetLIVersion : public XnCmd {
 	QString msg() const override { return "LI Get Version"; }
 };
 
+using XnGotLIAddress = void (*)(void* sender, unsigned addr);
+
+struct XnCmdGetLIAddress : public XnCmd {
+	XnGotLIAddress const callback;
+
+	XnCmdGetLIAddress(XnGotLIAddress const callback) : callback(callback) {}
+	std::vector<uint8_t> getBytes() const override { return {0xF2, 0x01, 0x00}; }
+	QString msg() const override { return "LI Get Address"; }
+};
+
+struct XnCmdSetLIAddress : public XnCmd {
+	const unsigned addr;
+
+	XnCmdSetLIAddress(const unsigned addr) : addr(addr) {}
+	std::vector<uint8_t> getBytes() const override {
+		return {0xF2, 0x01, static_cast<uint8_t>(addr)};
+	}
+	QString msg() const override { return "LI Set Address to " + QString(addr); }
+};
+
 struct XnCmdPomWriteCv : public XnCmd {
 	const LocoAddr loco;
 	const uint16_t cv;

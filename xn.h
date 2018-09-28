@@ -40,7 +40,7 @@ public:
 	void emergencyStop(CPXnCb ok = nullptr, CPXnCb err = nullptr);
 	void getCommandStationVersion();
 	void getLIVersion(XnGotLIVersion const, CPXnCb err = nullptr);
-	void getLIAddress();
+	void getLIAddress(XnGotLIAddress const, CPXnCb err = nullptr);
 	void setLIAddress(uint8_t addr, CPXnCb ok = nullptr, CPXnCb err = nullptr);
 	void PomWriteCv(LocoAddr, uint16_t cv, uint8_t value, CPXnCb ok = nullptr,
 	                CPXnCb err = nullptr);

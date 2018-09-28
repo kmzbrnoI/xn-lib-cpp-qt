@@ -176,6 +176,11 @@ void XpressNet::PomWriteCv(LocoAddr addr, uint16_t cv, uint8_t value, CPXnCb ok,
 	send(XnCmdPomWriteCv(addr, cv, value), ok, err);
 }
 
+void XpressNet::setSpeed(LocoAddr addr, uint8_t speed, bool direction, CPXnCb ok,
+                         CPXnCb err) {
+	send(XnCmdSetSpeedDir(addr, speed, direction), ok, err);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void XpressNet::hist_ok() {

@@ -38,6 +38,9 @@ struct EInvalidTrkStatus : public QStrException {
 struct EInvalidCv : public QStrException {
 	EInvalidCv(const QString str) : QStrException(str) {}
 };
+struct EInvalidSpeed : public QStrException {
+	EInvalidSpeed(const QString str) : QStrException(str) {}
+};
 
 
 struct LocoAddr {
@@ -52,6 +55,9 @@ struct LocoAddr {
 
 	uint8_t lo() const { return addr & 0xFF; }
 	uint8_t hi() const { return ((addr >> 8) & 0xFF) + 0xC0; }
+
+	operator uint16_t() const { return addr; }
+	operator QString() const { return QString(addr); }
 };
 
 
@@ -84,7 +90,7 @@ struct XnCmdEmergencyStopLoco : public XnCmd {
 		return {0x92, loco.hi(), loco.lo()};
 	}
 	QString msg() const override {
-		return "Single Loco Emergency Stop : " + QString(loco.addr);
+		return "Single Loco Emergency Stop : " + QString(loco);
 	}
 };
 
@@ -119,6 +125,29 @@ struct XnCmdPomWriteCv : public XnCmd {
 		return "POM Addr " + QString(loco.addr) + ", CV " + QString(cv) +
 		       ", Value: " + QString(value);
 		}
+};
+
+struct XnCmdSetSpeedDir : public XnCmd {
+	const LocoAddr loco;
+	const unsigned speed;
+	const bool dir;
+
+	XnCmdSetSpeedDir(const LocoAddr loco, const unsigned speed, const bool dir)
+		: loco(loco), speed(speed), dir(dir) {
+		if (speed > 28)
+			throw EInvalidSpeed("Speed out of range!");
+	}
+
+	std::vector<uint8_t> getBytes() const override {
+		return {
+			0xE4, 0x12, loco.hi(), loco.lo(),
+			static_cast<uint8_t>((dir << 8) + speed)
+		};
+	}
+	QString msg() const override {
+		return "Loco " + QString(loco) + " Set Speed " + QString(speed) +
+		       ", Dir " + QString(dir);
+	}
 };
 
 struct XnHistoryItem {

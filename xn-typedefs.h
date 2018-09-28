@@ -7,7 +7,7 @@
 
 #include "../q-str-exception.h"
 
-typedef void (*XnCommandCallbackFunc)(void* sender, void* data);
+using XnCommandCallbackFunc = void (*)(void* sender, void* data);
 
 struct XnCommandCallback {
 	XnCommandCallbackFunc func;
@@ -20,12 +20,12 @@ struct XnCommandCallback {
 using XnCallback = XnCommandCallback;
 
 
-typedef enum class _xn_trk_status {
+enum class XnTrkStatus {
 	Unknown,
 	Off,
 	On,
 	Programming,
-} XnTrkStatus;
+};
 
 
 class EInvalidAddr : public QStrException {
@@ -79,13 +79,13 @@ struct XnHistoryItem {
 };
 
 
-typedef enum class _xn_log_level {
+enum class XnLogLevel {
 	None = 0,
 	Error = 1,
 	Warning = 2,
 	Info = 3,
 	Data = 4,
 	Debug = 5,
-} XnLogLevel;
+};
 
 #endif

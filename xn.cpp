@@ -148,6 +148,14 @@ void XpressNet::setTrkStatus(const XnTrkStatus status, CPXnCb ok, CPXnCb err) {
 	}
 }
 
+void XpressNet::emergencyStop(const LocoAddr addr, CPXnCb ok, CPXnCb err) {
+	send(XnCmdEmergencyStopLoco(addr), ok, err);
+}
+
+void XpressNet::emergencyStop(CPXnCb ok, CPXnCb err) {
+	send(XnCmdEmergencyStop(), ok, err);
+}
+
 void XpressNet::PomWriteCv(LocoAddr addr, uint16_t cv, uint8_t value, CPXnCb ok,
                 CPXnCb err) {
 	send(XnCmdPomWriteCv(addr, cv, value), ok, err);

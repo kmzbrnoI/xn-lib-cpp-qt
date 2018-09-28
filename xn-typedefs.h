@@ -71,6 +71,23 @@ struct XnCmdOn : public XnCmd {
 	QString msg() const override { return "Track On"; }
 };
 
+struct XnCmdEmergencyStop : public XnCmd {
+	std::vector<uint8_t> getBytes() const override { return {0x80}; }
+	QString msg() const override { return "All Loco Emergency Stop"; }
+};
+
+struct XnCmdEmergencyStopLoco : public XnCmd {
+	const LocoAddr loco;
+
+	XnCmdEmergencyStopLoco(const LocoAddr loco) : loco(loco) {}
+	std::vector<uint8_t> getBytes() const override {
+		return {0x92, loco.hi(), loco.lo()};
+	}
+	QString msg() const override {
+		return "Single Loco Emergency Stop : " + QString(loco.addr);
+	}
+};
+
 struct XnCmdPomWriteCv : public XnCmd {
 	const LocoAddr loco;
 	const uint16_t cv;

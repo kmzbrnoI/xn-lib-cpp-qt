@@ -10,14 +10,15 @@
 using XnCommandCallbackFunc = void (*)(void* sender, void* data);
 
 struct XnCommandCallback {
-	XnCommandCallbackFunc func;
-	void* data;
+	XnCommandCallbackFunc const func;
+	void* const data;
 
-	XnCommandCallback(XnCommandCallbackFunc func, void* data = nullptr)
+	XnCommandCallback(XnCommandCallbackFunc const func, void* const data = nullptr)
 		: func(func), data(data) {}
 };
 
-using XnCallback = XnCommandCallback;
+using XnCb = XnCommandCallback;
+using CPXnCb = const XnCommandCallback* const;
 
 
 enum class XnTrkStatus {
@@ -28,9 +29,11 @@ enum class XnTrkStatus {
 };
 
 
-class EInvalidAddr : public QStrException {
-public:
+struct EInvalidAddr : public QStrException {
 	EInvalidAddr(const QString str) : QStrException(str) {}
+};
+struct EInvalidTrkStatus : public QStrException {
+	EInvalidTrkStatus(const QString str) : QStrException(str) {}
 };
 
 
@@ -67,15 +70,15 @@ struct XnCmdOn : public XnCmd {
 
 struct XnHistoryItem {
 	XnHistoryItem(const XnCmd& cmd, QDateTime timeout, size_t no_sent,
-	              XnCommandCallback* const callback_err, XnCommandCallback* const callback_ok)
+	              const XnCommandCallback* const callback_err, const XnCommandCallback* const callback_ok)
 		: cmd(cmd), timeout(timeout), no_sent(no_sent), callback_err(callback_err),
 		  callback_ok(callback_ok) {}
 
 	const XnCmd& cmd;
 	QDateTime timeout;
 	size_t no_sent;
-	XnCommandCallback* const callback_err;
-	XnCommandCallback* const callback_ok;
+	const XnCommandCallback* const callback_err;
+	const XnCommandCallback* const callback_ok;
 };
 
 

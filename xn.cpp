@@ -38,17 +38,17 @@ void XpressNet::send(const std::vector<uint8_t> data) {
 	}
 }
 
-void XpressNet::send(const XnCmd& cmd) {
-	XnHistoryItem hist(cmd, QDateTime::currentDateTime(), 1, nullptr, nullptr); // TODO
+void XpressNet::send(const XnCmd& cmd, CPXnCb ok, CPXnCb err) {
+	XnHistoryItem hist(cmd, QDateTime::currentDateTime(), 1, ok, err);
 	m_hist.push(hist);
 
 	log("PUT: " + dataToStr(cmd.getBytes()), XnLogLevel::Data);
 	send(cmd.getBytes());
 }
 
-void XpressNet::send(const XnCmd&& cmd) {
+void XpressNet::send(const XnCmd&& cmd, CPXnCb ok, CPXnCb err) {
 	const XnCmd& cmd2(cmd);
-	send(cmd2);
+	send(cmd2, ok, err);
 }
 
 void XpressNet::send(XnHistoryItem& hist) {
@@ -80,8 +80,8 @@ void XpressNet::handleReadyRead() {
 
 		if (x != 0) {
 			// XOR error
-			m_readData.remove(0, static_cast<int>(length));
 			log("XOR error: " + dataToStr(m_readData, length), XnLogLevel::Warning);
+			m_readData.remove(0, static_cast<int>(length));
 			continue;
 		}
 
@@ -136,13 +136,13 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void XpressNet::setTrkStatus(const XnTrkStatus status) {
+void XpressNet::setTrkStatus(const XnTrkStatus status, CPXnCb ok, CPXnCb err) {
 	if (status == XnTrkStatus::Off) {
-		send(XnCmdOff());
+		send(XnCmdOff(), ok, err);
 	} else if (status == XnTrkStatus::On) {
-		send(XnCmdOn());
-	} else if (status == XnTrkStatus::Programming) {
-		// TODO
+		send(XnCmdOn(), ok, err);
+	} else {
+		throw EInvalidTrkStatus("This track status cannot be set!");
 	}
 }
 

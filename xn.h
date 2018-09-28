@@ -1,7 +1,7 @@
 #ifndef _XN_H_
 #define _XN_H_
 
-/* This file implements a low-level XpressNet class, wchich allows PC to
+/* This file implements a low-level XpressNet class, which allows PC to
  * communicate with XpressNET command station over virtual serial port.
  */
 
@@ -35,15 +35,17 @@ public:
 	XpressNet(QString portname, uint32_t br, QSerialPort::FlowControl fc,
 	          QObject *parent = nullptr);
 
-	void setTrkStatus(const XnTrkStatus);
-	void emergencyStop(const LocoAddr);
-	void emergencyStop();
+	void setTrkStatus(const XnTrkStatus, CPXnCb ok = nullptr, CPXnCb err = nullptr);
+	void emergencyStop(const LocoAddr, CPXnCb ok = nullptr, CPXnCb err = nullptr);
+	void emergencyStop(CPXnCb ok = nullptr, CPXnCb err = nullptr);
 	void getCommandStationVersion();
 	void getLIVersion();
 	void getLIAddress();
-	void setLIAddress(uint8_t addr);
-	void PomWriteCv(LocoAddr, uint8_t cv, uint8_t value);
-	void setSpeed(LocoAddr, uint8_t speed, bool direction);
+	void setLIAddress(uint8_t addr, CPXnCb ok = nullptr, CPXnCb err = nullptr);
+	void PomWriteCv(LocoAddr, uint8_t cv, uint8_t value, CPXnCb ok = nullptr,
+	                CPXnCb err = nullptr);
+	void setSpeed(LocoAddr, uint8_t speed, bool direction, CPXnCb ok = nullptr,
+	              CPXnCb err = nullptr);
 
 private slots:
 	void handleReadyRead();
@@ -63,8 +65,8 @@ private:
 
 	void parseMessage(std::vector<uint8_t> msg);
 	void send(const std::vector<uint8_t>);
-	void send(const XnCmd&);
-	void send(const XnCmd&&);
+	void send(const XnCmd&, CPXnCb ok = nullptr, CPXnCb err = nullptr);
+	void send(const XnCmd&&, CPXnCb ok = nullptr, CPXnCb err = nullptr);
 	void send(XnHistoryItem&);
 
 	void hist_ok();

@@ -52,6 +52,7 @@ struct LocoAddr {
 struct XnCmd {
 	virtual std::vector<uint8_t> getBytes() const = 0;
 	virtual QString msg() const = 0;
+	virtual ~XnCmd() {};
 };
 
 struct XnCmdOff : public XnCmd {
@@ -63,7 +64,6 @@ struct XnCmdOn : public XnCmd {
 	std::vector<uint8_t> getBytes() const override { return {0x21, 0x81}; }
 	QString msg() const override { return "Track On"; }
 };
-
 
 struct XnHistoryItem {
 	XnHistoryItem(const XnCmd& cmd, QDateTime timeout, size_t no_sent,

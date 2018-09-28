@@ -96,6 +96,41 @@ void XpressNet::handleError(QSerialPort::SerialPortError serialPortError) {
 }
 
 void XpressNet::parseMessage(std::vector<uint8_t> msg) {
+	if (0x01 == msg[0]) {
+		if (0x01 == msg[1]) {
+			log("GET: Error occurred between the interfaces and the PC", XnLogLevel::Error);
+		} else if (0x02 == msg[1]) {
+			log("GET: Error occurred between the interfaces and the command station", XnLogLevel::Error);
+		} else if (0x03 == msg[1]) {
+			log("GET: Unknown communication error", XnLogLevel::Error);
+		} else if (0x04 == msg[1]) {
+			log("GET: OK", XnLogLevel::Info);
+			hist_ok();
+		} else if (0x05 == msg[1]) {
+			log("GET: GET: The Command Station is no longer providing the LI "\
+			    "a timeslot for communication", XnLogLevel::Error);
+		} else if (0x06 == msg[1]) {
+			log("GET: GET: Buffer overflow in the LI", XnLogLevel::Error);
+		}
+	} else if (0x02 == msg[0]) {
+		// LI version
+	} else if (0x61 == msg[0]) {
+		if (0x00 == msg[1]) {
+			log("GET: Status Off", XnLogLevel::Info);
+			if (m_hist.size() > 0 && dynamic_cast<const XnCmdOff*>(&m_hist.front().cmd) != nullptr)
+				hist_ok();
+		} else if (0x01 == msg[1]) {
+			log("GET: Status On", XnLogLevel::Info);
+			if (m_hist.size() > 0 && dynamic_cast<const XnCmdOn*>(&m_hist.front().cmd) != nullptr)
+				hist_ok();
+		} else if (0x02 == msg[1]) {
+			log("GET: Status Programming", XnLogLevel::Info);
+		}
+	} else if (0x63 == msg[0]) {
+		// command station version
+	} else if (0xF2 == msg[0]) {
+		// LI address
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

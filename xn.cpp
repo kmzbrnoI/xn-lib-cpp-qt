@@ -42,6 +42,7 @@ void XpressNet::send(const XnCmd& cmd, CPXnCb ok, CPXnCb err) {
 	XnHistoryItem hist(cmd, QDateTime::currentDateTime(), 1, ok, err);
 	m_hist.push(hist);
 
+	log("PUT: " + cmd.msg(), XnLogLevel::Info);
 	log("PUT: " + dataToStr(cmd.getBytes()), XnLogLevel::Data);
 	send(cmd.getBytes());
 }
@@ -56,6 +57,7 @@ void XpressNet::send(XnHistoryItem& hist) {
 	hist.timeout = QDateTime::currentDateTime().addMSecs(_HIST_TIMEOUT);
 	m_hist.push(hist);
 
+	log("PUT: " + hist.cmd.msg(), XnLogLevel::Info);
 	log("PUT: " + dataToStr(hist.cmd.getBytes()), XnLogLevel::Data);
 	send(hist.cmd.getBytes());
 }
@@ -144,6 +146,11 @@ void XpressNet::setTrkStatus(const XnTrkStatus status, CPXnCb ok, CPXnCb err) {
 	} else {
 		throw EInvalidTrkStatus("This track status cannot be set!");
 	}
+}
+
+void XpressNet::PomWriteCv(LocoAddr addr, uint16_t cv, uint8_t value, CPXnCb ok,
+                CPXnCb err) {
+	send(XnCmdPomWriteCv(addr, cv, value), ok, err);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

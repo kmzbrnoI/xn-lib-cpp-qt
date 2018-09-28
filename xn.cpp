@@ -10,6 +10,9 @@ XpressNet::XpressNet(QString portname, QObject *parent)
 
 	if (!m_serialPort.open(QIODevice::ReadWrite))
 		throw EOpenError(m_serialPort.errorString());
+
+	QObject::connect(&m_hist_timer, SIGNAL(timeout()), this, SLOT(m_hist_timer_tick()));
+	m_hist_timer.start(_HIST_CHECK_INTERVAL);
 }
 
 void XpressNet::send(std::vector<uint8_t> data) {
@@ -43,7 +46,7 @@ void XpressNet::send(XnCmd&& cmd) {
 
 void XpressNet::send(XnHistoryItem& hist) {
 	hist.no_sent++;
-	hist.last_sent = QDateTime::currentDateTime();
+	hist.timeout = QDateTime::currentDateTime().addMSecs(_HIST_TIMEOUT);
 	m_hist.push(hist);
 	send(hist.cmd.getBytes());
 }
@@ -87,23 +90,70 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void XpressNet::setTrkStatus(XnTrkStatus status) {
-	if (status == XnTrkStatus::OFF) {
+	if (status == XnTrkStatus::Off) {
 		send(XnCmdOff());
-	} else if (status == XnTrkStatus::ON) {
+	} else if (status == XnTrkStatus::On) {
 		send(XnCmdOn());
-	} else if (status == XnTrkStatus::PROGRAMMING) {
+	} else if (status == XnTrkStatus::Programming) {
+		// TODO
 	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void XpressNet::hist_ok() {
+	if (m_hist.size() < 1) {
+		log("History buffer underflow!", XnLogLevel::Warning);
+		return;
+	}
+
+	XnHistoryItem& hist = m_hist.front();
+	m_hist.pop();
+	if (nullptr != hist.callback_ok)
+		hist.callback_ok->func(this, hist.callback_ok->data);
 }
 
 void XpressNet::hist_err() {
+	if (m_hist.size() < 1) {
+		log("History buffer underflow!", XnLogLevel::Warning);
+		return;
+	}
+
+	XnHistoryItem& hist = m_hist.front();
+	m_hist.pop();
+
+	log("Not responded to command: " + hist.cmd.msg(), XnLogLevel::Error);
+
+	if (nullptr != hist.callback_err)
+		hist.callback_err->func(this, hist.callback_err->data);
 }
 
 void XpressNet::hist_send() {
+	XnHistoryItem& hist = m_hist.front();
+	m_hist.pop();
+
+	log("Sending again: " + hist.cmd.msg(), XnLogLevel::Warning);
+	send(hist);
+}
+
+void XpressNet::m_hist_timer_tick() {
+	if (!m_serialPort.isOpen()) {
+		while (m_hist.size() > 0)
+			hist_err();
+	}
+
+	if (m_hist.size() < 1)
+		return;
+
+	if (m_hist.front().timeout < QDateTime::currentDateTime())
+		hist_send();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void XpressNet::log(QString message, XnLogLevel loglevel) {
+	if (loglevel <= this->loglevel)
+		onLog(message, loglevel);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

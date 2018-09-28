@@ -10,6 +10,7 @@
 #include <QDateTime>
 #include <vector>
 #include <queue>
+#include <QTimer>
 
 #include "xn-typedefs.h"
 #include "../q-str-exception.h"
@@ -29,6 +30,8 @@ class XpressNet : public QObject {
 	Q_OBJECT
 
 public:
+	XnLogLevel loglevel = XnLogLevel::None;
+
 	XpressNet(QString portname, QObject *parent = nullptr);
 
 	void setTrkStatus(XnTrkStatus);
@@ -44,15 +47,18 @@ public:
 private slots:
 	void handleReadyRead();
 	void handleError(QSerialPort::SerialPortError);
+	void m_hist_timer_tick();
 
 signals:
 	void onError(QString error);
+	void onLog(QString message, XnLogLevel loglevel);
 
 private:
 	QSerialPort m_serialPort;
 	QByteArray m_readData;
 	QDateTime m_receiveTimeout;
 	std::queue<XnHistoryItem> m_hist;
+	QTimer m_hist_timer;
 
 	void parseMessage(std::vector<uint8_t> msg);
 	void send(std::vector<uint8_t>);
@@ -63,6 +69,7 @@ private:
 	void hist_ok();
 	void hist_err();
 	void hist_send();
+	void log(QString message, XnLogLevel loglevel);
 };
 
 #endif

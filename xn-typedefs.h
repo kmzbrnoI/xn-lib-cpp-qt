@@ -7,13 +7,18 @@
 
 #include "../q-str-exception.h"
 
-typedef void (*XnCommandCallback)(void* sender, void* data);
+typedef void (*XnCommandCallbackFunc)(void* sender, void* data);
+
+typedef struct {
+	XnCommandCallbackFunc func;
+	void* data;
+} XnCommandCallback;
 
 typedef enum class _xn_trk_status {
-	UNKNOWN,
-	OFF,
-	ON,
-	PROGRAMMING,
+	Unknown,
+	Off,
+	On,
+	Programming,
 } XnTrkStatus;
 
 class EInvalidAddr : public QStrException {
@@ -37,27 +42,39 @@ struct LocoAddr {
 
 struct XnCmd {
 	virtual std::vector<uint8_t> getBytes() = 0;
+	virtual QString msg() = 0;
 };
 
 struct XnCmdOff : public XnCmd {
-	std::vector<uint8_t> getBytes() { return {0x21, 0x80}; }
+	std::vector<uint8_t> getBytes() override { return {0x21, 0x80}; }
+	QString msg() override { return "Track Off"; }
 };
 
 struct XnCmdOn : public XnCmd {
-	std::vector<uint8_t> getBytes() { return {0x21, 0x81}; }
+	std::vector<uint8_t> getBytes() override { return {0x21, 0x81}; }
+	QString msg() override { return "Track On"; }
 };
 
 struct XnHistoryItem {
-	XnHistoryItem(XnCmd& cmd, QDateTime last_sent, size_t no_sent,
+	XnHistoryItem(XnCmd& cmd, QDateTime timeout, size_t no_sent,
 	              XnCommandCallback* callback_err, XnCommandCallback* callback_ok)
-		: cmd(cmd), last_sent(last_sent), no_sent(no_sent), callback_err(callback_err),
+		: cmd(cmd), timeout(timeout), no_sent(no_sent), callback_err(callback_err),
 		  callback_ok(callback_ok) {}
 
 	XnCmd& cmd;
-	QDateTime last_sent;
+	QDateTime timeout;
 	size_t no_sent;
 	XnCommandCallback* callback_err;
 	XnCommandCallback* callback_ok;
 };
+
+typedef enum class _xn_log_level {
+	None = 0,
+	Error = 1,
+	Warning = 2,
+	Info = 3,
+	Data = 4,
+	Debug = 5,
+} XnLogLevel;
 
 #endif

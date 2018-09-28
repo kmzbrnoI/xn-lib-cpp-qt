@@ -3,10 +3,11 @@
 #include "xn.h"
 
 
-XpressNet::XpressNet(QString portname, QObject *parent)
+XpressNet::XpressNet(QString portname, uint32_t br, QSerialPort::FlowControl fc,
+                     QObject *parent)
 	: QObject(parent) {
-	m_serialPort.setBaudRate(9600);
-	m_serialPort.setFlowControl(QSerialPort::FlowControl::HardwareControl);
+	m_serialPort.setBaudRate(br);
+	m_serialPort.setFlowControl(fc);
 	m_serialPort.setPortName(portname);
 	m_serialPort.setReadBufferSize(256);
 

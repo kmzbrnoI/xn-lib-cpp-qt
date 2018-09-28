@@ -32,7 +32,8 @@ class XpressNet : public QObject {
 public:
 	XnLogLevel loglevel = XnLogLevel::None;
 
-	XpressNet(QString portname, QObject *parent = nullptr);
+	XpressNet(QString portname, uint32_t br, QSerialPort::FlowControl fc,
+	          QObject *parent = nullptr);
 
 	void setTrkStatus(const XnTrkStatus);
 	void emergencyStop(const LocoAddr);

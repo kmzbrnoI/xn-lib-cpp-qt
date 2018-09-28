@@ -67,15 +67,15 @@ struct XnCmdOn : public XnCmd {
 
 struct XnHistoryItem {
 	XnHistoryItem(const XnCmd& cmd, QDateTime timeout, size_t no_sent,
-	              const XnCommandCallback* callback_err, const XnCommandCallback* callback_ok)
+	              XnCommandCallback* const callback_err, XnCommandCallback* const callback_ok)
 		: cmd(cmd), timeout(timeout), no_sent(no_sent), callback_err(callback_err),
 		  callback_ok(callback_ok) {}
 
 	const XnCmd& cmd;
 	QDateTime timeout;
 	size_t no_sent;
-	const XnCommandCallback* callback_err;
-	const XnCommandCallback* callback_ok;
+	XnCommandCallback* const callback_err;
+	XnCommandCallback* const callback_ok;
 };
 
 

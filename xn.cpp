@@ -140,24 +140,29 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 		} else if (0x02 == msg[1]) {
 			log("GET: Status Programming", XnLogLevel::Info);
 		}
-	} else if (0x63 == msg[0]) {
+	} else if (0x63 == msg[0] && 0x21 == msg[1]) {
 		// command station version
-	} else if (0xF2 == msg[0]) {
-		if (0x01 == msg[1]) {
-			// LI address
-			log("GET: LI Address is " + QString(msg[2]), XnLogLevel::Info);
-			if (m_hist.size() > 0 &&
-			    dynamic_cast<const XnCmdGetLIAddress*>(&m_hist.front().cmd) != nullptr) {
+		if (m_hist.size() > 0 &&
+			dynamic_cast<const XnCmdGetCSVersion*>(&m_hist.front().cmd) != nullptr) {
 
-				hist_ok();
-				dynamic_cast<const XnCmdGetLIAddress&>(m_hist.front().cmd).callback(
-					this, msg[2]
-				);
-			} else if (m_hist.size() > 0 &&
-			           dynamic_cast<const XnCmdSetLIAddress*>(&m_hist.front().cmd) != nullptr) {
-				hist_ok();
-			}
+			hist_ok();
+			dynamic_cast<const XnCmdGetCSVersion&>(m_hist.front().cmd).callback(
+				this, msg[2] >> 4, msg[2] & 0x0F
+			);
+		}
+	} else if (0xF2 == msg[0] && 0x01 == msg[1]) {
+		// LI address
+		log("GET: LI Address is " + QString(msg[2]), XnLogLevel::Info);
+		if (m_hist.size() > 0 &&
+			dynamic_cast<const XnCmdGetLIAddress*>(&m_hist.front().cmd) != nullptr) {
 
+			hist_ok();
+			dynamic_cast<const XnCmdGetLIAddress&>(m_hist.front().cmd).callback(
+				this, msg[2]
+			);
+		} else if (m_hist.size() > 0 &&
+				   dynamic_cast<const XnCmdSetLIAddress*>(&m_hist.front().cmd) != nullptr) {
+			hist_ok();
 		}
 	}
 }
@@ -180,6 +185,10 @@ void XpressNet::emergencyStop(const LocoAddr addr, CPXnCb ok, CPXnCb err) {
 
 void XpressNet::emergencyStop(CPXnCb ok, CPXnCb err) {
 	send(XnCmdEmergencyStop(), ok, err);
+}
+
+void XpressNet::getCommandStationVersion(XnGotCSVersion const callback, CPXnCb err) {
+	send(XnCmdGetCSVersion(callback), nullptr, err);
 }
 
 void XpressNet::getLIVersion(XnGotLIVersion const callback, CPXnCb err) {

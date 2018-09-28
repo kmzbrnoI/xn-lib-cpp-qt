@@ -38,7 +38,7 @@ public:
 	void setTrkStatus(const XnTrkStatus, CPXnCb ok = nullptr, CPXnCb err = nullptr);
 	void emergencyStop(const LocoAddr, CPXnCb ok = nullptr, CPXnCb err = nullptr);
 	void emergencyStop(CPXnCb ok = nullptr, CPXnCb err = nullptr);
-	void getCommandStationVersion();
+	void getCommandStationVersion(XnGotCSVersion const, CPXnCb err = nullptr);
 	void getLIVersion(XnGotLIVersion const, CPXnCb err = nullptr);
 	void getLIAddress(XnGotLIAddress const, CPXnCb err = nullptr);
 	void setLIAddress(uint8_t addr, CPXnCb ok = nullptr, CPXnCb err = nullptr);

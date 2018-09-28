@@ -124,6 +124,16 @@ struct XnCmdSetLIAddress : public XnCmd {
 	QString msg() const override { return "LI Set Address to " + QString(addr); }
 };
 
+using XnGotCSVersion = void (*)(void* sender, unsigned major, unsigned minor);
+
+struct XnCmdGetCSVersion : public XnCmd {
+	XnGotCSVersion const callback;
+
+	XnCmdGetCSVersion(XnGotCSVersion const callback) : callback(callback) {}
+	std::vector<uint8_t> getBytes() const override { return {0x21, 0x21}; }
+	QString msg() const override { return "Get Command station version"; }
+};
+
 struct XnCmdPomWriteCv : public XnCmd {
 	const LocoAddr loco;
 	const uint16_t cv;

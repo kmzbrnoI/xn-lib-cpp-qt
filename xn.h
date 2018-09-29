@@ -38,7 +38,9 @@ public:
 
 	void connect(QString portname, uint32_t br, QSerialPort::FlowControl fc);
 	void disconnect();
-	bool connected();
+	bool connected() const;
+
+	XnTrkStatus getTrkStatus() const;
 
 	void setTrkStatus(const XnTrkStatus, CPXnCb ok = nullptr, CPXnCb err = nullptr);
 	void emergencyStop(const LocoAddr, CPXnCb ok = nullptr, CPXnCb err = nullptr);
@@ -63,6 +65,7 @@ signals:
 	void onLog(QString message, XnLogLevel loglevel);
 	void onConnect();
 	void onDisconnect();
+	void onTrkStatusChanged(XnTrkStatus);
 
 private:
 	QSerialPort m_serialPort;
@@ -70,6 +73,7 @@ private:
 	QDateTime m_receiveTimeout;
 	std::queue<XnHistoryItem> m_hist;
 	QTimer m_hist_timer;
+	XnTrkStatus m_trk_status = XnTrkStatus::Unknown;
 
 	void parseMessage(std::vector<uint8_t> msg);
 	void send(const std::vector<uint8_t>);

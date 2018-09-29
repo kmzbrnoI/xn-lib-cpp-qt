@@ -34,8 +34,12 @@ void XpressNet::sp_about_to_close() {
 	onDisconnect();
 }
 
-bool XpressNet::connected() {
+bool XpressNet::connected() const {
 	return m_serialPort.isOpen();
+}
+
+XnTrkStatus XpressNet::getTrkStatus() const {
+	return m_trk_status;
 }
 
 void XpressNet::send(const std::vector<uint8_t> data) {
@@ -166,12 +170,18 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 			log("GET: Status Off", XnLogLevel::Info);
 			if (m_hist.size() > 0 && dynamic_cast<const XnCmdOff*>(&m_hist.front().cmd) != nullptr)
 				hist_ok();
+			m_trk_status = XnTrkStatus::Off;
+			onTrkStatusChanged(m_trk_status);
 		} else if (0x01 == msg[1]) {
 			log("GET: Status On", XnLogLevel::Info);
 			if (m_hist.size() > 0 && dynamic_cast<const XnCmdOn*>(&m_hist.front().cmd) != nullptr)
 				hist_ok();
+			m_trk_status = XnTrkStatus::On;
+			onTrkStatusChanged(m_trk_status);
 		} else if (0x02 == msg[1]) {
 			log("GET: Status Programming", XnLogLevel::Info);
+			m_trk_status = XnTrkStatus::Programming;
+			onTrkStatusChanged(m_trk_status);
 		}
 	} else if (0x63 == msg[0] && 0x21 == msg[1]) {
 		// command station version

@@ -21,9 +21,11 @@ const size_t _HIST_TIMEOUT = 500; // ms
 const size_t _HIST_SEND_MAX = 3;
 const size_t _BUF_IN_TIMEOUT = 300; // ms
 
-class EOpenError : public QStrException {
-public:
+struct EOpenError : public QStrException {
 	EOpenError(const QString str) : QStrException(str) {}
+};
+struct EWriteError : public QStrException {
+	EWriteError(const QString str) : QStrException(str) {}
 };
 
 class XpressNet : public QObject {
@@ -32,8 +34,11 @@ class XpressNet : public QObject {
 public:
 	XnLogLevel loglevel = XnLogLevel::None;
 
-	XpressNet(QString portname, uint32_t br, QSerialPort::FlowControl fc,
-	          QObject *parent = nullptr);
+	XpressNet(QObject *parent = nullptr);
+
+	void connect(QString portname, uint32_t br, QSerialPort::FlowControl fc);
+	void disconnect();
+	bool connected();
 
 	void setTrkStatus(const XnTrkStatus, CPXnCb ok = nullptr, CPXnCb err = nullptr);
 	void emergencyStop(const LocoAddr, CPXnCb ok = nullptr, CPXnCb err = nullptr);
@@ -51,10 +56,13 @@ private slots:
 	void handleReadyRead();
 	void handleError(QSerialPort::SerialPortError);
 	void m_hist_timer_tick();
+	void sp_about_to_close();
 
 signals:
 	void onError(QString error);
 	void onLog(QString message, XnLogLevel loglevel);
+	void onConnect();
+	void onDisconnect();
 
 private:
 	QSerialPort m_serialPort;

@@ -314,8 +314,12 @@ void XpressNet::m_hist_timer_tick() {
 	if (m_hist.size() < 1)
 		return;
 
-	if (m_hist.front().timeout < QDateTime::currentDateTime())
-		hist_send();
+	if (m_hist.front().timeout < QDateTime::currentDateTime()) {
+		if (m_hist.front().no_sent >= _HIST_SEND_MAX)
+			hist_err();
+		else
+			hist_send();
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -5,12 +5,17 @@
 
 XpressNet::XpressNet(QObject *parent) : QObject(parent) {
 	m_serialPort.setReadBufferSize(256);
+
+	QObject::connect(&m_serialPort, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
+	QObject::connect(&m_serialPort, SIGNAL(errorOccurred(QSerialPort::SerialPortError)),
+					 this, SLOT(handleError(QSerialPort::SerialPortError)));
+
 	QObject::connect(&m_hist_timer, SIGNAL(timeout()), this, SLOT(m_hist_timer_tick()));
 	QObject::connect(&m_serialPort, SIGNAL(aboutToClose()), this, SLOT(sp_about_to_close()));
 }
 
 void XpressNet::connect(QString portname, uint32_t br, QSerialPort::FlowControl fc) {
-	log("Connecting to " + portname + "(br=" + QString(br) + ") ...", XnLogLevel::Info);
+	log("Connecting to " + portname + " (br=" + QString::number(br) + ") ...", XnLogLevel::Info);
 
 	m_serialPort.setBaudRate(br);
 	m_serialPort.setFlowControl(fc);
@@ -134,8 +139,8 @@ void XpressNet::handleReadyRead() {
 }
 
 void XpressNet::handleError(QSerialPort::SerialPortError serialPortError) {
-	(void)serialPortError;
-	onError(m_serialPort.errorString());
+	if (serialPortError != QSerialPort::NoError)
+		onError(m_serialPort.errorString());
 }
 
 void XpressNet::parseMessage(std::vector<uint8_t> msg) {
@@ -256,7 +261,7 @@ void XpressNet::setLIAddress(uint8_t addr, CPXnCb ok, CPXnCb err) {
 }
 
 void XpressNet::PomWriteCv(LocoAddr addr, uint16_t cv, uint8_t value, CPXnCb ok,
-                CPXnCb err) {
+                           CPXnCb err) {
 	send(XnCmdPomWriteCv(addr, cv, value), ok, err);
 }
 

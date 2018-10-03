@@ -11,6 +11,7 @@
 #include <vector>
 #include <queue>
 #include <QTimer>
+#include <memory>
 
 #include "xn-typedefs.h"
 #include "../q-str-exception.h"
@@ -77,9 +78,12 @@ private:
 
 	void parseMessage(std::vector<uint8_t> msg);
 	void send(const std::vector<uint8_t>);
-	void send(const XnCmd&, CPXnCb ok = nullptr, CPXnCb err = nullptr);
-	void send(const XnCmd&&, CPXnCb ok = nullptr, CPXnCb err = nullptr);
-	void send(XnHistoryItem&);
+	void send(std::unique_ptr<const XnCmd>&, CPXnCb ok = nullptr, CPXnCb err = nullptr);
+
+	template<typename T>
+	void send(const T&&, CPXnCb ok = nullptr, CPXnCb err = nullptr);
+
+	void send(XnHistoryItem&&);
 
 	void hist_ok();
 	void hist_err();

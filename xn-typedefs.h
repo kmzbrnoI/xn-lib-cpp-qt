@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QByteArray>
 #include <vector>
+#include <memory>
 
 #include "../q-str-exception.h"
 
@@ -181,12 +182,15 @@ struct XnCmdSetSpeedDir : public XnCmd {
 };
 
 struct XnHistoryItem {
-	XnHistoryItem(const XnCmd& cmd, QDateTime timeout, size_t no_sent,
+	XnHistoryItem(std::unique_ptr<const XnCmd>& cmd, QDateTime timeout, size_t no_sent,
 	              const XnCommandCallback* const callback_err, const XnCommandCallback* const callback_ok)
-		: cmd(cmd), timeout(timeout), no_sent(no_sent), callback_err(callback_err),
+		: cmd(std::move(cmd)), timeout(timeout), no_sent(no_sent), callback_err(callback_err),
 		  callback_ok(callback_ok) {}
+	XnHistoryItem(XnHistoryItem&& hist)
+		: cmd(std::move(hist.cmd)), timeout(hist.timeout), no_sent(hist.no_sent), callback_err(hist.callback_err),
+		  callback_ok(hist.callback_ok) {}
 
-	const XnCmd& cmd;
+	std::unique_ptr<const XnCmd> cmd;
 	QDateTime timeout;
 	size_t no_sent;
 	const XnCommandCallback* const callback_err;

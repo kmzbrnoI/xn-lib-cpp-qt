@@ -8,7 +8,7 @@ XpressNet::XpressNet(QObject *parent) : QObject(parent) {
 
 	QObject::connect(&m_serialPort, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
 	QObject::connect(&m_serialPort, SIGNAL(errorOccurred(QSerialPort::SerialPortError)),
-					 this, SLOT(handleError(QSerialPort::SerialPortError)));
+	                 this, SLOT(handleError(QSerialPort::SerialPortError)));
 
 	QObject::connect(&m_hist_timer, SIGNAL(timeout()), this, SLOT(m_hist_timer_tick()));
 	QObject::connect(&m_serialPort, SIGNAL(aboutToClose()), this, SLOT(sp_about_to_close()));
@@ -69,15 +69,12 @@ void XpressNet::send(const std::vector<uint8_t> data) {
 	}
 }
 
-void XpressNet::send(const XnCmd& cmd, CPXnCb ok, CPXnCb err) {
-	XnHistoryItem hist(cmd, QDateTime::currentDateTime(), 1, ok, err);
-
-	log("PUT: " + cmd.msg(), XnLogLevel::Info);
-	log("PUT: " + dataToStr(cmd.getBytes()), XnLogLevel::Data);
+void XpressNet::send(std::unique_ptr<const XnCmd>& cmd, CPXnCb ok, CPXnCb err) {
+	log("PUT: " + cmd->msg(), XnLogLevel::Info);
 
 	try {
-		send(cmd.getBytes());
-		m_hist.push(hist);
+		send(cmd->getBytes());
+		m_hist.push(XnHistoryItem(cmd, QDateTime::currentDateTime().addMSecs(_HIST_TIMEOUT), 1, ok, err));
 	}
 	catch (QStrException& e) {
 		log("PUT ERR: " + e, XnLogLevel::Error);
@@ -85,21 +82,21 @@ void XpressNet::send(const XnCmd& cmd, CPXnCb ok, CPXnCb err) {
 	}
 }
 
-void XpressNet::send(const XnCmd&& cmd, CPXnCb ok, CPXnCb err) {
-	const XnCmd& cmd2(cmd);
+template<typename T>
+void XpressNet::send(const T&& cmd, CPXnCb ok, CPXnCb err) {
+	std::unique_ptr<const XnCmd> cmd2(std::make_unique<const T>(cmd));
 	send(cmd2, ok, err);
 }
 
-void XpressNet::send(XnHistoryItem& hist) {
+void XpressNet::send(XnHistoryItem&& hist) {
 	hist.no_sent++;
 	hist.timeout = QDateTime::currentDateTime().addMSecs(_HIST_TIMEOUT);
 
-	log("PUT: " + hist.cmd.msg(), XnLogLevel::Info);
-	log("PUT: " + dataToStr(hist.cmd.getBytes()), XnLogLevel::Data);
+	log("PUT: " + hist.cmd->msg(), XnLogLevel::Info);
 
 	try {
-		send(hist.cmd.getBytes());
-		m_hist.push(hist);
+		send(hist.cmd->getBytes());
+		m_hist.push(std::move(hist));
 	}
 	catch (QStrException& e) {
 		log("PUT ERR: " + e, XnLogLevel::Error);
@@ -157,6 +154,7 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 		} else if (0x05 == msg[1]) {
 			log("GET: GET: The Command Station is no longer providing the LI "\
 			    "a timeslot for communication", XnLogLevel::Error);
+			hist_err();
 		} else if (0x06 == msg[1]) {
 			log("GET: GET: Buffer overflow in the LI", XnLogLevel::Error);
 		}
@@ -167,10 +165,10 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 
 		log("GET: LI version; HW: " + QString(hw) + ", SW: " + QString(sw), XnLogLevel::Info);
 
-		if (dynamic_cast<const XnCmdGetLIVersion*>(&m_hist.front().cmd) != nullptr) {
+		if (dynamic_cast<const XnCmdGetLIVersion*>(m_hist.front().cmd.get()) != nullptr) {
 			hist_ok();
-			if (dynamic_cast<const XnCmdGetLIVersion&>(m_hist.front().cmd).callback != nullptr) {
-				dynamic_cast<const XnCmdGetLIVersion&>(m_hist.front().cmd).callback(
+			if (dynamic_cast<const XnCmdGetLIVersion*>(m_hist.front().cmd.get())->callback != nullptr) {
+				dynamic_cast<const XnCmdGetLIVersion*>(m_hist.front().cmd.get())->callback(
 					this, hw, sw
 				);
 			}
@@ -178,13 +176,13 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 	} else if (0x61 == msg[0]) {
 		if (0x00 == msg[1]) {
 			log("GET: Status Off", XnLogLevel::Info);
-			if (m_hist.size() > 0 && dynamic_cast<const XnCmdOff*>(&m_hist.front().cmd) != nullptr)
+			if (m_hist.size() > 0 && dynamic_cast<const XnCmdOff*>(m_hist.front().cmd.get()) != nullptr)
 				hist_ok();
 			m_trk_status = XnTrkStatus::Off;
 			onTrkStatusChanged(m_trk_status);
 		} else if (0x01 == msg[1]) {
 			log("GET: Status On", XnLogLevel::Info);
-			if (m_hist.size() > 0 && dynamic_cast<const XnCmdOn*>(&m_hist.front().cmd) != nullptr)
+			if (m_hist.size() > 0 && dynamic_cast<const XnCmdOn*>(m_hist.front().cmd.get()) != nullptr)
 				hist_ok();
 			m_trk_status = XnTrkStatus::On;
 			onTrkStatusChanged(m_trk_status);
@@ -196,11 +194,11 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 	} else if (0x63 == msg[0] && 0x21 == msg[1]) {
 		// command station version
 		if (m_hist.size() > 0 &&
-			dynamic_cast<const XnCmdGetCSVersion*>(&m_hist.front().cmd) != nullptr) {
+			dynamic_cast<const XnCmdGetCSVersion*>(m_hist.front().cmd.get()) != nullptr) {
 
 			hist_ok();
-			if (dynamic_cast<const XnCmdGetCSVersion&>(m_hist.front().cmd).callback != nullptr) {
-				dynamic_cast<const XnCmdGetCSVersion&>(m_hist.front().cmd).callback(
+			if (dynamic_cast<const XnCmdGetCSVersion*>(m_hist.front().cmd.get())->callback != nullptr) {
+				dynamic_cast<const XnCmdGetCSVersion*>(m_hist.front().cmd.get())->callback(
 					this, msg[2] >> 4, msg[2] & 0x0F
 				);
 			}
@@ -209,16 +207,16 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 		// LI address
 		log("GET: LI Address is " + QString(msg[2]), XnLogLevel::Info);
 		if (m_hist.size() > 0 &&
-			dynamic_cast<const XnCmdGetLIAddress*>(&m_hist.front().cmd) != nullptr) {
+			dynamic_cast<const XnCmdGetLIAddress*>(m_hist.front().cmd.get()) != nullptr) {
 
 			hist_ok();
-			if (dynamic_cast<const XnCmdGetLIAddress&>(m_hist.front().cmd).callback != nullptr) {
-				dynamic_cast<const XnCmdGetLIAddress&>(m_hist.front().cmd).callback(
+			if (dynamic_cast<const XnCmdGetLIAddress*>(m_hist.front().cmd.get())->callback != nullptr) {
+				dynamic_cast<const XnCmdGetLIAddress*>(m_hist.front().cmd.get())->callback(
 					this, msg[2]
 				);
 			}
 		} else if (m_hist.size() > 0 &&
-				   dynamic_cast<const XnCmdSetLIAddress*>(&m_hist.front().cmd) != nullptr) {
+				   dynamic_cast<const XnCmdSetLIAddress*>(m_hist.front().cmd.get()) != nullptr) {
 			hist_ok();
 		}
 	}
@@ -278,7 +276,7 @@ void XpressNet::hist_ok() {
 		return;
 	}
 
-	XnHistoryItem& hist = m_hist.front();
+	XnHistoryItem hist = std::move(m_hist.front());
 	m_hist.pop();
 	if (nullptr != hist.callback_ok)
 		hist.callback_ok->func(this, hist.callback_ok->data);
@@ -290,21 +288,21 @@ void XpressNet::hist_err() {
 		return;
 	}
 
-	XnHistoryItem& hist = m_hist.front();
+	XnHistoryItem hist = std::move(m_hist.front());
 	m_hist.pop();
 
-	log("Not responded to command: " + hist.cmd.msg(), XnLogLevel::Error);
+	log("Not responded to command: " + hist.cmd->msg(), XnLogLevel::Error);
 
 	if (nullptr != hist.callback_err)
 		hist.callback_err->func(this, hist.callback_err->data);
 }
 
 void XpressNet::hist_send() {
-	XnHistoryItem& hist = m_hist.front();
+	XnHistoryItem hist = std::move(m_hist.front());
 	m_hist.pop();
 
-	log("Sending again: " + hist.cmd.msg(), XnLogLevel::Warning);
-	send(hist);
+	log("Sending again: " + hist.cmd->msg(), XnLogLevel::Warning);
+	send(std::move(hist));
 }
 
 void XpressNet::m_hist_timer_tick() {
@@ -334,7 +332,7 @@ QString XpressNet::dataToStr(T data, size_t len) {
 	QString out;
 	size_t i = 0;
 	for (auto d = data.begin(); (d != data.end() && (len == 0 || i < len)); d++, i++)
-		out += QString("%1 ").arg(*d, 2, 16, QLatin1Char('0'));
+		out += QString("0x%1 ").arg(*d, 2, 16, QLatin1Char('0')).rightRef(5);
 
 	return out;
 }

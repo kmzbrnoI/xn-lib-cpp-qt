@@ -10,6 +10,8 @@ XpressNet::XpressNet(QObject *parent) : QObject(parent) {
 }
 
 void XpressNet::connect(QString portname, uint32_t br, QSerialPort::FlowControl fc) {
+	log("Connecting to " + portname + "(br=" + QString(br) + ") ...", XnLogLevel::Info);
+
 	m_serialPort.setBaudRate(br);
 	m_serialPort.setFlowControl(fc);
 	m_serialPort.setPortName(portname);
@@ -18,10 +20,12 @@ void XpressNet::connect(QString portname, uint32_t br, QSerialPort::FlowControl 
 		throw EOpenError(m_serialPort.errorString());
 
 	m_hist_timer.start(_HIST_CHECK_INTERVAL);
+	log("Connected", XnLogLevel::Info);
 	onConnect();
 }
 
 void XpressNet::disconnect() {
+	log("Disconnecting...", XnLogLevel::Info);
 	m_hist_timer.stop();
 	m_serialPort.close();
 }
@@ -31,6 +35,7 @@ void XpressNet::sp_about_to_close() {
 	while (m_hist.size() > 0)
 		m_hist.pop(); // Should we call error events?
 
+	log("Disconnected", XnLogLevel::Info);
 	onDisconnect();
 }
 

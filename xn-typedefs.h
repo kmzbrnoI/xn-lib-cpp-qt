@@ -19,7 +19,7 @@ struct XnCommandCallback {
 };
 
 using XnCb = XnCommandCallback;
-using CPXnCb = const XnCommandCallback* const;
+using UPXnCb = std::unique_ptr<XnCommandCallback>;
 
 
 enum class XnTrkStatus {
@@ -183,18 +183,21 @@ struct XnCmdSetSpeedDir : public XnCmd {
 
 struct XnHistoryItem {
 	XnHistoryItem(std::unique_ptr<const XnCmd>& cmd, QDateTime timeout, size_t no_sent,
-	              const XnCommandCallback* const callback_err, const XnCommandCallback* const callback_ok)
-		: cmd(std::move(cmd)), timeout(timeout), no_sent(no_sent), callback_err(callback_err),
-		  callback_ok(callback_ok) {}
+	              std::unique_ptr<XnCb>&& callback_err,
+	              std::unique_ptr<XnCb>&& callback_ok)
+		: cmd(std::move(cmd)), timeout(timeout), no_sent(no_sent),
+		  callback_err(std::move(callback_err)), callback_ok(std::move(callback_ok))
+		{}
 	XnHistoryItem(XnHistoryItem&& hist)
-		: cmd(std::move(hist.cmd)), timeout(hist.timeout), no_sent(hist.no_sent), callback_err(hist.callback_err),
-		  callback_ok(hist.callback_ok) {}
+		: cmd(std::move(hist.cmd)), timeout(hist.timeout), no_sent(hist.no_sent),
+		  callback_err(std::move(hist.callback_err)), callback_ok(std::move(hist.callback_ok))
+		{}
 
 	std::unique_ptr<const XnCmd> cmd;
 	QDateTime timeout;
 	size_t no_sent;
-	const XnCommandCallback* const callback_err;
-	const XnCommandCallback* const callback_ok;
+	std::unique_ptr<XnCb> callback_err;
+	std::unique_ptr<XnCb> callback_ok;
 };
 
 

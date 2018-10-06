@@ -43,17 +43,17 @@ public:
 
 	XnTrkStatus getTrkStatus() const;
 
-	void setTrkStatus(const XnTrkStatus, CPXnCb ok = nullptr, CPXnCb err = nullptr);
-	void emergencyStop(const LocoAddr, CPXnCb ok = nullptr, CPXnCb err = nullptr);
-	void emergencyStop(CPXnCb ok = nullptr, CPXnCb err = nullptr);
-	void getCommandStationVersion(XnGotCSVersion const, CPXnCb err = nullptr);
-	void getLIVersion(XnGotLIVersion const, CPXnCb err = nullptr);
-	void getLIAddress(XnGotLIAddress const, CPXnCb err = nullptr);
-	void setLIAddress(uint8_t addr, CPXnCb ok = nullptr, CPXnCb err = nullptr);
-	void PomWriteCv(LocoAddr, uint16_t cv, uint8_t value, CPXnCb ok = nullptr,
-	                CPXnCb err = nullptr);
-	void setSpeed(LocoAddr, uint8_t speed, bool direction, CPXnCb ok = nullptr,
-	              CPXnCb err = nullptr);
+	void setTrkStatus(const XnTrkStatus, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void emergencyStop(const LocoAddr, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void emergencyStop(UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void getCommandStationVersion(XnGotCSVersion const, UPXnCb err = nullptr);
+	void getLIVersion(XnGotLIVersion const, UPXnCb err = nullptr);
+	void getLIAddress(XnGotLIAddress const, UPXnCb err = nullptr);
+	void setLIAddress(uint8_t addr, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void PomWriteCv(LocoAddr, uint16_t cv, uint8_t value, UPXnCb ok = nullptr,
+	                UPXnCb err = nullptr);
+	void setSpeed(LocoAddr, uint8_t speed, bool direction, UPXnCb ok = nullptr,
+	              UPXnCb err = nullptr);
 
 private slots:
 	void handleReadyRead();
@@ -78,10 +78,10 @@ private:
 
 	void parseMessage(std::vector<uint8_t> msg);
 	void send(const std::vector<uint8_t>);
-	void send(std::unique_ptr<const XnCmd>&, CPXnCb ok = nullptr, CPXnCb err = nullptr);
+	void send(std::unique_ptr<const XnCmd>&, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 
-	template<typename T>
-	void send(const T&&, CPXnCb ok = nullptr, CPXnCb err = nullptr);
+	template<typename DataT>
+	void send(const DataT&&, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 
 	void send(XnHistoryItem&&);
 
@@ -90,8 +90,8 @@ private:
 	void hist_send();
 	void log(const QString message, const XnLogLevel loglevel);
 
-	template<typename T>
-	QString dataToStr(T, size_t len = 0);
+	template<typename DataT>
+	QString dataToStr(DataT, size_t len = 0);
 };
 
 #endif

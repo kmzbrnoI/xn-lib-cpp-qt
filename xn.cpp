@@ -2,7 +2,6 @@
 
 #include "xn.h"
 
-
 XpressNet::XpressNet(QObject *parent) : QObject(parent) {
 	m_serialPort.setReadBufferSize(256);
 
@@ -69,12 +68,15 @@ void XpressNet::send(const std::vector<uint8_t> data) {
 	}
 }
 
-void XpressNet::send(std::unique_ptr<const XnCmd>& cmd, CPXnCb ok, CPXnCb err) {
+void XpressNet::send(std::unique_ptr<const XnCmd>& cmd, UPXnCb ok, UPXnCb err) {
 	log("PUT: " + cmd->msg(), XnLogLevel::Info);
 
 	try {
 		send(cmd->getBytes());
-		m_hist.push(XnHistoryItem(cmd, QDateTime::currentDateTime().addMSecs(_HIST_TIMEOUT), 1, ok, err));
+		m_hist.push(XnHistoryItem(
+			cmd, QDateTime::currentDateTime().addMSecs(_HIST_TIMEOUT), 1,
+			std::move(ok), std::move(err)
+		));
 	}
 	catch (QStrException& e) {
 		log("PUT ERR: " + e, XnLogLevel::Error);
@@ -83,9 +85,9 @@ void XpressNet::send(std::unique_ptr<const XnCmd>& cmd, CPXnCb ok, CPXnCb err) {
 }
 
 template<typename T>
-void XpressNet::send(const T&& cmd, CPXnCb ok, CPXnCb err) {
+void XpressNet::send(const T&& cmd, UPXnCb ok, UPXnCb err) {
 	std::unique_ptr<const XnCmd> cmd2(std::make_unique<const T>(cmd));
-	send(cmd2, ok, err);
+	send(cmd2, std::move(ok), std::move(err));
 }
 
 void XpressNet::send(XnHistoryItem&& hist) {
@@ -224,48 +226,48 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void XpressNet::setTrkStatus(const XnTrkStatus status, CPXnCb ok, CPXnCb err) {
+void XpressNet::setTrkStatus(const XnTrkStatus status, UPXnCb ok, UPXnCb err) {
 	if (status == XnTrkStatus::Off) {
-		send(XnCmdOff(), ok, err);
+		send(XnCmdOff(), std::move(ok), std::move(err));
 	} else if (status == XnTrkStatus::On) {
-		send(XnCmdOn(), ok, err);
+		send(XnCmdOn(), std::move(ok), std::move(err));
 	} else {
 		throw EInvalidTrkStatus("This track status cannot be set!");
 	}
 }
 
-void XpressNet::emergencyStop(const LocoAddr addr, CPXnCb ok, CPXnCb err) {
-	send(XnCmdEmergencyStopLoco(addr), ok, err);
+void XpressNet::emergencyStop(const LocoAddr addr, UPXnCb ok, UPXnCb err) {
+	send(XnCmdEmergencyStopLoco(addr), std::move(ok), std::move(err));
 }
 
-void XpressNet::emergencyStop(CPXnCb ok, CPXnCb err) {
-	send(XnCmdEmergencyStop(), ok, err);
+void XpressNet::emergencyStop(UPXnCb ok, UPXnCb err) {
+	send(XnCmdEmergencyStop(), std::move(ok), std::move(err));
 }
 
-void XpressNet::getCommandStationVersion(XnGotCSVersion const callback, CPXnCb err) {
-	send(XnCmdGetCSVersion(callback), nullptr, err);
+void XpressNet::getCommandStationVersion(XnGotCSVersion const callback, UPXnCb err) {
+	send(XnCmdGetCSVersion(callback), nullptr, std::move(err));
 }
 
-void XpressNet::getLIVersion(XnGotLIVersion const callback, CPXnCb err) {
-	send(XnCmdGetLIVersion(callback), nullptr, err);
+void XpressNet::getLIVersion(XnGotLIVersion const callback, UPXnCb err) {
+	send(XnCmdGetLIVersion(callback), nullptr, std::move(err));
 }
 
-void XpressNet::getLIAddress(XnGotLIAddress const callback, CPXnCb err) {
-	send(XnCmdGetLIAddress(callback), nullptr, err);
+void XpressNet::getLIAddress(XnGotLIAddress const callback, UPXnCb err) {
+	send(XnCmdGetLIAddress(callback), nullptr, std::move(err));
 }
 
-void XpressNet::setLIAddress(uint8_t addr, CPXnCb ok, CPXnCb err) {
-	send(XnCmdSetLIAddress(addr), ok, err);
+void XpressNet::setLIAddress(uint8_t addr, UPXnCb ok, UPXnCb err) {
+	send(XnCmdSetLIAddress(addr), std::move(ok), std::move(err));
 }
 
-void XpressNet::PomWriteCv(LocoAddr addr, uint16_t cv, uint8_t value, CPXnCb ok,
-                           CPXnCb err) {
-	send(XnCmdPomWriteCv(addr, cv, value), ok, err);
+void XpressNet::PomWriteCv(LocoAddr addr, uint16_t cv, uint8_t value, UPXnCb ok,
+                           UPXnCb err) {
+	send(XnCmdPomWriteCv(addr, cv, value), std::move(ok), std::move(err));
 }
 
-void XpressNet::setSpeed(LocoAddr addr, uint8_t speed, bool direction, CPXnCb ok,
-                         CPXnCb err) {
-	send(XnCmdSetSpeedDir(addr, speed, direction), ok, err);
+void XpressNet::setSpeed(LocoAddr addr, uint8_t speed, bool direction, UPXnCb ok,
+                         UPXnCb err) {
+	send(XnCmdSetSpeedDir(addr, speed, direction), std::move(ok), std::move(err));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -331,8 +333,8 @@ void XpressNet::log(const QString message, const XnLogLevel loglevel) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-template<typename T>
-QString XpressNet::dataToStr(T data, size_t len) {
+template<typename DataT>
+QString XpressNet::dataToStr(DataT data, size_t len) {
 	QString out;
 	size_t i = 0;
 	for (auto d = data.begin(); (d != data.end() && (len == 0 || i < len)); d++, i++)

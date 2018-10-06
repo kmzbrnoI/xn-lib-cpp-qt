@@ -135,6 +135,11 @@ struct XnCmdGetCSVersion : public XnCmd {
 	QString msg() const override { return "Get Command station version"; }
 };
 
+struct XnCmdGetCSStatus : public XnCmd {
+	std::vector<uint8_t> getBytes() const override { return {0x21, 0x24}; }
+	QString msg() const override { return "Get Command station status"; }
+};
+
 struct XnCmdPomWriteCv : public XnCmd {
 	const LocoAddr loco;
 	const uint16_t cv;

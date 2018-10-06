@@ -193,6 +193,23 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 			m_trk_status = XnTrkStatus::Programming;
 			onTrkStatusChanged(m_trk_status);
 		}
+	} else if (0x62 == msg[0] && 0x22 == msg[1]) {
+		log("GET: command station status", XnLogLevel::Info);
+		XnTrkStatus n;
+		if ((msg[2] >> 3) & 0x03)
+			n = XnTrkStatus::Off;
+		else if ((msg[2] >> 3) & 0x01)
+			n = XnTrkStatus::Programming;
+		else
+			n = XnTrkStatus::On;
+
+		if (m_hist.size() > 0 && dynamic_cast<const XnCmdGetCSStatus*>(m_hist.front().cmd.get()) != nullptr)
+			hist_ok();
+
+		if (n != m_trk_status) {
+			m_trk_status = n;
+			onTrkStatusChanged(m_trk_status);
+		}
 	} else if (0x63 == msg[0] && 0x21 == msg[1]) {
 		// command station version
 		if (m_hist.size() > 0 &&
@@ -246,6 +263,10 @@ void XpressNet::emergencyStop(UPXnCb ok, UPXnCb err) {
 
 void XpressNet::getCommandStationVersion(XnGotCSVersion const callback, UPXnCb err) {
 	send(XnCmdGetCSVersion(callback), nullptr, std::move(err));
+}
+
+void XpressNet::getCommandStationStatus(UPXnCb ok, UPXnCb err) {
+	send(XnCmdGetCSStatus(), std::move(ok), std::move(err));
 }
 
 void XpressNet::getLIVersion(XnGotLIVersion const callback, UPXnCb err) {

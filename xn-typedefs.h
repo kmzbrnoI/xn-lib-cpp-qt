@@ -235,10 +235,10 @@ struct XnCmdSetSpeedDir : public XnCmd {
 
 struct XnHistoryItem {
 	XnHistoryItem(std::unique_ptr<const XnCmd>& cmd, QDateTime timeout, size_t no_sent,
-	              std::unique_ptr<XnCb>&& callback_err,
-	              std::unique_ptr<XnCb>&& callback_ok)
+	              std::unique_ptr<XnCb>&& callback_ok,
+	              std::unique_ptr<XnCb>&& callback_err)
 		: cmd(std::move(cmd)), timeout(timeout), no_sent(no_sent),
-		  callback_err(std::move(callback_err)), callback_ok(std::move(callback_ok))
+		  callback_ok(std::move(callback_ok)), callback_err(std::move(callback_err))
 		{}
 	XnHistoryItem(XnHistoryItem&& hist)
 		: cmd(std::move(hist.cmd)), timeout(hist.timeout), no_sent(hist.no_sent),
@@ -248,8 +248,8 @@ struct XnHistoryItem {
 	std::unique_ptr<const XnCmd> cmd;
 	QDateTime timeout;
 	size_t no_sent;
-	std::unique_ptr<XnCb> callback_err;
 	std::unique_ptr<XnCb> callback_ok;
+	std::unique_ptr<XnCb> callback_err;
 };
 
 

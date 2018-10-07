@@ -40,6 +40,7 @@ void XpressNet::sp_about_to_close() {
 	m_hist_timer.stop();
 	while (m_hist.size() > 0)
 		m_hist.pop(); // Should we call error events?
+	m_trk_status = XnTrkStatus::Unknown;
 
 	log("Disconnected", XnLogLevel::Info);
 	onDisconnect();
@@ -167,7 +168,7 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 		unsigned hw = (msg[1] & 0x0F) + 10*(msg[1] >> 4);
 		unsigned sw = (msg[2] & 0x0F) + 10*(msg[2] >> 4);
 
-		log("GET: LI version; HW: " + QString(hw) + ", SW: " + QString(sw), XnLogLevel::Info);
+		log("GET: LI version; HW: " + QString::number(hw) + ", SW: " + QString::number(sw), XnLogLevel::Info);
 
 		if (dynamic_cast<const XnCmdGetLIVersion*>(m_hist.front().cmd.get()) != nullptr) {
 			if (dynamic_cast<const XnCmdGetLIVersion*>(m_hist.front().cmd.get())->callback != nullptr) {
@@ -198,7 +199,7 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 	} else if (0x62 == msg[0] && 0x22 == msg[1]) {
 		log("GET: command station status", XnLogLevel::Info);
 		XnTrkStatus n;
-		if ((msg[2] >> 3) & 0x03)
+		if (msg[2] & 0x03)
 			n = XnTrkStatus::Off;
 		else if ((msg[2] >> 3) & 0x01)
 			n = XnTrkStatus::Programming;
@@ -274,7 +275,7 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 
 	} else if (0xF2 == msg[0] && 0x01 == msg[1]) {
 		// LI address
-		log("GET: LI Address is " + QString(msg[2]), XnLogLevel::Info);
+		log("GET: LI Address is " + QString::number(msg[2]), XnLogLevel::Info);
 		if (m_hist.size() > 0 &&
 			dynamic_cast<const XnCmdGetLIAddress*>(m_hist.front().cmd.get()) != nullptr) {
 			if (dynamic_cast<const XnCmdGetLIAddress*>(m_hist.front().cmd.get())->callback != nullptr) {

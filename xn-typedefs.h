@@ -160,8 +160,8 @@ struct XnCmdPomWriteCv : public XnCmd {
 		};
 	}
 	QString msg() const override {
-		return "POM Addr " + QString(loco.addr) + ", CV " + QString(cv) +
-		       ", Value: " + QString(value);
+		return "POM Addr " + QString::number(loco.addr) + ", CV " + QString(cv) +
+		       ", Value: " + QString::number(value);
 		}
 };
 
@@ -207,7 +207,7 @@ struct XnCmdGetLocoInfo : public XnCmd {
 	XnCmdGetLocoInfo(const LocoAddr loco, XnGotLocoInfo const callback)
 		: loco(loco), callback(callback) {}
 	std::vector<uint8_t> getBytes() const override { return {0x00, loco.hi(), loco.lo()}; }
-	QString msg() const override { return "Get Loco Information " + QString(loco.addr); }
+	QString msg() const override { return "Get Loco Information " + QString::number(loco.addr); }
 };
 
 struct XnCmdSetSpeedDir : public XnCmd {

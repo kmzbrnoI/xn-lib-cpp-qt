@@ -66,10 +66,10 @@ private slots:
 
 signals:
 	void onError(QString error);
-	void onLog(QString message, XnLogLevel loglevel);
+	void onLog(QString message, Xn::XnLogLevel loglevel);
 	void onConnect();
 	void onDisconnect();
-	void onTrkStatusChanged(XnTrkStatus);
+	void onTrkStatusChanged(Xn::XnTrkStatus);
 
 private:
 	QSerialPort m_serialPort;

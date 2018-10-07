@@ -327,7 +327,11 @@ void XpressNet::hist_send() {
 	m_hist.pop();
 
 	log("Sending again: " + hist.cmd->msg(), XnLogLevel::Warning);
-	send(std::move(hist));
+
+	try {
+		send(std::move(hist));
+	}
+	catch (...) {}
 }
 
 void XpressNet::m_hist_timer_tick() {

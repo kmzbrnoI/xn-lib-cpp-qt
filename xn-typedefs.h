@@ -165,6 +165,51 @@ struct XnCmdPomWriteCv : public XnCmd {
 		}
 };
 
+union XnFA {
+	uint8_t all;
+	struct sep {
+		bool _ :3;
+		bool f0 :1;
+		bool f4 :1;
+		bool f3 :1;
+		bool f2 :1;
+		bool f1 :1;
+	};
+
+	XnFA(uint8_t fa) :all(fa) {}
+	XnFA() :all(0) {}
+};
+
+union XnFB {
+	uint8_t all;
+	struct sep {
+		bool f12 :1;
+		bool f11 :1;
+		bool f10 :1;
+		bool f9 :1;
+		bool f8 :1;
+		bool f7 :1;
+		bool f6 :1;
+		bool f5 :1;
+	};
+
+	XnFB(uint8_t fb) :all(fb) {}
+	XnFB() :all(0) {}
+};
+
+using XnGotLocoInfo = void (*)(void* sender, bool used, bool direction,
+                               unsigned speed, XnFA fa, XnFB fb);
+
+struct XnCmdGetLocoInfo : public XnCmd {
+	const LocoAddr loco;
+	XnGotLocoInfo const callback;
+
+	XnCmdGetLocoInfo(const LocoAddr loco, XnGotLocoInfo const callback)
+		: loco(loco), callback(callback) {}
+	std::vector<uint8_t> getBytes() const override { return {0x00, loco.hi(), loco.lo()}; }
+	QString msg() const override { return "Get Loco Information " + QString(loco.addr); }
+};
+
 struct XnCmdSetSpeedDir : public XnCmd {
 	const LocoAddr loco;
 	const unsigned speed;

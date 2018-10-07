@@ -170,12 +170,12 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 		log("GET: LI version; HW: " + QString(hw) + ", SW: " + QString(sw), XnLogLevel::Info);
 
 		if (dynamic_cast<const XnCmdGetLIVersion*>(m_hist.front().cmd.get()) != nullptr) {
-			hist_ok();
 			if (dynamic_cast<const XnCmdGetLIVersion*>(m_hist.front().cmd.get())->callback != nullptr) {
 				dynamic_cast<const XnCmdGetLIVersion*>(m_hist.front().cmd.get())->callback(
 					this, hw, sw
 				);
 			}
+			hist_ok();
 		}
 	} else if (0x61 == msg[0]) {
 		if (0x00 == msg[1]) {
@@ -216,26 +216,73 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 		// command station version
 		if (m_hist.size() > 0 &&
 			dynamic_cast<const XnCmdGetCSVersion*>(m_hist.front().cmd.get()) != nullptr) {
-
-			hist_ok();
 			if (dynamic_cast<const XnCmdGetCSVersion*>(m_hist.front().cmd.get())->callback != nullptr) {
 				dynamic_cast<const XnCmdGetCSVersion*>(m_hist.front().cmd.get())->callback(
 					this, msg[2] >> 4, msg[2] & 0x0F
 				);
 			}
+			hist_ok();
 		}
+	} else if (0xE4 == msg[0]) {
+		// Loco information
+		log("GET: loco information", XnLogLevel::Info);
+
+		if (m_hist.size() > 0 &&
+			dynamic_cast<const XnCmdGetLocoInfo*>(m_hist.front().cmd.get()) != nullptr) {
+
+			bool used = (msg[1] >> 3) & 0x01;
+			unsigned mode = msg[1] & 0x07;
+			bool direction = msg[2] >> 7;
+			unsigned speed;
+
+			// Normalize speed to 28 speed steps
+			if (mode == 0) {
+				// 14 speed steps
+				speed = msg[2] & 0xF;
+				if (speed > 0)
+					speed -= 1;
+				speed *= 2;
+			} else if (mode == 1) {
+				// 27 speed steps
+				speed = ((msg[2] & 0xF) << 1) + ((msg[2] >> 4) & 0x1);
+				if (speed < 4)
+					speed = 0;
+				else
+					speed -= 3;
+				speed = speed * (28./27);
+			} else if (mode == 2) {
+				speed = ((msg[2] & 0xF) << 1) + ((msg[2] >> 4) & 0x1);
+				if (speed < 4)
+					speed = 0;
+				else
+					speed -= 3;
+			} else {
+				// 128 speed steps
+				speed = msg[2] & 0x7F;
+				if (speed > 0)
+					speed -= 1;
+				speed = speed * (28./128);
+			}
+
+			if (dynamic_cast<const XnCmdGetLocoInfo*>(m_hist.front().cmd.get())->callback != nullptr) {
+				dynamic_cast<const XnCmdGetLocoInfo*>(m_hist.front().cmd.get())->callback(
+					this, used, direction, speed, XnFA(msg[3]), XnFB(msg[4])
+				);
+			}
+			hist_ok();
+		}
+
 	} else if (0xF2 == msg[0] && 0x01 == msg[1]) {
 		// LI address
 		log("GET: LI Address is " + QString(msg[2]), XnLogLevel::Info);
 		if (m_hist.size() > 0 &&
 			dynamic_cast<const XnCmdGetLIAddress*>(m_hist.front().cmd.get()) != nullptr) {
-
-			hist_ok();
 			if (dynamic_cast<const XnCmdGetLIAddress*>(m_hist.front().cmd.get())->callback != nullptr) {
 				dynamic_cast<const XnCmdGetLIAddress*>(m_hist.front().cmd.get())->callback(
 					this, msg[2]
 				);
 			}
+			hist_ok();
 		} else if (m_hist.size() > 0 &&
 				   dynamic_cast<const XnCmdSetLIAddress*>(m_hist.front().cmd.get()) != nullptr) {
 			hist_ok();

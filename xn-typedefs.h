@@ -167,14 +167,14 @@ struct XnCmdPomWriteCv : public XnCmd {
 
 union XnFA {
 	uint8_t all;
-	struct sep {
+	struct {
 		bool _ :3;
 		bool f0 :1;
 		bool f4 :1;
 		bool f3 :1;
 		bool f2 :1;
 		bool f1 :1;
-	};
+	} sep;
 
 	XnFA(uint8_t fa) :all(fa) {}
 	XnFA() :all(0) {}
@@ -182,7 +182,7 @@ union XnFA {
 
 union XnFB {
 	uint8_t all;
-	struct sep {
+	struct {
 		bool f12 :1;
 		bool f11 :1;
 		bool f10 :1;
@@ -191,7 +191,7 @@ union XnFB {
 		bool f7 :1;
 		bool f6 :1;
 		bool f5 :1;
-	};
+	} sep;
 
 	XnFB(uint8_t fb) :all(fb) {}
 	XnFB() :all(0) {}

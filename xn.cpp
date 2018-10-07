@@ -2,6 +2,8 @@
 
 #include "xn.h"
 
+namespace Xn {
+
 XpressNet::XpressNet(QObject *parent) : QObject(parent) {
 	m_serialPort.setReadBufferSize(256);
 
@@ -365,3 +367,5 @@ QString XpressNet::dataToStr(DataT data, size_t len) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+}//end namespace

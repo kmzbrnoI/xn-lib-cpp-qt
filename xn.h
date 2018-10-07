@@ -16,6 +16,8 @@
 #include "xn-typedefs.h"
 #include "../q-str-exception.h"
 
+namespace Xn {
+
 const size_t _MAX_HISTORY_LEN = 32;
 const size_t _HIST_CHECK_INTERVAL = 100; // ms
 const size_t _HIST_TIMEOUT = 500; // ms
@@ -94,5 +96,7 @@ private:
 	template<typename DataT>
 	QString dataToStr(DataT, size_t len = 0);
 };
+
+}//end namespace
 
 #endif

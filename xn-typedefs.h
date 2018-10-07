@@ -8,6 +8,8 @@
 
 #include "../q-str-exception.h"
 
+namespace Xn {
+
 using XnCommandCallbackFunc = void (*)(void* sender, void* data);
 
 struct XnCommandCallback {
@@ -214,5 +216,7 @@ enum class XnLogLevel {
 	Data = 4,
 	Debug = 5,
 };
+
+}//end namespace
 
 #endif

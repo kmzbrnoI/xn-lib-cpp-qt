@@ -331,14 +331,18 @@ void XpressNet::setLIAddress(uint8_t addr, UPXnCb ok, UPXnCb err) {
 	send(XnCmdSetLIAddress(addr), std::move(ok), std::move(err));
 }
 
-void XpressNet::PomWriteCv(LocoAddr addr, uint16_t cv, uint8_t value, UPXnCb ok,
+void XpressNet::PomWriteCv(const LocoAddr addr, uint16_t cv, uint8_t value, UPXnCb ok,
                            UPXnCb err) {
 	send(XnCmdPomWriteCv(addr, cv, value), std::move(ok), std::move(err));
 }
 
-void XpressNet::setSpeed(LocoAddr addr, uint8_t speed, bool direction, UPXnCb ok,
+void XpressNet::setSpeed(const LocoAddr addr, uint8_t speed, bool direction, UPXnCb ok,
                          UPXnCb err) {
 	send(XnCmdSetSpeedDir(addr, speed, direction), std::move(ok), std::move(err));
+}
+
+void XpressNet::getLocoInfo(const LocoAddr addr, XnGotLocoInfo const callback, UPXnCb err) {
+	send(XnCmdGetLocoInfo(addr, callback), nullptr, std::move(err));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

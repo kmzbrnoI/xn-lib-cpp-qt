@@ -53,10 +53,11 @@ public:
 	void getLIVersion(XnGotLIVersion const, UPXnCb err = nullptr);
 	void getLIAddress(XnGotLIAddress const, UPXnCb err = nullptr);
 	void setLIAddress(uint8_t addr, UPXnCb ok = nullptr, UPXnCb err = nullptr);
-	void PomWriteCv(LocoAddr, uint16_t cv, uint8_t value, UPXnCb ok = nullptr,
+	void PomWriteCv(const LocoAddr, uint16_t cv, uint8_t value, UPXnCb ok = nullptr,
 	                UPXnCb err = nullptr);
-	void setSpeed(LocoAddr, uint8_t speed, bool direction, UPXnCb ok = nullptr,
+	void setSpeed(const LocoAddr, uint8_t speed, bool direction, UPXnCb ok = nullptr,
 	              UPXnCb err = nullptr);
+	void getLocoInfo(const LocoAddr, XnGotLocoInfo const, UPXnCb err = nullptr);
 
 private slots:
 	void handleReadyRead();

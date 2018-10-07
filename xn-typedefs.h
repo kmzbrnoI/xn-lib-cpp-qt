@@ -242,7 +242,7 @@ struct XnHistoryItem {
 		{}
 	XnHistoryItem(XnHistoryItem&& hist)
 		: cmd(std::move(hist.cmd)), timeout(hist.timeout), no_sent(hist.no_sent),
-		  callback_err(std::move(hist.callback_err)), callback_ok(std::move(hist.callback_ok))
+		  callback_ok(std::move(hist.callback_ok)), callback_err(std::move(hist.callback_err))
 		{}
 
 	std::unique_ptr<const XnCmd> cmd;

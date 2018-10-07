@@ -252,6 +252,7 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 					speed -= 3;
 				speed = speed * (28./27);
 			} else if (mode == 2) {
+				// 28 speed steps
 				speed = ((msg[2] & 0xF) << 1) + ((msg[2] >> 4) & 0x1);
 				if (speed < 4)
 					speed = 0;

@@ -57,7 +57,7 @@ struct LocoAddr {
 	LocoAddr(uint8_t lo, uint8_t hi) : LocoAddr(lo + ((hi-0xC0) << 8)) {}
 
 	uint8_t lo() const { return addr & 0xFF; }
-	uint8_t hi() const { return ((addr >> 8) & 0xFF) + 0xC0; }
+	uint8_t hi() const { return ((addr >> 8) & 0xFF) + (addr < 100 ? 0 : 0xC0); }
 
 	operator uint16_t() const { return addr; }
 	operator QString() const { return QString(addr); }
@@ -206,7 +206,7 @@ struct XnCmdGetLocoInfo : public XnCmd {
 
 	XnCmdGetLocoInfo(const LocoAddr loco, XnGotLocoInfo const callback)
 		: loco(loco), callback(callback) {}
-	std::vector<uint8_t> getBytes() const override { return {0x00, loco.hi(), loco.lo()}; }
+	std::vector<uint8_t> getBytes() const override { return {0xE3, 0x00, loco.hi(), loco.lo()}; }
 	QString msg() const override { return "Get Loco Information " + QString::number(loco.addr); }
 };
 
@@ -222,14 +222,19 @@ struct XnCmdSetSpeedDir : public XnCmd {
 	}
 
 	std::vector<uint8_t> getBytes() const override {
+		unsigned sp;
+		if (speed > 0)
+			sp = speed + 3;
+		else
+			sp = 0;
 		return {
 			0xE4, 0x12, loco.hi(), loco.lo(),
-			static_cast<uint8_t>((dir << 8) + speed)
+			static_cast<uint8_t>((dir << 7) + ((sp >> 1) & 0x0F) + ((sp & 0x1) << 4))
 		};
 	}
 	QString msg() const override {
-		return "Loco " + QString(loco) + " Set Speed " + QString(speed) +
-		       ", Dir " + QString(dir);
+		return "Loco " + QString::number(loco) + " Set Speed " + QString::number(speed) +
+		       ", Dir " + QString::number(dir);
 	}
 };
 

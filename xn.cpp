@@ -171,12 +171,13 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 		log("GET: LI version; HW: " + QString::number(hw) + ", SW: " + QString::number(sw), XnLogLevel::Info);
 
 		if (dynamic_cast<const XnCmdGetLIVersion*>(m_hist.front().cmd.get()) != nullptr) {
-			if (dynamic_cast<const XnCmdGetLIVersion*>(m_hist.front().cmd.get())->callback != nullptr) {
-				dynamic_cast<const XnCmdGetLIVersion*>(m_hist.front().cmd.get())->callback(
+			std::unique_ptr<const XnCmd> cmd = std::move(m_hist.front().cmd);
+			hist_ok();
+			if (dynamic_cast<const XnCmdGetLIVersion*>(cmd.get())->callback != nullptr) {
+				dynamic_cast<const XnCmdGetLIVersion*>(cmd.get())->callback(
 					this, hw, sw
 				);
 			}
-			hist_ok();
 		}
 	} else if (0x61 == msg[0]) {
 		if (0x00 == msg[1]) {
@@ -217,8 +218,10 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 		// command station version
 		if (m_hist.size() > 0 &&
 			dynamic_cast<const XnCmdGetCSVersion*>(m_hist.front().cmd.get()) != nullptr) {
-			if (dynamic_cast<const XnCmdGetCSVersion*>(m_hist.front().cmd.get())->callback != nullptr) {
-				dynamic_cast<const XnCmdGetCSVersion*>(m_hist.front().cmd.get())->callback(
+			std::unique_ptr<const XnCmd> cmd = std::move(m_hist.front().cmd);
+			hist_ok();
+			if (dynamic_cast<const XnCmdGetCSVersion*>(cmd.get())->callback != nullptr) {
+				dynamic_cast<const XnCmdGetCSVersion*>(cmd.get())->callback(
 					this, msg[2] >> 4, msg[2] & 0x0F
 				);
 			}
@@ -266,12 +269,11 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 				speed = speed * (28./128);
 			}
 
-			if (dynamic_cast<const XnCmdGetLocoInfo*>(m_hist.front().cmd.get())->callback != nullptr) {
-				dynamic_cast<const XnCmdGetLocoInfo*>(m_hist.front().cmd.get())->callback(
+			if (dynamic_cast<const XnCmdGetLocoInfo*>(cmd.get())->callback != nullptr) {
+				dynamic_cast<const XnCmdGetLocoInfo*>(cmd.get())->callback(
 					this, used, direction, speed, XnFA(msg[3]), XnFB(msg[4])
 				);
 			}
-			hist_ok();
 		}
 
 	} else if (0xF2 == msg[0] && 0x01 == msg[1]) {
@@ -279,12 +281,13 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 		log("GET: LI Address is " + QString::number(msg[2]), XnLogLevel::Info);
 		if (m_hist.size() > 0 &&
 			dynamic_cast<const XnCmdGetLIAddress*>(m_hist.front().cmd.get()) != nullptr) {
-			if (dynamic_cast<const XnCmdGetLIAddress*>(m_hist.front().cmd.get())->callback != nullptr) {
-				dynamic_cast<const XnCmdGetLIAddress*>(m_hist.front().cmd.get())->callback(
+			std::unique_ptr<const XnCmd> cmd = std::move(m_hist.front().cmd);
+			hist_ok();
+			if (dynamic_cast<const XnCmdGetLIAddress*>(cmd.get())->callback != nullptr) {
+				dynamic_cast<const XnCmdGetLIAddress*>(cmd.get())->callback(
 					this, msg[2]
 				);
 			}
-			hist_ok();
 		} else if (m_hist.size() > 0 &&
 				   dynamic_cast<const XnCmdSetLIAddress*>(m_hist.front().cmd.get()) != nullptr) {
 			hist_ok();

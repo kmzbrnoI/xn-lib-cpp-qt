@@ -277,6 +277,41 @@ struct XnCmdSetFuncB : public XnCmd {
 	}
 };
 
+
+enum class XnReadCVStatus {
+	Ok = 0x14,
+	ShortCircuit = 0x12,
+	DataByteNotFound = 0x13,
+	CSbusy = 0x1F,
+	CSready = 0x11,
+};
+
+using XnReadCV = void (*)(void* sender, XnReadCVStatus status, uint8_t cv, uint8_t value);
+
+struct XnCmdReadDirect : public XnCmd {
+	const uint8_t cv;
+	XnReadCV const callback;
+
+	XnCmdReadDirect(const uint8_t cv, XnReadCV const callback)
+		: cv(cv), callback(callback) {}
+
+	std::vector<uint8_t> getBytes() const override { return {0x22, 0x15, cv}; }
+	QString msg() const override {
+		return "Direct Mode CV " + QString::number(cv) + " read request";
+	}
+};
+
+struct XnCmdRequestReadResult : public XnCmd {
+	const uint8_t cv;
+	XnReadCV const callback;
+
+	XnCmdRequestReadResult(const uint8_t cv, XnReadCV const callback)
+		: cv(cv), callback(callback) {}
+
+	std::vector<uint8_t> getBytes() const override { return {0x21, 0x10}; }
+	QString msg() const override { return "Request for service mode results"; }
+};
+
 struct XnHistoryItem {
 	XnHistoryItem(std::unique_ptr<const XnCmd>& cmd, QDateTime timeout, size_t no_sent,
 	              std::unique_ptr<XnCb>&& callback_ok,
@@ -295,7 +330,6 @@ struct XnHistoryItem {
 	std::unique_ptr<XnCb> callback_ok;
 	std::unique_ptr<XnCb> callback_err;
 };
-
 
 enum class XnLogLevel {
 	None = 0,

@@ -20,7 +20,8 @@ namespace Xn {
 
 const size_t _MAX_HISTORY_LEN = 32;
 const size_t _HIST_CHECK_INTERVAL = 100; // ms
-const size_t _HIST_TIMEOUT = 500; // ms
+const size_t _HIST_TIMEOUT = 1000; // ms
+const size_t _HIST_PROG_TIMEOUT = 10000; // 10 s
 const size_t _HIST_SEND_MAX = 3;
 const size_t _BUF_IN_TIMEOUT = 300; // ms
 
@@ -60,6 +61,9 @@ public:
 	void getLocoInfo(const LocoAddr, XnGotLocoInfo const, UPXnCb err = nullptr);
 	void setFuncA(const LocoAddr, const XnFA, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 	void setFuncB(const LocoAddr, const XnFB, const XnFSet, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void readCVdirect(const uint8_t cv, XnReadCV const callback, UPXnCb err = nullptr);
+
+	static QString xnReadCVStatusToQString(const XnReadCVStatus st);
 
 private slots:
 	void handleReadyRead();

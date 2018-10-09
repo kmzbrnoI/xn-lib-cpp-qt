@@ -93,7 +93,7 @@ struct XnCmdEmergencyStopLoco : public XnCmd {
 		return {0x92, loco.hi(), loco.lo()};
 	}
 	QString msg() const override {
-		return "Single Loco Emergency Stop : " + QString(loco);
+		return "Single Loco Emergency Stop : " + QString::number(loco);
 	}
 };
 

@@ -168,12 +168,12 @@ struct XnCmdPomWriteCv : public XnCmd {
 union XnFA {
 	uint8_t all;
 	struct {
-		bool _ :3;
-		bool f0 :1;
-		bool f4 :1;
-		bool f3 :1;
-		bool f2 :1;
 		bool f1 :1;
+		bool f2 :1;
+		bool f3 :1;
+		bool f4 :1;
+		bool f0 :1;
+		bool _ :3;
 	} sep;
 
 	XnFA(uint8_t fa) :all(fa) {}
@@ -183,14 +183,14 @@ union XnFA {
 union XnFB {
 	uint8_t all;
 	struct {
-		bool f12 :1;
-		bool f11 :1;
-		bool f10 :1;
-		bool f9 :1;
-		bool f8 :1;
-		bool f7 :1;
-		bool f6 :1;
 		bool f5 :1;
+		bool f6 :1;
+		bool f7 :1;
+		bool f8 :1;
+		bool f9 :1;
+		bool f10 :1;
+		bool f11 :1;
+		bool f12 :1;
 	} sep;
 
 	XnFB(uint8_t fb) :all(fb) {}
@@ -248,8 +248,8 @@ struct XnCmdSetFuncA : public XnCmd {
 		return {0xE4, 0x20, loco.hi(), loco.lo(), fa.all};
 	}
 	QString msg() const override {
-		return "Set loco " + QString::number(loco.addr) + " func B: " +
-		       QString(fa.all, 2);
+		return "Set loco " + QString::number(loco.addr) + " func A: " +
+		       QString::number(fa.all, 2);
 	}
 };
 
@@ -272,8 +272,8 @@ struct XnCmdSetFuncB : public XnCmd {
 			return {0xE4, 0x22, loco.hi(), loco.lo(), static_cast<uint8_t>(fb.all >> 4)};
 	}
 	QString msg() const override {
-		return "Set loco " + QString::number(loco.addr) + " func A: " +
-		       QString(fb.all, 2);
+		return "Set loco " + QString::number(loco.addr) + " func B: " +
+		       QString::number(fb.all, 2);
 	}
 };
 

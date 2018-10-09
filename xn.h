@@ -58,6 +58,8 @@ public:
 	void setSpeed(const LocoAddr, uint8_t speed, bool direction, UPXnCb ok = nullptr,
 	              UPXnCb err = nullptr);
 	void getLocoInfo(const LocoAddr, XnGotLocoInfo const, UPXnCb err = nullptr);
+	void setFuncA(const LocoAddr, const XnFA, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void setFuncB(const LocoAddr, const XnFB, const XnFSet, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 
 private slots:
 	void handleReadyRead();

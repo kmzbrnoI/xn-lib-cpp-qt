@@ -238,6 +238,45 @@ struct XnCmdSetSpeedDir : public XnCmd {
 	}
 };
 
+struct XnCmdSetFuncA : public XnCmd {
+	const LocoAddr loco;
+	const XnFA fa;
+
+	XnCmdSetFuncA(const LocoAddr loco, const XnFA fa)
+		: loco(loco), fa(fa) {}
+	std::vector<uint8_t> getBytes() const override {
+		return {0xE4, 0x20, loco.hi(), loco.lo(), fa.all};
+	}
+	QString msg() const override {
+		return "Set loco " + QString::number(loco.addr) + " func B: " +
+		       QString(fa.all, 2);
+	}
+};
+
+enum class XnFSet {
+	F5toF8,
+	F9toF12,
+};
+
+struct XnCmdSetFuncB : public XnCmd {
+	const LocoAddr loco;
+	const XnFB fb;
+	const XnFSet range;
+
+	XnCmdSetFuncB(const LocoAddr loco, const XnFB fb, const XnFSet range)
+		: loco(loco), fb(fb), range(range) {}
+	std::vector<uint8_t> getBytes() const override {
+		if (range == XnFSet::F5toF8)
+			return {0xE4, 0x21, loco.hi(), loco.lo(), static_cast<uint8_t>(fb.all & 0xF)};
+		else
+			return {0xE4, 0x22, loco.hi(), loco.lo(), static_cast<uint8_t>(fb.all >> 4)};
+	}
+	QString msg() const override {
+		return "Set loco " + QString::number(loco.addr) + " func A: " +
+		       QString(fb.all, 2);
+	}
+};
+
 struct XnHistoryItem {
 	XnHistoryItem(std::unique_ptr<const XnCmd>& cmd, QDateTime timeout, size_t no_sent,
 	              std::unique_ptr<XnCb>&& callback_ok,

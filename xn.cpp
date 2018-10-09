@@ -346,6 +346,14 @@ void XpressNet::getLocoInfo(const LocoAddr addr, XnGotLocoInfo const callback, U
 	send(XnCmdGetLocoInfo(addr, callback), nullptr, std::move(err));
 }
 
+void XpressNet::setFuncA(const LocoAddr addr, const XnFA fa, UPXnCb ok, UPXnCb err) {
+	send(XnCmdSetFuncA(addr, fa), std::move(ok), std::move(err));
+}
+
+void XpressNet::setFuncB(const LocoAddr addr, const XnFB fb, const XnFSet range, UPXnCb ok, UPXnCb err) {
+	send(XnCmdSetFuncB(addr, fb, range), std::move(ok), std::move(err));
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void XpressNet::hist_ok() {

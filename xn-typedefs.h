@@ -155,12 +155,12 @@ struct XnCmdPomWriteCv : public XnCmd {
 	std::vector<uint8_t> getBytes() const override {
 		return {
 			0xE6, 0x30, loco.hi(), loco.lo(),
-			static_cast<uint8_t>(0xEC + ((cv >> 8) & 0x03)),
-			static_cast<uint8_t>(cv & 0xFF), value
+			static_cast<uint8_t>(0xEC + (((cv-1) >> 8) & 0x03)),
+			static_cast<uint8_t>((cv-1) & 0xFF), value
 		};
 	}
 	QString msg() const override {
-		return "POM Addr " + QString::number(loco.addr) + ", CV " + QString(cv) +
+		return "POM Addr " + QString::number(loco.addr) + ", CV " + QString::number(cv) +
 		       ", Value: " + QString::number(value);
 		}
 };

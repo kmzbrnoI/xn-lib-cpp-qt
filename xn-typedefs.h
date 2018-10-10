@@ -197,7 +197,12 @@ union XnFB {
 	XnFB() :all(0) {}
 };
 
-using XnGotLocoInfo = void (*)(void* sender, bool used, bool direction,
+enum class XnDirection {
+	Backward = false,
+	Forward = true,
+};
+
+using XnGotLocoInfo = void (*)(void* sender, bool used, XnDirection direction,
                                unsigned speed, XnFA fa, XnFB fb);
 
 struct XnCmdGetLocoInfo : public XnCmd {
@@ -213,9 +218,9 @@ struct XnCmdGetLocoInfo : public XnCmd {
 struct XnCmdSetSpeedDir : public XnCmd {
 	const LocoAddr loco;
 	const unsigned speed;
-	const bool dir;
+	const XnDirection dir;
 
-	XnCmdSetSpeedDir(const LocoAddr loco, const unsigned speed, const bool dir)
+	XnCmdSetSpeedDir(const LocoAddr loco, const unsigned speed, const XnDirection dir)
 		: loco(loco), speed(speed), dir(dir) {
 		if (speed > 28)
 			throw EInvalidSpeed("Speed out of range!");
@@ -229,12 +234,12 @@ struct XnCmdSetSpeedDir : public XnCmd {
 			sp = 0;
 		return {
 			0xE4, 0x12, loco.hi(), loco.lo(),
-			static_cast<uint8_t>((dir << 7) + ((sp >> 1) & 0x0F) + ((sp & 0x1) << 4))
+			static_cast<uint8_t>((static_cast<bool>(dir) << 7) + ((sp >> 1) & 0x0F) + ((sp & 0x1) << 4))
 		};
 	}
 	QString msg() const override {
 		return "Loco " + QString::number(loco) + " Set Speed " + QString::number(speed) +
-		       ", Dir " + QString::number(dir);
+		       ", Dir " + QString::number(static_cast<int>(dir));
 	}
 };
 

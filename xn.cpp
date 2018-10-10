@@ -267,7 +267,7 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 
 			bool used = (msg[1] >> 3) & 0x01;
 			unsigned mode = msg[1] & 0x07;
-			bool direction = msg[2] >> 7;
+			XnDirection direction = static_cast<XnDirection>(msg[2] >> 7);
 			unsigned speed;
 
 			// Normalize speed to 28 speed steps
@@ -371,7 +371,7 @@ void XpressNet::PomWriteCv(const LocoAddr addr, uint16_t cv, uint8_t value, UPXn
 	send(XnCmdPomWriteCv(addr, cv, value), std::move(ok), std::move(err));
 }
 
-void XpressNet::setSpeed(const LocoAddr addr, uint8_t speed, bool direction, UPXnCb ok,
+void XpressNet::setSpeed(const LocoAddr addr, uint8_t speed, XnDirection direction, UPXnCb ok,
                          UPXnCb err) {
 	send(XnCmdSetSpeedDir(addr, speed, direction), std::move(ok), std::move(err));
 }

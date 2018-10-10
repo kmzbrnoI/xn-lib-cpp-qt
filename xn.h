@@ -56,7 +56,7 @@ public:
 	void setLIAddress(uint8_t addr, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 	void PomWriteCv(const LocoAddr, uint16_t cv, uint8_t value, UPXnCb ok = nullptr,
 	                UPXnCb err = nullptr);
-	void setSpeed(const LocoAddr, uint8_t speed, bool direction, UPXnCb ok = nullptr,
+	void setSpeed(const LocoAddr, uint8_t speed, XnDirection direction, UPXnCb ok = nullptr,
 	              UPXnCb err = nullptr);
 	void getLocoInfo(const LocoAddr, XnGotLocoInfo const, UPXnCb err = nullptr);
 	void setFuncA(const LocoAddr, const XnFA, UPXnCb ok = nullptr, UPXnCb err = nullptr);

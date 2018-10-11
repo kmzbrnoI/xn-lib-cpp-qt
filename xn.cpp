@@ -217,6 +217,12 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 					this, static_cast<XnReadCVStatus>(msg[1]), 0, 0
 				);
 			}
+		} else if (0x80 == msg[1]) {
+			log("GET: command station reported transfer errors", XnLogLevel::Error);
+		} else if (0x81 == msg[1]) {
+			log("GET: command station busy", XnLogLevel::Error);
+		} else if (0x82 == msg[1]) {
+			log("GET: instruction not supported by command station", XnLogLevel::Error);
 		}
 	} else if (0x62 == msg[0] && 0x22 == msg[1]) {
 		log("GET: command station status", XnLogLevel::Info);

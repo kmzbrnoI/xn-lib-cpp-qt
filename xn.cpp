@@ -235,26 +235,28 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 			m_trk_status = n;
 			onTrkStatusChanged(m_trk_status);
 		}
-	} else if (0x63 == msg[0] && 0x21 == msg[1]) {
-		// command station version
-		if (m_hist.size() > 0 &&
-			dynamic_cast<const XnCmdGetCSVersion*>(m_hist.front().cmd.get()) != nullptr) {
-			std::unique_ptr<const XnCmd> cmd = std::move(m_hist.front().cmd);
-			hist_ok();
-			if (dynamic_cast<const XnCmdGetCSVersion*>(cmd.get())->callback != nullptr) {
-				dynamic_cast<const XnCmdGetCSVersion*>(cmd.get())->callback(
-					this, msg[2] >> 4, msg[2] & 0x0F
+	} else if (0x63 == msg[0]) {
+		if (0x21 == msg[1]) {
+			// command station version
+			if (m_hist.size() > 0 &&
+				dynamic_cast<const XnCmdGetCSVersion*>(m_hist.front().cmd.get()) != nullptr) {
+				std::unique_ptr<const XnCmd> cmd = std::move(m_hist.front().cmd);
+				hist_ok();
+				if (dynamic_cast<const XnCmdGetCSVersion*>(cmd.get())->callback != nullptr) {
+					dynamic_cast<const XnCmdGetCSVersion*>(cmd.get())->callback(
+						this, msg[2] >> 4, msg[2] & 0x0F
+					);
+				}
+			}
+		} else if (0x14 == msg[1]) {
+			log("GET: CV " + QString::number(msg[2]) + " value=" + QString::number(msg[3]), XnLogLevel::Info);
+			if (m_hist.size() > 0 && dynamic_cast<const XnCmdRequestReadResult*>(m_hist.front().cmd.get()) != nullptr) {
+				std::unique_ptr<const XnCmd> cmd = std::move(m_hist.front().cmd);
+				hist_ok();
+				dynamic_cast<const XnCmdRequestReadResult*>(cmd.get())->callback(
+					this, XnReadCVStatus::Ok, msg[2], msg[3]
 				);
 			}
-		}
-	} else if (0x63 == msg[0] && 0x14 == msg[1]) {
-		log("GET: CV " + QString::number(msg[2]) + " value=" + QString::number(msg[3]), XnLogLevel::Info);
-		if (m_hist.size() > 0 && dynamic_cast<const XnCmdRequestReadResult*>(m_hist.front().cmd.get()) != nullptr) {
-			std::unique_ptr<const XnCmd> cmd = std::move(m_hist.front().cmd);
-			hist_ok();
-			dynamic_cast<const XnCmdRequestReadResult*>(cmd.get())->callback(
-				this, XnReadCVStatus::Ok, msg[2], msg[3]
-			);
 		}
 	} else if (0xE4 == msg[0]) {
 		// Loco information

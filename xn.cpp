@@ -375,7 +375,7 @@ void XpressNet::setLIAddress(uint8_t addr, UPXnCb ok, UPXnCb err) {
 	send(XnCmdSetLIAddress(addr), std::move(ok), std::move(err));
 }
 
-void XpressNet::PomWriteCv(const LocoAddr addr, uint16_t cv, uint8_t value, UPXnCb ok,
+void XpressNet::pomWriteCv(const LocoAddr addr, uint16_t cv, uint8_t value, UPXnCb ok,
                            UPXnCb err) {
 	send(XnCmdPomWriteCv(addr, cv, value), std::move(ok), std::move(err));
 }

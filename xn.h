@@ -55,7 +55,7 @@ public:
 	void getLIVersion(XnGotLIVersion const, UPXnCb err = nullptr);
 	void getLIAddress(XnGotLIAddress const, UPXnCb err = nullptr);
 	void setLIAddress(uint8_t addr, UPXnCb ok = nullptr, UPXnCb err = nullptr);
-	void PomWriteCv(const LocoAddr, uint16_t cv, uint8_t value, UPXnCb ok = nullptr,
+	void pomWriteCv(const LocoAddr, uint16_t cv, uint8_t value, UPXnCb ok = nullptr,
 	                UPXnCb err = nullptr);
 	void setSpeed(const LocoAddr, uint8_t speed, XnDirection direction, UPXnCb ok = nullptr,
 	              UPXnCb err = nullptr);

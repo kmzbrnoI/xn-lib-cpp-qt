@@ -380,6 +380,11 @@ void XpressNet::pomWriteCv(const LocoAddr addr, uint16_t cv, uint8_t value, UPXn
 	send(XnCmdPomWriteCv(addr, cv, value), std::move(ok), std::move(err));
 }
 
+void XpressNet::pomWriteBit(const LocoAddr addr, uint16_t cv, uint8_t biti, bool value, UPXnCb ok,
+                            UPXnCb err) {
+	send(XnCmdPomWriteBit(addr, cv, biti, value), std::move(ok), std::move(err));
+}
+
 void XpressNet::setSpeed(const LocoAddr addr, uint8_t speed, XnDirection direction, UPXnCb ok,
                          UPXnCb err) {
 	send(XnCmdSetSpeedDir(addr, speed, direction), std::move(ok), std::move(err));

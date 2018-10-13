@@ -209,12 +209,13 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 			m_trk_status = XnTrkStatus::Programming;
 			onTrkStatusChanged(m_trk_status);
 		} else if (0x11 == msg[1] || 0x12 == msg[1] || 0x13 == msg[1] || 0x1F == msg[1]) {
-			log("GET: CV read error" + QString::number(msg[1]), XnLogLevel::Error);
+			log("GET: CV read error " + QString::number(msg[1]), XnLogLevel::Error);
 			if (m_hist.size() > 0 && dynamic_cast<const XnCmdRequestReadResult*>(m_hist.front().cmd.get()) != nullptr) {
 				std::unique_ptr<const XnCmd> cmd = std::move(m_hist.front().cmd);
 				hist_ok();
 				dynamic_cast<const XnCmdRequestReadResult*>(cmd.get())->callback(
-					this, static_cast<XnReadCVStatus>(msg[1]), 0, 0
+					this, static_cast<XnReadCVStatus>(msg[1]),
+					dynamic_cast<const XnCmdRequestReadResult*>(cmd.get())->cv, 0
 				);
 			}
 		} else if (0x80 == msg[1]) {

@@ -66,9 +66,8 @@ void XpressNet::send(const std::vector<uint8_t> data) {
 
 	int sent = m_serialPort.write(qdata);
 
-	if (sent == -1 || sent != qdata.size()) {
+	if (sent == -1 || sent != qdata.size())
 		throw EWriteError("No data could we written!");
-	}
 }
 
 void XpressNet::send(std::unique_ptr<const XnCmd>& cmd, UPXnCb ok, UPXnCb err) {
@@ -85,8 +84,9 @@ void XpressNet::send(std::unique_ptr<const XnCmd>& cmd, UPXnCb ok, UPXnCb err) {
 		m_hist.push(XnHistoryItem(cmd, timeout, 1, std::move(ok), std::move(err)));
 	}
 	catch (QStrException& e) {
-		log("PUT ERR: " + e, XnLogLevel::Error);
-		throw;
+		log("Fatal error when writing command: " + cmd->msg(), XnLogLevel::Error);
+		if (nullptr != err)
+			err->func(this, err->data);
 	}
 }
 

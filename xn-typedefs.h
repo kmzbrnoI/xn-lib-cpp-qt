@@ -5,12 +5,13 @@
 #include <QByteArray>
 #include <vector>
 #include <memory>
+#include <functional>
 
 #include "../q-str-exception.h"
 
 namespace Xn {
 
-using XnCommandCallbackFunc = void (*)(void* sender, void* data);
+using XnCommandCallbackFunc = std::function<void(void* sender, void* data)>;
 
 struct XnCommandCallback {
 	XnCommandCallbackFunc const func;
@@ -97,7 +98,7 @@ struct XnCmdEmergencyStopLoco : public XnCmd {
 	}
 };
 
-using XnGotLIVersion = void (*)(void* sender, unsigned hw, unsigned sw);
+using XnGotLIVersion = std::function<void(void* sender, unsigned hw, unsigned sw)>;
 
 struct XnCmdGetLIVersion : public XnCmd {
 	XnGotLIVersion const callback;
@@ -107,7 +108,7 @@ struct XnCmdGetLIVersion : public XnCmd {
 	QString msg() const override { return "LI Get Version"; }
 };
 
-using XnGotLIAddress = void (*)(void* sender, unsigned addr);
+using XnGotLIAddress = std::function<void(void* sender, unsigned addr)>;
 
 struct XnCmdGetLIAddress : public XnCmd {
 	XnGotLIAddress const callback;
@@ -127,7 +128,7 @@ struct XnCmdSetLIAddress : public XnCmd {
 	QString msg() const override { return "LI Set Address to " + QString(addr); }
 };
 
-using XnGotCSVersion = void (*)(void* sender, unsigned major, unsigned minor);
+using XnGotCSVersion = std::function<void(void* sender, unsigned major, unsigned minor)>;
 
 struct XnCmdGetCSVersion : public XnCmd {
 	XnGotCSVersion const callback;
@@ -228,8 +229,8 @@ enum class XnDirection {
 	Forward = true,
 };
 
-using XnGotLocoInfo = void (*)(void* sender, bool used, XnDirection direction,
-                               unsigned speed, XnFA fa, XnFB fb);
+using XnGotLocoInfo = std::function<void(void* sender, bool used, XnDirection direction,
+                                         unsigned speed, XnFA fa, XnFB fb)>;
 
 struct XnCmdGetLocoInfo : public XnCmd {
 	const LocoAddr loco;
@@ -317,7 +318,7 @@ enum class XnReadCVStatus {
 	CSready = 0x11,
 };
 
-using XnReadCV = void (*)(void* sender, XnReadCVStatus status, uint8_t cv, uint8_t value);
+using XnReadCV = std::function<void(void* sender, XnReadCVStatus status, uint8_t cv, uint8_t value)>;
 
 struct XnCmdReadDirect : public XnCmd {
 	const uint8_t cv;

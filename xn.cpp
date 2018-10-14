@@ -90,7 +90,7 @@ void XpressNet::send(std::unique_ptr<const XnCmd>& cmd, UPXnCb ok, UPXnCb err) {
 	}
 }
 
-template<typename T>
+template <typename T>
 void XpressNet::send(const T&& cmd, UPXnCb ok, UPXnCb err) {
 	std::unique_ptr<const XnCmd> cmd2(std::make_unique<const T>(cmd));
 	send(cmd2, std::move(ok), std::move(err));

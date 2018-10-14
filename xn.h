@@ -107,6 +107,6 @@ private:
 	QString dataToStr(DataT, size_t len = 0);
 };
 
-}//end namespace
+}//namespace Xn
 
 #endif

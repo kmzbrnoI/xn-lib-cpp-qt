@@ -351,7 +351,7 @@ struct XnHistoryItem {
 		: cmd(std::move(cmd)), timeout(timeout), no_sent(no_sent),
 		  callback_ok(std::move(callback_ok)), callback_err(std::move(callback_err))
 		{}
-	XnHistoryItem(XnHistoryItem&& hist)
+	XnHistoryItem(XnHistoryItem&& hist) noexcept
 		: cmd(std::move(hist.cmd)), timeout(hist.timeout), no_sent(hist.no_sent),
 		  callback_ok(std::move(hist.callback_ok)), callback_err(std::move(hist.callback_err))
 		{}
@@ -372,6 +372,6 @@ enum class XnLogLevel {
 	Debug = 5,
 };
 
-}//end namespace
+}//namespace Xn
 
 #endif

@@ -494,4 +494,4 @@ QString XpressNet::xnReadCVStatusToQString(const XnReadCVStatus st) {
 	else return "Unknown error";
 }
 
-}//end namespace
+}//namespace Xn

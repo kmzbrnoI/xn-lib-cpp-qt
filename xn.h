@@ -1,9 +1,28 @@
 #ifndef _XN_H_
 #define _XN_H_
 
-/* This file implements a low-level XpressNet class, which allows PC to
- * communicate with XpressNET command station over virtual serial port.
- */
+/*
+This file implements a low-level XpressNet class, which allows PC to
+communicate with XpressNET command station over virtual serial port.
+
+A command from PC to Command station is send by calling any of the public
+functions listed below. You may pass an 'ok' and an 'error' callback when
+calling this function. Exactly one of these callbacks is *guaranteed* to be
+called based on the response from command station or LI.
+
+How does sending work?
+ (1) User calls a function.
+ (2) Data are sent to the asynchronous serial port.
+ (3) The function ends.
+ (4a) When the command station sends a proper reply, 'ok' callback is called.
+ (4b) When the command station sends no reply or improper reply, the command
+      is sent again. Iff the command station does not reply for _HIST_SEND_MAX
+      times (3), 'error' callback is called.
+
+ * Response to the user`s command is transmitted to the user as callback.
+ * General callbacks are implemented as slots (see below).
+ * For adding more commands, see xn-typedefs.h.
+*/
 
 #include <QSerialPort>
 #include <QTimer>
@@ -14,7 +33,7 @@
 #include <memory>
 
 #include "xn-typedefs.h"
-#include "../q-str-exception.h"
+#include "q-str-exception.h"
 
 namespace Xn {
 

@@ -1,6 +1,15 @@
 #ifndef _XN_TYPEDEFS_
 #define _XN_TYPEDEFS_
 
+/*
+This file defines types for XpressNET library.
+
+ * Each command type has its own class inherited from XnCmd.
+ * Locomotive address is represented as an instance of LocoAddr class.
+
+See xn.h or README for more documentation.
+*/
+
 #include <QDateTime>
 #include <QByteArray>
 #include <vector>

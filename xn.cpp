@@ -196,18 +196,24 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 			log("GET: Status Off", XnLogLevel::Info);
 			if (m_hist.size() > 0 && dynamic_cast<const XnCmdOff*>(m_hist.front().cmd.get()) != nullptr)
 				hist_ok();
-			m_trk_status = XnTrkStatus::Off;
-			onTrkStatusChanged(m_trk_status);
+			if (m_trk_status != XnTrkStatus::Off) {
+				m_trk_status = XnTrkStatus::Off;
+				onTrkStatusChanged(m_trk_status);
+			}
 		} else if (0x01 == msg[1]) {
 			log("GET: Status On", XnLogLevel::Info);
 			if (m_hist.size() > 0 && dynamic_cast<const XnCmdOn*>(m_hist.front().cmd.get()) != nullptr)
 				hist_ok();
-			m_trk_status = XnTrkStatus::On;
-			onTrkStatusChanged(m_trk_status);
+			if (m_trk_status != XnTrkStatus::On) {
+				m_trk_status = XnTrkStatus::On;
+				onTrkStatusChanged(m_trk_status);
+			}
 		} else if (0x02 == msg[1]) {
 			log("GET: Status Programming", XnLogLevel::Info);
-			m_trk_status = XnTrkStatus::Programming;
-			onTrkStatusChanged(m_trk_status);
+			if (m_trk_status != XnTrkStatus::Programming) {
+				m_trk_status = XnTrkStatus::Programming;
+				onTrkStatusChanged(m_trk_status);
+			}
 		} else if (0x11 == msg[1] || 0x12 == msg[1] || 0x13 == msg[1] || 0x1F == msg[1]) {
 			log("GET: CV read error " + QString::number(msg[1]), XnLogLevel::Error);
 			if (m_hist.size() > 0 && dynamic_cast<const XnCmdRequestReadResult*>(m_hist.front().cmd.get()) != nullptr) {

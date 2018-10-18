@@ -33,3 +33,6 @@
 
 # Vim swp file
 *.swp
+
+# build directory
+build*

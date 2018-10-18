@@ -15,10 +15,10 @@ v3.6](https://www.lenz-elektronik.de/pdf/XpressNet%20und%20USB%20Interface.pdf))
 
 ## Requirements
 
-This library uses [Qt](https://www.qt.io/)`s
+This library uses [Qt](https://www.qt.io/)'s
 [SerialPort](http://doc.qt.io/qt-5/qtserialport-index.html) which creates a
-very goog cross-platform abstraction of serial port interface. Thus, the
-library uses Qt`s mechanisms like slots and signals.
+very good cross-platform abstraction of serial port interface. Thus, the
+library uses Qt's mechanisms like slots and signals.
 
 It is **not** usable without Qt.
 

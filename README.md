@@ -22,7 +22,7 @@ library uses Qt's mechanisms like slots and signals.
 
 It is **not** usable without Qt.
 
-No other requirements are needed.
+There are no other requirements.
 
 ## Usage
 

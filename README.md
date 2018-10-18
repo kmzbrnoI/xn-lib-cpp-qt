@@ -32,6 +32,12 @@ You may use this library in two major ways:
    `XpressNet` class.
  * Compile this project using `qmake` and use compiled object file.
 
+## Basic information
+
+ * See `xn.h` for API specification.
+ * This library uses 28 speed steps only. It simplifies things a lot. Other
+   speed steps could be added in future.
+
 ## Authors
 
 This library was created by:

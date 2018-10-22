@@ -16,7 +16,7 @@ See xn.h or README for more documentation.
 #include <memory>
 #include <functional>
 
-#include "../q-str-exception.h"
+#include "q-str-exception.h"
 
 namespace Xn {
 

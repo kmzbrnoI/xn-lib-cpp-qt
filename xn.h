@@ -124,6 +124,12 @@ private:
 
 	template<typename DataT>
 	QString dataToStr(DataT, size_t len = 0);
+
+	template<typename Target>
+	bool is(const XnCmd *x);
+
+	template<typename Target>
+	bool is(const XnHistoryItem& h);
 };
 
 }//namespace Xn

@@ -35,6 +35,9 @@ How does sending work?
 #include "xn-typedefs.h"
 #include "q-str-exception.h"
 
+#define XN_VERSION_MAJOR 1
+#define XN_VERSION_MINOR 0
+
 namespace Xn {
 
 const size_t _MAX_HISTORY_LEN = 32;
@@ -57,6 +60,8 @@ class XpressNet : public QObject {
 
 public:
 	XnLogLevel loglevel = XnLogLevel::None;
+	static const unsigned _VERSION_MAJOR = XN_VERSION_MAJOR;
+	static const unsigned _VERSION_MINOR = XN_VERSION_MINOR;
 
 	XpressNet(QObject *parent = nullptr);
 

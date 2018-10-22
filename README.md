@@ -40,6 +40,9 @@ You may use this library in two major ways:
  * Currently, it supports basic XpressNET commands (speed, functions,
    programming, ...), but the library is designed to be simple enough for
    adding new commands.
+ * To change the version of this library, update both constants at `xn.pro`
+   file and `xn.h` file. This is needed for proper behavior as a standalone-lib
+   and plain header too.
 
 ## Authors
 

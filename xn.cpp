@@ -185,11 +185,9 @@ void XpressNet::parseMessage(std::vector<uint8_t> msg) {
 		if (dynamic_cast<const XnCmdGetLIVersion*>(m_hist.front().cmd.get()) != nullptr) {
 			std::unique_ptr<const XnCmd> cmd = std::move(m_hist.front().cmd);
 			hist_ok();
-			if (dynamic_cast<const XnCmdGetLIVersion*>(cmd.get())->callback != nullptr) {
-				dynamic_cast<const XnCmdGetLIVersion*>(cmd.get())->callback(
-					this, hw, sw
-				);
-			}
+			const XnCmdGetLIVersion& hist = dynamic_cast<const XnCmdGetLIVersion&>(*cmd.get());
+			if (hist.callback != nullptr)
+				hist.callback(this, hw, sw);
 		}
 	} else if (0x61 == msg[0]) {
 		if (0x00 == msg[1]) {

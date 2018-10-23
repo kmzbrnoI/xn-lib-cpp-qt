@@ -9,8 +9,8 @@ private:
 
 public:
 	QStrException(const QString& msg) : m_err_msg(msg) {}
-	~QStrException() throw() {}
-	QString str() const throw () { return this->m_err_msg; }
+	~QStrException() noexcept {}
+	QString str() const noexcept { return this->m_err_msg; }
 	operator QString() const { return this->m_err_msg; }
 };
 

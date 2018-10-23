@@ -60,8 +60,8 @@ class XpressNet : public QObject {
 
 public:
 	XnLogLevel loglevel = XnLogLevel::None;
-	static const unsigned _VERSION_MAJOR = XN_VERSION_MAJOR;
-	static const unsigned _VERSION_MINOR = XN_VERSION_MINOR;
+	static constexpr unsigned _VERSION_MAJOR = XN_VERSION_MAJOR;
+	static constexpr unsigned _VERSION_MINOR = XN_VERSION_MINOR;
 
 	XpressNet(QObject *parent = nullptr);
 

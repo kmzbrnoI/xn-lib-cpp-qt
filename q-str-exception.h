@@ -1,6 +1,8 @@
 #ifndef _XN_Q_STR_EXCEPTION_H_
 #define _XN_Q_STR_EXCEPTION_H_
 
+#include <QString>
+
 namespace Xn {
 
 class QStrException {

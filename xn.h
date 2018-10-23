@@ -55,6 +55,16 @@ struct EWriteError : public QStrException {
 	EWriteError(const QString str) : QStrException(str) {}
 };
 
+enum class XnRecvCmdType {
+	LiError = 0x01,
+	LiVersion = 0x02,
+	LiSettings = 0xF2,
+	CsGeneralEvent = 0x61,
+	CsStatus = 0x62,
+	CsX63 = 0x63,
+	CsLocoInfo = 0xE4,
+};
+
 class XpressNet : public QObject {
 	Q_OBJECT
 
@@ -113,9 +123,19 @@ private:
 	QTimer m_hist_timer;
 	XnTrkStatus m_trk_status = XnTrkStatus::Unknown;
 
-	void parseMessage(std::vector<uint8_t> msg);
-	void send(const std::vector<uint8_t>);
+	using MsgType = std::vector<uint8_t>;
+	void parseMessage(MsgType& msg);
+	void send(const MsgType);
 	void send(std::unique_ptr<const XnCmd>&, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+
+	void handleMsgLiError(MsgType& msg);
+	void handleMsgLiVersion(MsgType& msg);
+	void handleMsgCsGeneralEvent(MsgType& msg);
+	void handleMsgCsStatus(MsgType& msg);
+	void handleMsgCsVersion(MsgType& msg);
+	void handleMsgCvRead(MsgType& msg);
+	void handleMsgLocoInfo(MsgType& msg);
+	void handleMsgLIAddr(MsgType& msg);
 
 	template<typename DataT>
 	void send(const DataT&&, UPXnCb ok = nullptr, UPXnCb err = nullptr);

@@ -40,13 +40,13 @@ How does sending work?
 
 namespace Xn {
 
-const size_t _MAX_HISTORY_LEN = 32;
-const size_t _HIST_CHECK_INTERVAL = 100; // ms
-const size_t _HIST_TIMEOUT = 1000; // ms
-const size_t _HIST_PROG_TIMEOUT = 10000; // 10 s
-const size_t _HIST_SEND_MAX = 3;
-const size_t _BUF_IN_TIMEOUT = 300; // ms
-const size_t _STEPS_CNT = 28;
+constexpr size_t _MAX_HISTORY_LEN = 32;
+constexpr size_t _HIST_CHECK_INTERVAL = 100; // ms
+constexpr size_t _HIST_TIMEOUT = 1000; // ms
+constexpr size_t _HIST_PROG_TIMEOUT = 10000; // 10 s
+constexpr size_t _HIST_SEND_MAX = 3;
+constexpr size_t _BUF_IN_TIMEOUT = 300; // ms
+constexpr size_t _STEPS_CNT = 28;
 
 struct EOpenError : public QStrException {
 	EOpenError(const QString str) : QStrException(str) {}

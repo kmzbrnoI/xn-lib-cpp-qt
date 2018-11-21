@@ -1,5 +1,5 @@
-#ifndef _XN_Q_STR_EXCEPTION_H_
-#define _XN_Q_STR_EXCEPTION_H_
+#ifndef XN_Q_STR_EXCEPTION_H
+#define XN_Q_STR_EXCEPTION_H
 
 #include <QString>
 

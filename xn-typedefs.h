@@ -1,5 +1,5 @@
-#ifndef _XN_TYPEDEFS_
-#define _XN_TYPEDEFS_
+#ifndef XN_TYPEDEFS
+#define XN_TYPEDEFS
 
 /*
 This file defines types for XpressNET library.

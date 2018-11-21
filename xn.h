@@ -1,5 +1,5 @@
-#ifndef _XN_H_
-#define _XN_H_
+#ifndef XN_H
+#define XN_H
 
 /*
 This file implements a low-level XpressNet class, which allows PC to

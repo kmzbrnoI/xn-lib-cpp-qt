@@ -85,7 +85,7 @@ void XpressNet::send(std::unique_ptr<const XnCmd>& cmd, UPXnCb ok, UPXnCb err) {
 
 	try {
 		QDateTime timeout;
-		if (is<XnCmdReadDirect>(cmd.get()))
+		if (is<XnCmdReadDirect>(cmd.get()) || is<XnCmdRequestReadResult>(cmd.get()))
 			timeout = QDateTime::currentDateTime().addMSecs(_HIST_PROG_TIMEOUT);
 		else
 			timeout = QDateTime::currentDateTime().addMSecs(_HIST_TIMEOUT);

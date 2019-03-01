@@ -36,7 +36,7 @@ How does sending work?
 #include "q-str-exception.h"
 
 #define XN_VERSION_MAJOR 1
-#define XN_VERSION_MINOR 0
+#define XN_VERSION_MINOR 1
 
 namespace Xn {
 

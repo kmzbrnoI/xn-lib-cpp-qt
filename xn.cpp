@@ -446,6 +446,14 @@ void XpressNet::readCVdirect(const uint8_t cv, XnReadCV const &callback, UPXnCb 
 	send(XnCmdReadDirect(cv, callback), nullptr, std::move(err));
 }
 
+void XpressNet::accInfoRequest(const uint8_t groupAddr, const bool nibble, UPXnCb ok, UPXnCb err) {
+	send(XnCmdAccInfoRequest(groupAddr, nibble), std::move(ok), std::move(err));
+}
+
+void XpressNet::accOpRequest(const uint16_t portAddr, const bool state, UPXnCb ok, UPXnCb err) {
+	send(XnCmdAccOpRequest(portAddr, state), std::move(ok), std::move(err));
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void XpressNet::hist_ok() {

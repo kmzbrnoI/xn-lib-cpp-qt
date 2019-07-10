@@ -83,22 +83,30 @@ public:
 	void setTrkStatus(const XnTrkStatus, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 	void emergencyStop(const LocoAddr, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 	void emergencyStop(UPXnCb ok = nullptr, UPXnCb err = nullptr);
+
 	void getCommandStationVersion(XnGotCSVersion const &, UPXnCb err = nullptr);
 	void getCommandStationStatus(UPXnCb ok = nullptr, UPXnCb err = nullptr);
 	void getLIVersion(XnGotLIVersion const &, UPXnCb err = nullptr);
 	void getLIAddress(XnGotLIAddress const &, UPXnCb err = nullptr);
 	void setLIAddress(uint8_t addr, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+
 	void pomWriteCv(const LocoAddr, uint16_t cv, uint8_t value, UPXnCb ok = nullptr,
 	                UPXnCb err = nullptr);
 	void pomWriteBit(const LocoAddr, uint16_t cv, uint8_t biti, bool value, UPXnCb ok = nullptr,
 	                 UPXnCb err = nullptr);
+	void readCVdirect(const uint8_t cv, XnReadCV const &callback, UPXnCb err = nullptr);
+
 	void setSpeed(const LocoAddr, uint8_t speed, XnDirection direction, UPXnCb ok = nullptr,
 	              UPXnCb err = nullptr);
 	void getLocoInfo(const LocoAddr, XnGotLocoInfo const &, UPXnCb err = nullptr);
 	void setFuncA(const LocoAddr, const XnFA, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 	void setFuncB(const LocoAddr, const XnFB, const XnFSet, UPXnCb ok = nullptr,
 	              UPXnCb err = nullptr);
-	void readCVdirect(const uint8_t cv, XnReadCV const &callback, UPXnCb err = nullptr);
+
+	void accInfoRequest(const uint8_t groupAddr, const bool nibble,
+	                    UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void accOpRequest(const uint16_t portAddr, const bool state, // portAddr 0-2048
+	                  UPXnCb ok = nullptr, UPXnCb err = nullptr);
 
 	static QString xnReadCVStatusToQString(const XnReadCVStatus st);
 

@@ -4,7 +4,7 @@ TEMPLATE = lib
 DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += xn.cpp
-HEADERS += xn.h xn-typedefs.h q-str-exception.h
+HEADERS += xn.h xn-typedefs.h xn-loco-addr.h xn-commands.h q-str-exception.h
 
 CONFIG += c++14
 QMAKE_CXXFLAGS += -Wall -Wextra -pedantic

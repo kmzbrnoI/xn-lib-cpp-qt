@@ -28,6 +28,8 @@ struct XnCmd {
 	virtual ~XnCmd() = default;
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
 struct XnCmdOff : public XnCmd {
 	std::vector<uint8_t> getBytes() const override { return {0x21, 0x80}; }
 	QString msg() const override { return "Track Off"; }
@@ -50,6 +52,8 @@ struct XnCmdEmergencyStopLoco : public XnCmd {
 	std::vector<uint8_t> getBytes() const override { return {0x92, loco.hi(), loco.lo()}; }
 	QString msg() const override { return "Single Loco Emergency Stop : " + QString::number(loco); }
 };
+
+///////////////////////////////////////////////////////////////////////////////
 
 using XnGotLIVersion = std::function<void(void *sender, unsigned hw, unsigned sw)>;
 
@@ -96,6 +100,8 @@ struct XnCmdGetCSStatus : public XnCmd {
 	QString msg() const override { return "Get Command station status"; }
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
 struct XnCmdPomWriteCv : public XnCmd {
 	const LocoAddr loco;
 	const uint16_t cv;
@@ -141,6 +147,8 @@ struct XnCmdPomWriteBit : public XnCmd {
 		       ", Bit: " + QString::number(biti) + ", Value: " + QString::number(value);
 	}
 };
+
+///////////////////////////////////////////////////////////////////////////////
 
 union XnFA {
 	uint8_t all;
@@ -192,6 +200,8 @@ struct XnCmdGetLocoInfo : public XnCmd {
 	QString msg() const override { return "Get Loco Information " + QString::number(loco.addr); }
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
 struct XnCmdSetSpeedDir : public XnCmd {
 	const LocoAddr loco;
 	const unsigned speed;
@@ -218,6 +228,8 @@ struct XnCmdSetSpeedDir : public XnCmd {
 		       ", Dir " + QString::number(static_cast<int>(dir));
 	}
 };
+
+///////////////////////////////////////////////////////////////////////////////
 
 struct XnCmdSetFuncA : public XnCmd {
 	const LocoAddr loco;
@@ -255,6 +267,8 @@ struct XnCmdSetFuncB : public XnCmd {
 	}
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
 enum class XnReadCVStatus {
 	Ok = 0x14,
 	ShortCircuit = 0x12,
@@ -288,6 +302,8 @@ struct XnCmdRequestReadResult : public XnCmd {
 	std::vector<uint8_t> getBytes() const override { return {0x21, 0x10}; }
 	QString msg() const override { return "Request for service mode results"; }
 };
+
+///////////////////////////////////////////////////////////////////////////////
 
 } // namespace Xn
 

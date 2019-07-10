@@ -44,6 +44,13 @@ You may use this library in two major ways:
    file and `xn.h` file. This is needed for proper behavior as a standalone-lib
    and plain header too.
 
+## Style checking
+
+```
+$ clang-tidy -extra-arg-before=-x -extra-arg-before=c++ -extra-arg=-std=c++14 *.cpp *.h
+$ clang-format *.cpp *.h
+```
+
 ## Authors
 
 This library was created by:

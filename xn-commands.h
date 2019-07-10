@@ -305,6 +305,41 @@ struct XnCmdRequestReadResult : public XnCmd {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+struct XnCmdAccInfoRequest : public XnCmd {
+	const uint8_t groupAddr;
+	const bool nibble;
+
+	XnCmdAccInfoRequest(const uint8_t groupAddr, const bool nibble)
+	    : groupAddr(groupAddr), nibble(nibble) {}
+	std::vector<uint8_t> getBytes() const override {
+		return {0x42, groupAddr, static_cast<uint8_t>(0x80+nibble) };
+	}
+	QString msg() const override {
+		return "Accessory Decoder Information Request: group " + QString::number(groupAddr) +
+		       ", nibble:" + QString::number(nibble);
+	}
+};
+
+struct XnCmdAccOpRequest : public XnCmd {
+	const uint16_t portAddr; // 0-2047
+	const bool state;
+
+	XnCmdAccOpRequest(const uint16_t portAddr, const bool state)
+	    : portAddr(portAddr), state(state) {}
+	std::vector<uint8_t> getBytes() const override {
+		return {
+			0x52,
+			static_cast<uint8_t>(portAddr >> 3),
+			static_cast<uint8_t>(0x80 + (portAddr & 0x7) + (state << 3)) };
+	}
+	QString msg() const override {
+		return "Accessory Decoder Operation Request: port " + QString::number(portAddr) +
+		       ", state:" + QString::number(state);
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 } // namespace Xn
 
 #endif

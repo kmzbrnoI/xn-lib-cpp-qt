@@ -62,6 +62,7 @@ enum class XnRecvCmdType {
 	CsStatus = 0x62,
 	CsX63 = 0x63,
 	CsLocoInfo = 0xE4,
+	CsAccInfoResp = 0x42,
 };
 
 class XpressNet : public QObject {
@@ -122,6 +123,8 @@ signals:
 	void onConnect();
 	void onDisconnect();
 	void onTrkStatusChanged(Xn::XnTrkStatus);
+	void onAccInputChanged(uint8_t groupAddr, bool nibble, bool error, XnFeedbackType inputType,
+	                       XnAccInputsState state);
 
 private:
 	QSerialPort m_serialPort;
@@ -144,6 +147,7 @@ private:
 	void handleMsgCvRead(MsgType &msg);
 	void handleMsgLocoInfo(MsgType &msg);
 	void handleMsgLIAddr(MsgType &msg);
+	void handleMsgAcc(MsgType &msg);
 
 	template <typename DataT>
 	void send(const DataT &&, UPXnCb ok = nullptr, UPXnCb err = nullptr);

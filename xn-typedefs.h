@@ -72,6 +72,24 @@ enum class XnLogLevel {
 	Debug = 5,
 };
 
+enum class XnFeedbackType {
+	accWithoutFb = 0,
+	accWithFb = 1,
+	fb = 2,
+	reserved = 3,
+};
+
+union XnAccInputsState {
+	uint8_t all;
+	struct sep {
+		bool i3 : 1;
+		bool i2 : 1;
+		bool i1 : 1;
+		bool i0 : 1;
+	};
+};
+
+
 } // namespace Xn
 
 #endif

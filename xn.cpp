@@ -182,6 +182,8 @@ void XpressNet::parseMessage(MsgType &msg) {
 			return;
 	case XnRecvCmdType::CsLocoInfo:
 		return handleMsgLocoInfo(msg);
+	case XnRecvCmdType::CsAccInfoResp:
+		return handleMsgAcc(msg);
 	}
 }
 
@@ -373,6 +375,20 @@ void XpressNet::handleMsgLIAddr(MsgType &msg) {
 	} else if (!m_hist.empty() > 0 && is<XnCmdSetLIAddress>(m_hist.front())) {
 		hist_ok();
 	}
+}
+
+void XpressNet::handleMsgAcc(MsgType &msg) {
+	uint8_t groupAddr = msg[1];
+	bool nibble = (msg[2] >> 4) & 0x1;
+	bool error = msg[2] >> 7;
+	XnFeedbackType inputType = static_cast<XnFeedbackType>((msg[2] >> 5) & 0x3);
+	XnAccInputsState state;
+	state.all = msg[2] & 0x0F;
+	log("GET: Acc state: group " + QString::number(groupAddr) + ", nibble " +
+	    QString::number(nibble) + ", state " + QString::number(state.all, 2),
+	    XnLogLevel::Info);
+	onAccInputChanged(groupAddr, nibble, error, inputType, state);
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////

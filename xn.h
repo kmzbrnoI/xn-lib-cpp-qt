@@ -27,7 +27,6 @@ How does sending work?
 #include <QDateTime>
 #include <QSerialPort>
 #include <QTimer>
-#include <QTimer>
 #include <memory>
 #include <queue>
 #include <vector>
@@ -73,9 +72,9 @@ public:
 	static constexpr unsigned _VERSION_MAJOR = XN_VERSION_MAJOR;
 	static constexpr unsigned _VERSION_MINOR = XN_VERSION_MINOR;
 
-	XpressNet(QObject* parent = nullptr);
+	XpressNet(QObject *parent = nullptr);
 
-	void connect(const QString& portname, uint32_t br, QSerialPort::FlowControl fc);
+	void connect(const QString &portname, uint32_t br, QSerialPort::FlowControl fc);
 	void disconnect();
 	bool connected() const;
 
@@ -84,10 +83,10 @@ public:
 	void setTrkStatus(const XnTrkStatus, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 	void emergencyStop(const LocoAddr, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 	void emergencyStop(UPXnCb ok = nullptr, UPXnCb err = nullptr);
-	void getCommandStationVersion(XnGotCSVersion const&, UPXnCb err = nullptr);
+	void getCommandStationVersion(XnGotCSVersion const &, UPXnCb err = nullptr);
 	void getCommandStationStatus(UPXnCb ok = nullptr, UPXnCb err = nullptr);
-	void getLIVersion(XnGotLIVersion const&, UPXnCb err = nullptr);
-	void getLIAddress(XnGotLIAddress const&, UPXnCb err = nullptr);
+	void getLIVersion(XnGotLIVersion const &, UPXnCb err = nullptr);
+	void getLIAddress(XnGotLIAddress const &, UPXnCb err = nullptr);
 	void setLIAddress(uint8_t addr, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 	void pomWriteCv(const LocoAddr, uint16_t cv, uint8_t value, UPXnCb ok = nullptr,
 	                UPXnCb err = nullptr);
@@ -95,10 +94,11 @@ public:
 	                 UPXnCb err = nullptr);
 	void setSpeed(const LocoAddr, uint8_t speed, XnDirection direction, UPXnCb ok = nullptr,
 	              UPXnCb err = nullptr);
-	void getLocoInfo(const LocoAddr, XnGotLocoInfo const&, UPXnCb err = nullptr);
+	void getLocoInfo(const LocoAddr, XnGotLocoInfo const &, UPXnCb err = nullptr);
 	void setFuncA(const LocoAddr, const XnFA, UPXnCb ok = nullptr, UPXnCb err = nullptr);
-	void setFuncB(const LocoAddr, const XnFB, const XnFSet, UPXnCb ok = nullptr, UPXnCb err = nullptr);
-	void readCVdirect(const uint8_t cv, XnReadCV const& callback, UPXnCb err = nullptr);
+	void setFuncB(const LocoAddr, const XnFB, const XnFSet, UPXnCb ok = nullptr,
+	              UPXnCb err = nullptr);
+	void readCVdirect(const uint8_t cv, XnReadCV const &callback, UPXnCb err = nullptr);
 
 	static QString xnReadCVStatusToQString(const XnReadCVStatus st);
 
@@ -124,39 +124,39 @@ private:
 	XnTrkStatus m_trk_status = XnTrkStatus::Unknown;
 
 	using MsgType = std::vector<uint8_t>;
-	void parseMessage(MsgType& msg);
+	void parseMessage(MsgType &msg);
 	void send(const MsgType);
-	void send(std::unique_ptr<const XnCmd>&, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void send(std::unique_ptr<const XnCmd> &, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 
-	void handleMsgLiError(MsgType& msg);
-	void handleMsgLiVersion(MsgType& msg);
-	void handleMsgCsGeneralEvent(MsgType& msg);
-	void handleMsgCsStatus(MsgType& msg);
-	void handleMsgCsVersion(MsgType& msg);
-	void handleMsgCvRead(MsgType& msg);
-	void handleMsgLocoInfo(MsgType& msg);
-	void handleMsgLIAddr(MsgType& msg);
+	void handleMsgLiError(MsgType &msg);
+	void handleMsgLiVersion(MsgType &msg);
+	void handleMsgCsGeneralEvent(MsgType &msg);
+	void handleMsgCsStatus(MsgType &msg);
+	void handleMsgCsVersion(MsgType &msg);
+	void handleMsgCvRead(MsgType &msg);
+	void handleMsgLocoInfo(MsgType &msg);
+	void handleMsgLIAddr(MsgType &msg);
 
 	template <typename DataT>
-	void send(const DataT&&, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void send(const DataT &&, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 
-	void send(XnHistoryItem&&);
+	void send(XnHistoryItem &&);
 
 	void hist_ok();
 	void hist_err();
 	void hist_send();
-	void log(const QString& message, const XnLogLevel loglevel);
+	void log(const QString &message, const XnLogLevel loglevel);
 
 	template <typename DataT>
 	QString dataToStr(DataT, size_t len = 0);
 
 	template <typename Target>
-	bool is(const XnCmd* x);
+	bool is(const XnCmd *x);
 
 	template <typename Target>
-	bool is(const XnHistoryItem& h);
+	bool is(const XnHistoryItem &h);
 };
 
-} //namespace Xn
+} // namespace Xn
 
 #endif

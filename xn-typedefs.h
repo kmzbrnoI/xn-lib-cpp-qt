@@ -35,23 +35,26 @@ struct XnCommandCallback {
 	void *const data;
 
 	XnCommandCallback(XnCommandCallbackFunc const func, void *const data = nullptr)
-		: func(func), data(data) {}
+	    : func(func), data(data) {}
 };
 
 using XnCb = XnCommandCallback;
 using UPXnCb = std::unique_ptr<XnCommandCallback>;
 
 struct XnHistoryItem {
-	XnHistoryItem(std::unique_ptr<const XnCmd>& cmd, QDateTime timeout, size_t no_sent,
-	              std::unique_ptr<XnCb>&& callback_ok,
-	              std::unique_ptr<XnCb>&& callback_err)
-		: cmd(std::move(cmd)), timeout(timeout), no_sent(no_sent),
-		  callback_ok(std::move(callback_ok)), callback_err(std::move(callback_err))
-		{}
-	XnHistoryItem(XnHistoryItem&& hist) noexcept
-		: cmd(std::move(hist.cmd)), timeout(hist.timeout), no_sent(hist.no_sent),
-		  callback_ok(std::move(hist.callback_ok)), callback_err(std::move(hist.callback_err))
-		{}
+	XnHistoryItem(std::unique_ptr<const XnCmd> &cmd, QDateTime timeout, size_t no_sent,
+	              std::unique_ptr<XnCb> &&callback_ok, std::unique_ptr<XnCb> &&callback_err)
+	    : cmd(std::move(cmd))
+	    , timeout(timeout)
+	    , no_sent(no_sent)
+	    , callback_ok(std::move(callback_ok))
+	    , callback_err(std::move(callback_err)) {}
+	XnHistoryItem(XnHistoryItem &&hist) noexcept
+	    : cmd(std::move(hist.cmd))
+	    , timeout(hist.timeout)
+	    , no_sent(hist.no_sent)
+	    , callback_ok(std::move(hist.callback_ok))
+	    , callback_err(std::move(hist.callback_err)) {}
 
 	std::unique_ptr<const XnCmd> cmd;
 	QDateTime timeout;
@@ -69,6 +72,6 @@ enum class XnLogLevel {
 	Debug = 5,
 };
 
-} //namespace Xn
+} // namespace Xn
 
 #endif

@@ -5,8 +5,8 @@
 This file defines XpressNET locomotive address.
 */
 
-#include <memory>
 #include <functional>
+#include <memory>
 
 #include "q-str-exception.h"
 
@@ -15,7 +15,6 @@ namespace Xn {
 struct EInvalidAddr : public QStrException {
 	EInvalidAddr(const QString str) : QStrException(str) {}
 };
-
 
 struct LocoAddr {
 	uint16_t addr;
@@ -34,7 +33,6 @@ struct LocoAddr {
 	operator QString() const { return QString(addr); }
 };
 
-
-}//namespace Xn
+} // namespace Xn
 
 #endif

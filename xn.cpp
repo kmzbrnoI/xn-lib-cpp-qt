@@ -535,4 +535,4 @@ QString XpressNet::xnReadCVStatusToQString(const XnReadCVStatus st) {
 	return "Unknown error";
 }
 
-}//namespace Xn
+} //namespace Xn

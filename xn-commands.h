@@ -7,8 +7,8 @@ Each command type has its own class inherited from XnCmd.
 See xn.h or README for more documentation.
 */
 
-#include <vector>
 #include <functional>
+#include <vector>
 
 #include "q-str-exception.h"
 #include "xn-loco-addr.h"
@@ -21,7 +21,6 @@ struct EInvalidCv : public QStrException {
 struct EInvalidSpeed : public QStrException {
 	EInvalidSpeed(const QString str) : QStrException(str) {}
 };
-
 
 struct XnCmd {
 	virtual std::vector<uint8_t> getBytes() const = 0;
@@ -267,7 +266,6 @@ struct XnCmdSetFuncB : public XnCmd {
 	}
 };
 
-
 enum class XnReadCVStatus {
 	Ok = 0x14,
 	ShortCircuit = 0x12,
@@ -302,7 +300,6 @@ struct XnCmdRequestReadResult : public XnCmd {
 	QString msg() const override { return "Request for service mode results"; }
 };
 
-
-}//namespace Xn
+} //namespace Xn
 
 #endif

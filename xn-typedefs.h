@@ -7,13 +7,13 @@ Locomotive address is represented as an instance of LocoAddr class.
 See xn.h or README for more documentation.
 */
 
-#include <QDateTime>
 #include <QByteArray>
+#include <QDateTime>
 #include <memory>
 
 #include "q-str-exception.h"
-#include "xn-loco-addr.h"
 #include "xn-commands.h"
+#include "xn-loco-addr.h"
 
 namespace Xn {
 
@@ -21,14 +21,12 @@ struct EInvalidTrkStatus : public QStrException {
 	EInvalidTrkStatus(const QString str) : QStrException(str) {}
 };
 
-
 enum class XnTrkStatus {
 	Unknown,
 	Off,
 	On,
 	Programming,
 };
-
 
 using XnCommandCallbackFunc = std::function<void(void *sender, void *data)>;
 
@@ -71,6 +69,6 @@ enum class XnLogLevel {
 	Debug = 5,
 };
 
-}//namespace Xn
+} //namespace Xn
 
 #endif

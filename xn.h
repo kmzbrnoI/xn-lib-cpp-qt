@@ -24,16 +24,16 @@ How does sending work?
  * For adding more commands, see xn-typedefs.h.
 */
 
+#include <QDateTime>
 #include <QSerialPort>
 #include <QTimer>
-#include <QDateTime>
-#include <vector>
-#include <queue>
 #include <QTimer>
 #include <memory>
+#include <queue>
+#include <vector>
 
-#include "xn-typedefs.h"
 #include "q-str-exception.h"
+#include "xn-typedefs.h"
 
 #define XN_VERSION_MAJOR 1
 #define XN_VERSION_MINOR 1
@@ -73,7 +73,7 @@ public:
 	static constexpr unsigned _VERSION_MAJOR = XN_VERSION_MAJOR;
 	static constexpr unsigned _VERSION_MINOR = XN_VERSION_MINOR;
 
-	XpressNet(QObject *parent = nullptr);
+	XpressNet(QObject* parent = nullptr);
 
 	void connect(const QString& portname, uint32_t br, QSerialPort::FlowControl fc);
 	void disconnect();
@@ -137,7 +137,7 @@ private:
 	void handleMsgLocoInfo(MsgType& msg);
 	void handleMsgLIAddr(MsgType& msg);
 
-	template<typename DataT>
+	template <typename DataT>
 	void send(const DataT&&, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 
 	void send(XnHistoryItem&&);
@@ -147,16 +147,16 @@ private:
 	void hist_send();
 	void log(const QString& message, const XnLogLevel loglevel);
 
-	template<typename DataT>
+	template <typename DataT>
 	QString dataToStr(DataT, size_t len = 0);
 
-	template<typename Target>
-	bool is(const XnCmd *x);
+	template <typename Target>
+	bool is(const XnCmd* x);
 
-	template<typename Target>
+	template <typename Target>
 	bool is(const XnHistoryItem& h);
 };
 
-}//namespace Xn
+} //namespace Xn
 
 #endif

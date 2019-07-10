@@ -25,7 +25,7 @@ struct EInvalidSpeed : public QStrException {
 struct XnCmd {
 	virtual std::vector<uint8_t> getBytes() const = 0;
 	virtual QString msg() const = 0;
-	virtual ~XnCmd(){};
+	virtual ~XnCmd() = default;
 };
 
 struct XnCmdOff : public XnCmd {

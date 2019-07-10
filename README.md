@@ -44,6 +44,33 @@ You may use this library in two major ways:
    file and `xn.h` file. This is needed for proper behavior as a standalone-lib
    and plain header too.
 
+## Building & toolkit
+
+This SW was developed in `vim` using `qmake` & `make`. Downloads are available
+in *Releases* section.
+
+### Prerequisities
+
+ * Qt 5
+ * Qt's `serialport`
+
+### Build
+
+Clone this repository (including submodules!):
+
+```
+$ git clone --recurse-submodules https://github.com/kmzbrnoI/xn-lib-cpp-qt
+```
+
+And then build:
+
+```
+$ mkdir build
+$ cd build
+$ qmake ..
+$ make
+```
+
 ## Style checking
 
 ```

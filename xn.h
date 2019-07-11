@@ -24,6 +24,7 @@ How does sending work?
  * For adding more commands, see xn-typedefs.h.
 */
 
+#include <QObject>
 #include <QDateTime>
 #include <QSerialPort>
 #include <QTimer>

@@ -67,7 +67,7 @@ void XpressNet::send(const MsgType data) {
 		x ^= d;
 	qdata.append(x);
 
-	log("PUT: " + dataToStr(qdata), XnLogLevel::Data);
+	log("PUT: " + dataToStr(qdata), XnLogLevel::RawData);
 
 	int sent = m_serialPort.write(qdata);
 
@@ -108,7 +108,7 @@ void XpressNet::send(XnHistoryItem &&hist) {
 	else
 		hist.timeout = QDateTime::currentDateTime().addMSecs(_HIST_TIMEOUT);
 
-	log("PUT: " + hist.cmd->msg(), XnLogLevel::Info);
+	log("PUT: " + hist.cmd->msg(), XnLogLevel::Commands);
 
 	try {
 		send(hist.cmd->getBytes());
@@ -135,7 +135,7 @@ void XpressNet::handleReadyRead() {
 		for (uint i = 0; i < length; i++)
 			x ^= m_readData[i];
 
-		log("GET: " + dataToStr(m_readData, length), XnLogLevel::Data);
+		log("GET: " + dataToStr(m_readData, length), XnLogLevel::RawData);
 
 		if (x != 0) {
 			// XOR error
@@ -196,7 +196,7 @@ void XpressNet::handleMsgLiError(MsgType &msg) {
 	} else if (0x03 == msg[1]) {
 		log("GET: Unknown communication error", XnLogLevel::Error);
 	} else if (0x04 == msg[1]) {
-		log("GET: OK", XnLogLevel::Info);
+		log("GET: OK", XnLogLevel::Commands);
 
 		if (!m_hist.empty() && is<XnCmdReadDirect>(m_hist.front())) {
 			const XnCmdReadDirect &rd =
@@ -220,7 +220,7 @@ void XpressNet::handleMsgLiVersion(MsgType &msg) {
 	unsigned sw = (msg[2] & 0x0F) + 10*(msg[2] >> 4);
 
 	log("GET: LI version; HW: " + QString::number(hw) + ", SW: " + QString::number(sw),
-	    XnLogLevel::Info);
+	    XnLogLevel::Commands);
 
 	if (is<XnCmdGetLIVersion>(m_hist.front())) {
 		std::unique_ptr<const XnCmd> cmd = std::move(m_hist.front().cmd);
@@ -233,7 +233,7 @@ void XpressNet::handleMsgLiVersion(MsgType &msg) {
 
 void XpressNet::handleMsgCsGeneralEvent(MsgType &msg) {
 	if (0x00 == msg[1]) {
-		log("GET: Status Off", XnLogLevel::Info);
+		log("GET: Status Off", XnLogLevel::Commands);
 		if (!m_hist.empty() > 0 && is<XnCmdOff>(m_hist.front()))
 			hist_ok();
 		if (m_trk_status != XnTrkStatus::Off) {
@@ -241,7 +241,7 @@ void XpressNet::handleMsgCsGeneralEvent(MsgType &msg) {
 			onTrkStatusChanged(m_trk_status);
 		}
 	} else if (0x01 == msg[1]) {
-		log("GET: Status On", XnLogLevel::Info);
+		log("GET: Status On", XnLogLevel::Commands);
 		if (!m_hist.empty() > 0 && is<XnCmdOn>(m_hist.front()))
 			hist_ok();
 		if (m_trk_status != XnTrkStatus::On) {
@@ -249,7 +249,7 @@ void XpressNet::handleMsgCsGeneralEvent(MsgType &msg) {
 			onTrkStatusChanged(m_trk_status);
 		}
 	} else if (0x02 == msg[1]) {
-		log("GET: Status Programming", XnLogLevel::Info);
+		log("GET: Status Programming", XnLogLevel::Commands);
 		if (m_trk_status != XnTrkStatus::Programming) {
 			m_trk_status = XnTrkStatus::Programming;
 			onTrkStatusChanged(m_trk_status);
@@ -273,7 +273,7 @@ void XpressNet::handleMsgCsGeneralEvent(MsgType &msg) {
 }
 
 void XpressNet::handleMsgCsStatus(MsgType &msg) {
-	log("GET: command station status", XnLogLevel::Info);
+	log("GET: command station status", XnLogLevel::Commands);
 	XnTrkStatus n;
 	if (msg[2] & 0x03)
 		n = XnTrkStatus::Off;
@@ -305,7 +305,7 @@ void XpressNet::handleMsgCsVersion(MsgType &msg) {
 
 void XpressNet::handleMsgCvRead(MsgType &msg) {
 	log("GET: CV " + QString::number(msg[2]) + " value=" + QString::number(msg[3]),
-	    XnLogLevel::Info);
+	    XnLogLevel::Commands);
 	if (!m_hist.empty() > 0 && is<XnCmdRequestReadResult>(m_hist.front())) {
 		std::unique_ptr<const XnCmd> cmd = std::move(m_hist.front().cmd);
 		hist_ok();
@@ -316,7 +316,7 @@ void XpressNet::handleMsgCvRead(MsgType &msg) {
 }
 
 void XpressNet::handleMsgLocoInfo(MsgType &msg) {
-	log("GET: loco information", XnLogLevel::Info);
+	log("GET: loco information", XnLogLevel::Commands);
 
 	if (!m_hist.empty() > 0 && is<XnCmdGetLocoInfo>(m_hist.front())) {
 		std::unique_ptr<const XnCmd> cmd = std::move(m_hist.front().cmd);
@@ -365,7 +365,7 @@ void XpressNet::handleMsgLocoInfo(MsgType &msg) {
 }
 
 void XpressNet::handleMsgLIAddr(MsgType &msg) {
-	log("GET: LI Address is " + QString::number(msg[2]), XnLogLevel::Info);
+	log("GET: LI Address is " + QString::number(msg[2]), XnLogLevel::Commands);
 	if (!m_hist.empty() > 0 && is<XnCmdGetLIAddress>(m_hist.front())) {
 		std::unique_ptr<const XnCmd> cmd = std::move(m_hist.front().cmd);
 		hist_ok();
@@ -386,7 +386,7 @@ void XpressNet::handleMsgAcc(MsgType &msg) {
 	state.all = msg[2] & 0x0F;
 	log("GET: Acc state: group " + QString::number(groupAddr) + ", nibble " +
 	    QString::number(nibble) + ", state " + QString::number(state.all, 2),
-	    XnLogLevel::Info);
+	    XnLogLevel::Commands);
 	onAccInputChanged(groupAddr, nibble, error, inputType, state);
 
 }

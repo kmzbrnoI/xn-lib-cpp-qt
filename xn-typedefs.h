@@ -68,8 +68,9 @@ enum class XnLogLevel {
 	Error = 1,
 	Warning = 2,
 	Info = 3,
-	Data = 4,
-	Debug = 5,
+	Commands = 4,
+	RawData = 5,
+	Debug = 6,
 };
 
 enum class XnFeedbackType {

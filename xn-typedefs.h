@@ -83,10 +83,10 @@ enum class XnFeedbackType {
 union XnAccInputsState {
 	uint8_t all;
 	struct {
-		bool i3 : 1;
-		bool i2 : 1;
-		bool i1 : 1;
 		bool i0 : 1;
+		bool i1 : 1;
+		bool i2 : 1;
+		bool i3 : 1;
 	} sep;
 };
 

@@ -392,7 +392,6 @@ void XpressNet::handleMsgAcc(MsgType &msg) {
 	    (dynamic_cast<const XnCmdAccInfoRequest *>(m_hist.front().cmd.get())->nibble == nibble))
 		hist_ok();
 	onAccInputChanged(groupAddr, nibble, error, inputType, state);
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////

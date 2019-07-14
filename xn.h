@@ -104,8 +104,7 @@ public:
 	void setFuncB(const LocoAddr, const XnFB, const XnFSet, UPXnCb ok = nullptr,
 	              UPXnCb err = nullptr);
 
-	void accInfoRequest(const uint8_t groupAddr, const bool nibble,
-	                    UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void accInfoRequest(const uint8_t groupAddr, const bool nibble, UPXnCb err = nullptr);
 	void accOpRequest(const uint16_t portAddr, const bool state, // portAddr 0-2048
 	                  UPXnCb ok = nullptr, UPXnCb err = nullptr);
 

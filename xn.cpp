@@ -387,6 +387,10 @@ void XpressNet::handleMsgAcc(MsgType &msg) {
 	log("GET: Acc state: group " + QString::number(groupAddr) + ", nibble " +
 	    QString::number(nibble) + ", state " + QString::number(state.all, 2),
 	    XnLogLevel::Commands);
+	if ((!m_hist.empty() > 0) && (is<XnCmdAccInfoRequest>(m_hist.front())) &&
+	    (dynamic_cast<const XnCmdAccInfoRequest *>(m_hist.front().cmd.get())->groupAddr == groupAddr) &&
+	    (dynamic_cast<const XnCmdAccInfoRequest *>(m_hist.front().cmd.get())->nibble == nibble))
+		hist_ok();
 	onAccInputChanged(groupAddr, nibble, error, inputType, state);
 
 }
@@ -462,8 +466,8 @@ void XpressNet::readCVdirect(const uint8_t cv, XnReadCV const &callback, UPXnCb 
 	send(XnCmdReadDirect(cv, callback), nullptr, std::move(err));
 }
 
-void XpressNet::accInfoRequest(const uint8_t groupAddr, const bool nibble, UPXnCb ok, UPXnCb err) {
-	send(XnCmdAccInfoRequest(groupAddr, nibble), std::move(ok), std::move(err));
+void XpressNet::accInfoRequest(const uint8_t groupAddr, const bool nibble, UPXnCb err) {
+	send(XnCmdAccInfoRequest(groupAddr, nibble), nullptr, std::move(err));
 }
 
 void XpressNet::accOpRequest(const uint16_t portAddr, const bool state, UPXnCb ok, UPXnCb err) {

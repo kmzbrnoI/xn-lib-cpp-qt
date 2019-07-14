@@ -46,6 +46,7 @@ constexpr size_t _HIST_PROG_TIMEOUT = 10000; // 10 s
 constexpr size_t _HIST_SEND_MAX = 3;
 constexpr size_t _BUF_IN_TIMEOUT = 300; // ms
 constexpr size_t _STEPS_CNT = 28;
+constexpr size_t _MAX_HIST_BUF_COUNT = 10;
 
 struct EOpenError : public QStrException {
 	EOpenError(const QString str) : QStrException(str) {}
@@ -123,20 +124,26 @@ signals:
 	void onDisconnect();
 	void onTrkStatusChanged(Xn::XnTrkStatus);
 	void onAccInputChanged(uint8_t groupAddr, bool nibble, bool error, Xn::XnFeedbackType inputType,
-						   Xn::XnAccInputsState state);
+	                       Xn::XnAccInputsState state);
 
 private:
 	QSerialPort m_serialPort;
 	QByteArray m_readData;
 	QDateTime m_receiveTimeout;
 	std::queue<XnHistoryItem> m_hist;
+	std::queue<XnHistoryItem> m_out;
 	QTimer m_hist_timer;
 	XnTrkStatus m_trk_status = XnTrkStatus::Unknown;
 
 	using MsgType = std::vector<uint8_t>;
 	void parseMessage(MsgType &msg);
 	void send(const MsgType);
-	void send(std::unique_ptr<const XnCmd> &, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void send(XnHistoryItem &&);
+	void send(std::unique_ptr<const XnCmd>, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void to_send(std::unique_ptr<const XnCmd> &, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+
+	template <typename DataT>
+	void to_send(const DataT &&, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 
 	void handleMsgLiError(MsgType &msg);
 	void handleMsgLiVersion(MsgType &msg);
@@ -148,15 +155,12 @@ private:
 	void handleMsgLIAddr(MsgType &msg);
 	void handleMsgAcc(MsgType &msg);
 
-	template <typename DataT>
-	void send(const DataT &&, UPXnCb ok = nullptr, UPXnCb err = nullptr);
-
-	void send(XnHistoryItem &&);
-
 	void hist_ok();
 	void hist_err();
 	void hist_send();
+	void send_next_out();
 	void log(const QString &message, const XnLogLevel loglevel);
+	QDateTime timeout(const XnCmd *x);
 
 	template <typename DataT>
 	QString dataToStr(DataT, size_t len = 0);

@@ -34,6 +34,7 @@ void XpressNet::disconnect() {
 	log("Disconnecting...", XnLogLevel::Info);
 	m_hist_timer.stop();
 	m_serialPort.close();
+	onDisconnect();
 }
 
 void XpressNet::sp_about_to_close() {
@@ -45,7 +46,6 @@ void XpressNet::sp_about_to_close() {
 	m_trk_status = XnTrkStatus::Unknown;
 
 	log("Disconnected", XnLogLevel::Info);
-	onDisconnect();
 }
 
 bool XpressNet::connected() const { return m_serialPort.isOpen(); }

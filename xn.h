@@ -122,8 +122,8 @@ signals:
 	void onConnect();
 	void onDisconnect();
 	void onTrkStatusChanged(Xn::XnTrkStatus);
-	void onAccInputChanged(uint8_t groupAddr, bool nibble, bool error, XnFeedbackType inputType,
-	                       XnAccInputsState state);
+	void onAccInputChanged(uint8_t groupAddr, bool nibble, bool error, Xn::XnFeedbackType inputType,
+						   Xn::XnAccInputsState state);
 
 private:
 	QSerialPort m_serialPort;

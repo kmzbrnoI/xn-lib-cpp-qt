@@ -61,15 +61,14 @@ bool XpressNet::is(const XnHistoryItem &h) {
 	return (dynamic_cast<const Target *>(h.cmd.get()) != nullptr);
 }
 
-void XpressNet::send(const MsgType data) {
-	QByteArray qdata(reinterpret_cast<const char *>(data.data()), data.size());
-
+void XpressNet::send(MsgType data) {
 	uint8_t x = 0;
 	for (uint8_t d : data)
 		x ^= d;
-	qdata.append(x);
+	data.push_back(x);
 
-	log("PUT: " + dataToStr(qdata), XnLogLevel::RawData);
+	log("PUT: " + dataToStr(data), XnLogLevel::RawData);
+	QByteArray qdata(reinterpret_cast<const char *>(data.data()), data.size());
 
 	int sent = m_serialPort.write(qdata);
 
@@ -565,7 +564,7 @@ QString XpressNet::dataToStr(DataT data, size_t len) {
 	QString out;
 	size_t i = 0;
 	for (auto d = data.begin(); (d != data.end() && (len == 0 || i < len)); d++, i++)
-		out += QString("0x%1 ").arg(*d, 2, 16, QLatin1Char('0')).rightRef(5);
+		out += QString("0x%1 ").arg(*d, 2, 16, QLatin1Char('0'));
 
 	return out;
 }

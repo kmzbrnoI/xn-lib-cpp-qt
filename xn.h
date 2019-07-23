@@ -137,7 +137,7 @@ private:
 
 	using MsgType = std::vector<uint8_t>;
 	void parseMessage(MsgType &msg);
-	void send(const MsgType);
+	void send(MsgType);
 	void send(XnHistoryItem &&);
 	void send(std::unique_ptr<const XnCmd>, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 	void to_send(std::unique_ptr<const XnCmd> &, UPXnCb ok = nullptr, UPXnCb err = nullptr);

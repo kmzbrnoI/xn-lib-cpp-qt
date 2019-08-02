@@ -86,7 +86,7 @@ void XpressNet::to_send(std::unique_ptr<const XnCmd> &cmd, UPXnCb ok, UPXnCb err
 }
 
 void XpressNet::send(std::unique_ptr<const XnCmd> cmd, UPXnCb ok, UPXnCb err) {
-	log("PUT: " + cmd->msg(), XnLogLevel::Info);
+	log("PUT: " + cmd->msg(), XnLogLevel::Commands);
 
 	try {
 		send(cmd->getBytes());

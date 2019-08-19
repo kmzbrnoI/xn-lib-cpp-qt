@@ -394,7 +394,7 @@ void XpressNet::handleMsgAcc(MsgType &msg) {
 	XnAccInputsState state;
 	state.all = msg[2] & 0x0F;
 	log("GET: Acc state: group " + QString::number(groupAddr) + ", nibble " +
-	    QString::number(nibble) + ", state " + QString::number(state.all, 2),
+		QString::number(nibble) + ", state " + QString::number(state.all, 2).rightJustified(4, '0'),
 	    XnLogLevel::Commands);
 	if ((!m_hist.empty() > 0) && (is<XnCmdAccInfoRequest>(m_hist.front())) &&
 	    (dynamic_cast<const XnCmdAccInfoRequest *>(m_hist.front().cmd.get())->groupAddr == groupAddr) &&

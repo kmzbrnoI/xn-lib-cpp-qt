@@ -13,7 +13,7 @@ however, you may simply add more commands from newer versions of XpressNET (for
 example [XpressNET
 v3.6](https://www.lenz-elektronik.de/pdf/XpressNet%20und%20USB%20Interface.pdf)).
 
-## Requirements
+## Requirements for use
 
 This library uses [Qt](https://www.qt.io/)'s
 [SerialPort](http://doc.qt.io/qt-5/qtserialport-index.html) which creates a
@@ -44,12 +44,23 @@ You may use this library in two major ways:
 ## Building & toolkit
 
 This SW was developed in `vim` using `qmake` & `make`. Downloads are available
-in *Releases* section.
+in *Releases* section. It is suggested to use `clang` as a compiler, because
+then you may use `clang-tools` during development process (see below).
 
 ### Prerequisities
 
  * Qt 5
  * Qt's `serialport`
+ * Optional: clang build tools (see below)
+ * Optional for clang: [Bear](https://github.com/rizsotto/Bear)
+
+### Example: toolchain setup on Debian
+
+```bash
+$ apt install qt5-default libqt5serialport5-dev
+$ apt install clang-7 clang-tools-7 clang-tidy-7 clang-format-7
+$ apt install bear
+```
 
 ### Build
 
@@ -64,8 +75,8 @@ And then build:
 ```
 $ mkdir build
 $ cd build
-$ qmake ..
-$ make
+$ qmake -spec linux-clang ..
+$ bear make
 ```
 
 ## Cross-compiling for Windows
@@ -90,8 +101,8 @@ make qtbase qtserialport
 ## Style checking
 
 ```
-$ clang-tidy-6.0 -extra-arg-before=-x -extra-arg-before=c++ -extra-arg=-std=c++14 *.cpp *.h
-$ clang-format-6.0 *.cpp *.h
+$ clang-tidy-7 -p build -extra-arg-before=-x -extra-arg-before=c++ -extra-arg=-std=c++14 -header-filter=. *.cpp
+$ clang-format-7 *.cpp *.h
 ```
 
 ## Authors

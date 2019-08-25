@@ -24,8 +24,8 @@ How does sending work?
  * For adding more commands, see xn-typedefs.h.
 */
 
-#include <QObject>
 #include <QDateTime>
+#include <QObject>
 #include <QSerialPort>
 #include <QTimer>
 #include <memory>
@@ -103,8 +103,7 @@ public:
 	              UPXnCb err = nullptr);
 	void getLocoInfo(LocoAddr, XnGotLocoInfo const &, UPXnCb err = nullptr);
 	void setFuncA(LocoAddr, XnFA, UPXnCb ok = nullptr, UPXnCb err = nullptr);
-	void setFuncB(LocoAddr, XnFB, XnFSet, UPXnCb ok = nullptr,
-	              UPXnCb err = nullptr);
+	void setFuncB(LocoAddr, XnFB, XnFSet, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 
 	void accInfoRequest(uint8_t groupAddr, bool nibble, UPXnCb err = nullptr);
 	void accOpRequest(uint16_t portAddr, bool state, // portAddr 0-2048

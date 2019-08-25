@@ -208,8 +208,7 @@ void XpressNet::handleMsgLiError(MsgType &msg) {
 		log("GET: OK", XnLogLevel::Commands);
 
 		if (!m_hist.empty() && is<XnCmdReadDirect>(m_hist.front())) {
-			const auto &rd =
-			    dynamic_cast<const XnCmdReadDirect &>(*(m_hist.front().cmd));
+			const auto &rd = dynamic_cast<const XnCmdReadDirect &>(*(m_hist.front().cmd));
 			to_send(XnCmdRequestReadResult(rd.cv, rd.callback), nullptr,
 			        std::move(m_hist.front().callback_err));
 		}

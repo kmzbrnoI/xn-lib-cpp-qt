@@ -259,8 +259,7 @@ struct XnCmdSetFuncB : public XnCmd {
 	std::vector<uint8_t> getBytes() const override {
 		if (range == XnFSet::F5toF8)
 			return {0xE4, 0x21, loco.hi(), loco.lo(), static_cast<uint8_t>(fb.all & 0xF)};
-		else
-			return {0xE4, 0x22, loco.hi(), loco.lo(), static_cast<uint8_t>(fb.all >> 4)};
+		return {0xE4, 0x22, loco.hi(), loco.lo(), static_cast<uint8_t>(fb.all >> 4)};
 	}
 	QString msg() const override {
 		return "Set loco " + QString::number(loco.addr) + " func B: " + QString::number(fb.all, 2);

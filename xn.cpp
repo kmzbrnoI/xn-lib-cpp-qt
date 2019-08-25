@@ -208,7 +208,7 @@ void XpressNet::handleMsgLiError(MsgType &msg) {
 		log("GET: OK", XnLogLevel::Commands);
 
 		if (!m_hist.empty() && is<XnCmdReadDirect>(m_hist.front())) {
-			const XnCmdReadDirect &rd =
+			const auto &rd =
 			    dynamic_cast<const XnCmdReadDirect &>(*(m_hist.front().cmd));
 			to_send(XnCmdRequestReadResult(rd.cv, rd.callback), nullptr,
 			        std::move(m_hist.front().callback_err));
@@ -234,7 +234,7 @@ void XpressNet::handleMsgLiVersion(MsgType &msg) {
 	if (is<XnCmdGetLIVersion>(m_hist.front())) {
 		std::unique_ptr<const XnCmd> cmd = std::move(m_hist.front().cmd);
 		hist_ok();
-		const XnCmdGetLIVersion &hist = dynamic_cast<const XnCmdGetLIVersion&>(*cmd.get());
+		const auto &hist = dynamic_cast<const XnCmdGetLIVersion&>(*cmd);
 		if (hist.callback != nullptr)
 			hist.callback(this, hw, sw);
 	}
@@ -390,7 +390,7 @@ void XpressNet::handleMsgAcc(MsgType &msg) {
 	uint8_t groupAddr = msg[1];
 	bool nibble = (msg[2] >> 4) & 0x1;
 	bool error = msg[2] >> 7;
-	XnFeedbackType inputType = static_cast<XnFeedbackType>((msg[2] >> 5) & 0x3);
+	auto inputType = static_cast<XnFeedbackType>((msg[2] >> 5) & 0x3);
 	XnAccInputsState state;
 	state.all = msg[2] & 0x0F;
 	log("GET: Acc state: group " + QString::number(groupAddr) + ", nibble " +
@@ -494,7 +494,7 @@ void XpressNet::hist_ok() {
 	m_hist.pop();
 	if (nullptr != hist.callback_ok)
 		hist.callback_ok->func(this, hist.callback_ok->data);
-	if (m_out.size() > 0)
+	if (!m_out.empty())
 		send_next_out();
 }
 
@@ -511,7 +511,7 @@ void XpressNet::hist_err() {
 
 	if (nullptr != hist.callback_err)
 		hist.callback_err->func(this, hist.callback_err->data);
-	if (m_out.size() > 0)
+	if (!m_out.empty())
 		send_next_out();
 }
 

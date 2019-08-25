@@ -83,8 +83,8 @@ public:
 
 	XnTrkStatus getTrkStatus() const;
 
-	void setTrkStatus(const XnTrkStatus, UPXnCb ok = nullptr, UPXnCb err = nullptr);
-	void emergencyStop(const LocoAddr, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void setTrkStatus(XnTrkStatus, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void emergencyStop(LocoAddr, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 	void emergencyStop(UPXnCb ok = nullptr, UPXnCb err = nullptr);
 
 	void getCommandStationVersion(XnGotCSVersion const &, UPXnCb err = nullptr);
@@ -93,24 +93,24 @@ public:
 	void getLIAddress(XnGotLIAddress const &, UPXnCb err = nullptr);
 	void setLIAddress(uint8_t addr, UPXnCb ok = nullptr, UPXnCb err = nullptr);
 
-	void pomWriteCv(const LocoAddr, uint16_t cv, uint8_t value, UPXnCb ok = nullptr,
+	void pomWriteCv(LocoAddr, uint16_t cv, uint8_t value, UPXnCb ok = nullptr,
 	                UPXnCb err = nullptr);
-	void pomWriteBit(const LocoAddr, uint16_t cv, uint8_t biti, bool value, UPXnCb ok = nullptr,
+	void pomWriteBit(LocoAddr, uint16_t cv, uint8_t biti, bool value, UPXnCb ok = nullptr,
 	                 UPXnCb err = nullptr);
-	void readCVdirect(const uint8_t cv, XnReadCV const &callback, UPXnCb err = nullptr);
+	void readCVdirect(uint8_t cv, XnReadCV const &callback, UPXnCb err = nullptr);
 
-	void setSpeed(const LocoAddr, uint8_t speed, XnDirection direction, UPXnCb ok = nullptr,
+	void setSpeed(LocoAddr, uint8_t speed, XnDirection direction, UPXnCb ok = nullptr,
 	              UPXnCb err = nullptr);
-	void getLocoInfo(const LocoAddr, XnGotLocoInfo const &, UPXnCb err = nullptr);
-	void setFuncA(const LocoAddr, const XnFA, UPXnCb ok = nullptr, UPXnCb err = nullptr);
-	void setFuncB(const LocoAddr, const XnFB, const XnFSet, UPXnCb ok = nullptr,
+	void getLocoInfo(LocoAddr, XnGotLocoInfo const &, UPXnCb err = nullptr);
+	void setFuncA(LocoAddr, XnFA, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void setFuncB(LocoAddr, XnFB, XnFSet, UPXnCb ok = nullptr,
 	              UPXnCb err = nullptr);
 
-	void accInfoRequest(const uint8_t groupAddr, const bool nibble, UPXnCb err = nullptr);
-	void accOpRequest(const uint16_t portAddr, const bool state, // portAddr 0-2048
+	void accInfoRequest(uint8_t groupAddr, bool nibble, UPXnCb err = nullptr);
+	void accOpRequest(uint16_t portAddr, bool state, // portAddr 0-2048
 	                  UPXnCb ok = nullptr, UPXnCb err = nullptr);
 
-	static QString xnReadCVStatusToQString(const XnReadCVStatus st);
+	static QString xnReadCVStatusToQString(XnReadCVStatus st);
 
 private slots:
 	void handleReadyRead();
@@ -160,7 +160,7 @@ private:
 	void hist_err();
 	void hist_send();
 	void send_next_out();
-	void log(const QString &message, const XnLogLevel loglevel);
+	void log(const QString &message, XnLogLevel loglevel);
 	QDateTime timeout(const XnCmd *x);
 
 	template <typename DataT>

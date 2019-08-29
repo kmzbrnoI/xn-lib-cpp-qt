@@ -15,7 +15,7 @@ XpressNet::XpressNet(QObject *parent) : QObject(parent) {
 	QObject::connect(&m_serialPort, SIGNAL(aboutToClose()), this, SLOT(sp_about_to_close()));
 }
 
-void XpressNet::connect(const QString &portname, uint32_t br, QSerialPort::FlowControl fc) {
+void XpressNet::connect(const QString &portname, int32_t br, QSerialPort::FlowControl fc) {
 	log("Connecting to " + portname + " (br=" + QString::number(br) + ") ...", XnLogLevel::Info);
 
 	m_serialPort.setBaudRate(br);
@@ -70,8 +70,7 @@ void XpressNet::send(MsgType data) {
 	log("PUT: " + dataToStr(data), XnLogLevel::RawData);
 	QByteArray qdata(reinterpret_cast<const char *>(data.data()), data.size());
 
-	int sent = m_serialPort.write(qdata);
-
+	qint64 sent = m_serialPort.write(qdata);
 	if (sent == -1 || sent != qdata.size())
 		throw EWriteError("No data could we written!");
 }
@@ -85,13 +84,13 @@ void XpressNet::to_send(std::unique_ptr<const XnCmd> &cmd, UPXnCb ok, UPXnCb err
 	}
 }
 
-void XpressNet::send(std::unique_ptr<const XnCmd> cmd, UPXnCb ok, UPXnCb err) {
+void XpressNet::send(std::unique_ptr<const XnCmd> cmd, UPXnCb ok, UPXnCb err) {	
 	log("PUT: " + cmd->msg(), XnLogLevel::Commands);
 
 	try {
 		send(cmd->getBytes());
 		m_hist.push(XnHistoryItem(cmd, timeout(cmd.get()), 1, std::move(ok), std::move(err)));
-	} catch (QStrException &e) {
+	} catch (QStrException &) {
 		log("Fatal error when writing command: " + cmd->msg(), XnLogLevel::Error);
 		if (nullptr != err)
 			err->func(this, err->data);

@@ -77,7 +77,7 @@ public:
 
 	XpressNet(QObject *parent = nullptr);
 
-	void connect(const QString &portname, uint32_t br, QSerialPort::FlowControl fc);
+	void connect(const QString &portname, int32_t br, QSerialPort::FlowControl fc);
 	void disconnect();
 	bool connected() const;
 

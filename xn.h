@@ -33,7 +33,8 @@ How does sending work?
 #include <vector>
 
 #include "q-str-exception.h"
-#include "xn-typedefs.h"
+#include "xn-commands.h"
+#include "xn-loco-addr.h"
 
 #define XN_VERSION_MAJOR 1
 #define XN_VERSION_MINOR 1
@@ -54,6 +55,78 @@ struct EOpenError : public QStrException {
 };
 struct EWriteError : public QStrException {
 	EWriteError(const QString str) : QStrException(str) {}
+};
+struct EInvalidTrkStatus : public QStrException {
+	EInvalidTrkStatus(const QString str) : QStrException(str) {}
+};
+
+enum class XnTrkStatus {
+	Unknown,
+	Off,
+	On,
+	Programming,
+};
+
+using XnCommandCallbackFunc = std::function<void(void *sender, void *data)>;
+
+struct XnCommandCallback {
+	XnCommandCallbackFunc const func;
+	void *const data;
+
+	XnCommandCallback(XnCommandCallbackFunc const func, void *const data = nullptr)
+	    : func(func), data(data) {}
+};
+
+using XnCb = XnCommandCallback;
+using UPXnCb = std::unique_ptr<XnCommandCallback>;
+
+struct XnHistoryItem {
+	XnHistoryItem(std::unique_ptr<const XnCmd> &cmd, QDateTime timeout, size_t no_sent,
+	              std::unique_ptr<XnCb> &&callback_ok, std::unique_ptr<XnCb> &&callback_err)
+	    : cmd(std::move(cmd))
+	    , timeout(timeout)
+	    , no_sent(no_sent)
+	    , callback_ok(std::move(callback_ok))
+	    , callback_err(std::move(callback_err)) {}
+	XnHistoryItem(XnHistoryItem &&hist) noexcept
+	    : cmd(std::move(hist.cmd))
+	    , timeout(hist.timeout)
+	    , no_sent(hist.no_sent)
+	    , callback_ok(std::move(hist.callback_ok))
+	    , callback_err(std::move(hist.callback_err)) {}
+
+	std::unique_ptr<const XnCmd> cmd;
+	QDateTime timeout;
+	size_t no_sent;
+	std::unique_ptr<XnCb> callback_ok;
+	std::unique_ptr<XnCb> callback_err;
+};
+
+enum class XnLogLevel {
+	None = 0,
+	Error = 1,
+	Warning = 2,
+	Info = 3,
+	Commands = 4,
+	RawData = 5,
+	Debug = 6,
+};
+
+enum class XnFeedbackType {
+	accWithoutFb = 0,
+	accWithFb = 1,
+	fb = 2,
+	reserved = 3,
+};
+
+union XnAccInputsState {
+	uint8_t all;
+	struct {
+		bool i0 : 1;
+		bool i1 : 1;
+		bool i2 : 1;
+		bool i3 : 1;
+	} sep;
 };
 
 enum class XnRecvCmdType {

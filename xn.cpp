@@ -91,7 +91,8 @@ void XpressNet::send(std::unique_ptr<const XnCmd> cmd, UPXnCb ok, UPXnCb err) {
 
 	try {
 		send(cmd->getBytes());
-		if (is<XnCmdAccOpRequest>(cmd.get()) && !this->liAcknowledgesSetAccState()) {
+		if (is<XnCmdAccOpRequest>(cmd.get()) && !this->liAcknowledgesSetAccState() &&
+			dynamic_cast<const XnCmdAccOpRequest &>(*cmd).state) {
 			// acknowledge manually, do not add to history buffer
 			if (nullptr != ok)
 				ok->func(this, ok->data);

@@ -60,55 +60,55 @@ struct EInvalidTrkStatus : public QStrException {
 	EInvalidTrkStatus(const QString str) : QStrException(str) {}
 };
 
-enum class XnLIType {
+enum class LIType {
 	LI100,
 	LI101,
 	uLI,
 };
 
-enum class XnTrkStatus {
+enum class TrkStatus {
 	Unknown,
 	Off,
 	On,
 	Programming,
 };
 
-using XnCommandCallbackFunc = std::function<void(void *sender, void *data)>;
+using CommandCallbackFunc = std::function<void(void *sender, void *data)>;
 
-struct XnCommandCallback {
-	XnCommandCallbackFunc const func;
+struct CommandCallback {
+	CommandCallbackFunc const func;
 	void *const data;
 
-	XnCommandCallback(XnCommandCallbackFunc const func, void *const data = nullptr)
+	CommandCallback(CommandCallbackFunc const func, void *const data = nullptr)
 	    : func(func), data(data) {}
 };
 
-using XnCb = XnCommandCallback;
-using UPXnCb = std::unique_ptr<XnCommandCallback>;
+using Cb = CommandCallback;
+using UPCb = std::unique_ptr<CommandCallback>;
 
-struct XnHistoryItem {
-	XnHistoryItem(std::unique_ptr<const XnCmd> &cmd, QDateTime timeout, size_t no_sent,
-	              std::unique_ptr<XnCb> &&callback_ok, std::unique_ptr<XnCb> &&callback_err)
+struct HistoryItem {
+	HistoryItem(std::unique_ptr<const Cmd> &cmd, QDateTime timeout, size_t no_sent,
+	              std::unique_ptr<Cb> &&callback_ok, std::unique_ptr<Cb> &&callback_err)
 	    : cmd(std::move(cmd))
 	    , timeout(timeout)
 	    , no_sent(no_sent)
 	    , callback_ok(std::move(callback_ok))
 	    , callback_err(std::move(callback_err)) {}
-	XnHistoryItem(XnHistoryItem &&hist) noexcept
+	HistoryItem(HistoryItem &&hist) noexcept
 	    : cmd(std::move(hist.cmd))
 	    , timeout(hist.timeout)
 	    , no_sent(hist.no_sent)
 	    , callback_ok(std::move(hist.callback_ok))
 	    , callback_err(std::move(hist.callback_err)) {}
 
-	std::unique_ptr<const XnCmd> cmd;
+	std::unique_ptr<const Cmd> cmd;
 	QDateTime timeout;
 	size_t no_sent;
-	std::unique_ptr<XnCb> callback_ok;
-	std::unique_ptr<XnCb> callback_err;
+	std::unique_ptr<Cb> callback_ok;
+	std::unique_ptr<Cb> callback_err;
 };
 
-enum class XnLogLevel {
+enum class LogLevel {
 	None = 0,
 	Error = 1,
 	Warning = 2,
@@ -118,14 +118,14 @@ enum class XnLogLevel {
 	Debug = 6,
 };
 
-enum class XnFeedbackType {
+enum class FeedbackType {
 	accWithoutFb = 0,
 	accWithFb = 1,
 	fb = 2,
 	reserved = 3,
 };
 
-union XnAccInputsState {
+union AccInputsState {
 	uint8_t all;
 	struct {
 		bool i0 : 1;
@@ -135,7 +135,7 @@ union XnAccInputsState {
 	} sep;
 };
 
-enum class XnRecvCmdType {
+enum class RecvCmdType {
 	LiError = 0x01,
 	LiVersion = 0x02,
 	LiSettings = 0xF2,
@@ -150,45 +150,45 @@ class XpressNet : public QObject {
 	Q_OBJECT
 
 public:
-	XnLogLevel loglevel = XnLogLevel::None;
+	LogLevel loglevel = LogLevel::None;
 	static constexpr unsigned _VERSION_MAJOR = XN_VERSION_MAJOR;
 	static constexpr unsigned _VERSION_MINOR = XN_VERSION_MINOR;
 
 	XpressNet(QObject *parent = nullptr);
 
-	void connect(const QString &portname, int32_t br, QSerialPort::FlowControl fc, XnLIType liType);
+	void connect(const QString &portname, int32_t br, QSerialPort::FlowControl fc, LIType liType);
 	void disconnect();
 	bool connected() const;
 
-	XnTrkStatus getTrkStatus() const;
+	TrkStatus getTrkStatus() const;
 
-	void setTrkStatus(XnTrkStatus, UPXnCb ok = nullptr, UPXnCb err = nullptr);
-	void emergencyStop(LocoAddr, UPXnCb ok = nullptr, UPXnCb err = nullptr);
-	void emergencyStop(UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void setTrkStatus(TrkStatus, UPCb ok = nullptr, UPCb err = nullptr);
+	void emergencyStop(LocoAddr, UPCb ok = nullptr, UPCb err = nullptr);
+	void emergencyStop(UPCb ok = nullptr, UPCb err = nullptr);
 
-	void getCommandStationVersion(XnGotCSVersion const &, UPXnCb err = nullptr);
-	void getCommandStationStatus(UPXnCb ok = nullptr, UPXnCb err = nullptr);
-	void getLIVersion(XnGotLIVersion const &, UPXnCb err = nullptr);
-	void getLIAddress(XnGotLIAddress const &, UPXnCb err = nullptr);
-	void setLIAddress(uint8_t addr, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void getCommandStationVersion(GotCSVersion const &, UPCb err = nullptr);
+	void getCommandStationStatus(UPCb ok = nullptr, UPCb err = nullptr);
+	void getLIVersion(GotLIVersion const &, UPCb err = nullptr);
+	void getLIAddress(GotLIAddress const &, UPCb err = nullptr);
+	void setLIAddress(uint8_t addr, UPCb ok = nullptr, UPCb err = nullptr);
 
-	void pomWriteCv(LocoAddr, uint16_t cv, uint8_t value, UPXnCb ok = nullptr,
-	                UPXnCb err = nullptr);
-	void pomWriteBit(LocoAddr, uint16_t cv, uint8_t biti, bool value, UPXnCb ok = nullptr,
-	                 UPXnCb err = nullptr);
-	void readCVdirect(uint8_t cv, XnReadCV const &callback, UPXnCb err = nullptr);
+	void pomWriteCv(LocoAddr, uint16_t cv, uint8_t value, UPCb ok = nullptr,
+	                UPCb err = nullptr);
+	void pomWriteBit(LocoAddr, uint16_t cv, uint8_t biti, bool value, UPCb ok = nullptr,
+	                 UPCb err = nullptr);
+	void readCVdirect(uint8_t cv, ReadCV const &callback, UPCb err = nullptr);
 
-	void setSpeed(LocoAddr, uint8_t speed, XnDirection direction, UPXnCb ok = nullptr,
-	              UPXnCb err = nullptr);
-	void getLocoInfo(LocoAddr, XnGotLocoInfo const &, UPXnCb err = nullptr);
-	void setFuncA(LocoAddr, XnFA, UPXnCb ok = nullptr, UPXnCb err = nullptr);
-	void setFuncB(LocoAddr, XnFB, XnFSet, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void setSpeed(LocoAddr, uint8_t speed, Direction direction, UPCb ok = nullptr,
+	              UPCb err = nullptr);
+	void getLocoInfo(LocoAddr, GotLocoInfo const &, UPCb err = nullptr);
+	void setFuncA(LocoAddr, FA, UPCb ok = nullptr, UPCb err = nullptr);
+	void setFuncB(LocoAddr, FB, FSet, UPCb ok = nullptr, UPCb err = nullptr);
 
-	void accInfoRequest(uint8_t groupAddr, bool nibble, UPXnCb err = nullptr);
+	void accInfoRequest(uint8_t groupAddr, bool nibble, UPCb err = nullptr);
 	void accOpRequest(uint16_t portAddr, bool state, // portAddr 0-2048
-	                  UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	                  UPCb ok = nullptr, UPCb err = nullptr);
 
-	static QString xnReadCVStatusToQString(XnReadCVStatus st);
+	static QString xnReadCVStatusToQString(ReadCVStatus st);
 
 private slots:
 	void handleReadyRead();
@@ -198,32 +198,32 @@ private slots:
 
 signals:
 	void onError(QString error);
-	void onLog(QString message, Xn::XnLogLevel loglevel);
+	void onLog(QString message, Xn::LogLevel loglevel);
 	void onConnect();
 	void onDisconnect();
-	void onTrkStatusChanged(Xn::XnTrkStatus);
-	void onAccInputChanged(uint8_t groupAddr, bool nibble, bool error, Xn::XnFeedbackType inputType,
-	                       Xn::XnAccInputsState state);
+	void onTrkStatusChanged(Xn::TrkStatus);
+	void onAccInputChanged(uint8_t groupAddr, bool nibble, bool error, Xn::FeedbackType inputType,
+	                       Xn::AccInputsState state);
 
 private:
 	QSerialPort m_serialPort;
 	QByteArray m_readData;
 	QDateTime m_receiveTimeout;
-	std::queue<XnHistoryItem> m_hist;
-	std::queue<XnHistoryItem> m_out;
+	std::queue<HistoryItem> m_hist;
+	std::queue<HistoryItem> m_out;
 	QTimer m_hist_timer;
-	XnTrkStatus m_trk_status = XnTrkStatus::Unknown;
-	XnLIType m_liType;
+	TrkStatus m_trk_status = TrkStatus::Unknown;
+	LIType m_liType;
 
 	using MsgType = std::vector<uint8_t>;
 	void parseMessage(MsgType &msg);
 	void send(MsgType);
-	void send(XnHistoryItem &&);
-	void send(std::unique_ptr<const XnCmd>, UPXnCb ok = nullptr, UPXnCb err = nullptr);
-	void to_send(std::unique_ptr<const XnCmd> &, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void send(HistoryItem &&);
+	void send(std::unique_ptr<const Cmd>, UPCb ok = nullptr, UPCb err = nullptr);
+	void to_send(std::unique_ptr<const Cmd> &, UPCb ok = nullptr, UPCb err = nullptr);
 
 	template <typename DataT>
-	void to_send(const DataT &&, UPXnCb ok = nullptr, UPXnCb err = nullptr);
+	void to_send(const DataT &&, UPCb ok = nullptr, UPCb err = nullptr);
 
 	void handleMsgLiError(MsgType &msg);
 	void handleMsgLiVersion(MsgType &msg);
@@ -239,18 +239,18 @@ private:
 	void hist_err();
 	void hist_send();
 	void send_next_out();
-	void log(const QString &message, XnLogLevel loglevel);
-	QDateTime timeout(const XnCmd *x);
+	void log(const QString &message, LogLevel loglevel);
+	QDateTime timeout(const Cmd *x);
 	bool liAcknowledgesSetAccState() const;
 
 	template <typename DataT>
 	QString dataToStr(DataT, size_t len = 0);
 
 	template <typename Target>
-	bool is(const XnCmd *x);
+	bool is(const Cmd *x);
 
 	template <typename Target>
-	bool is(const XnHistoryItem &h);
+	bool is(const HistoryItem &h);
 };
 
 } // namespace Xn

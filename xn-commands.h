@@ -22,92 +22,92 @@ struct EInvalidSpeed : public QStrException {
 	EInvalidSpeed(const QString str) : QStrException(str) {}
 };
 
-struct XnCmd {
+struct Cmd {
 	virtual std::vector<uint8_t> getBytes() const = 0;
 	virtual QString msg() const = 0;
-	virtual ~XnCmd() = default;
+	virtual ~Cmd() = default;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct XnCmdOff : public XnCmd {
+struct CmdOff : public Cmd {
 	std::vector<uint8_t> getBytes() const override { return {0x21, 0x80}; }
 	QString msg() const override { return "Track Off"; }
 };
 
-struct XnCmdOn : public XnCmd {
+struct CmdOn : public Cmd {
 	std::vector<uint8_t> getBytes() const override { return {0x21, 0x81}; }
 	QString msg() const override { return "Track On"; }
 };
 
-struct XnCmdEmergencyStop : public XnCmd {
+struct CmdEmergencyStop : public Cmd {
 	std::vector<uint8_t> getBytes() const override { return {0x80}; }
 	QString msg() const override { return "All Loco Emergency Stop"; }
 };
 
-struct XnCmdEmergencyStopLoco : public XnCmd {
+struct CmdEmergencyStopLoco : public Cmd {
 	const LocoAddr loco;
 
-	XnCmdEmergencyStopLoco(const LocoAddr loco) : loco(loco) {}
+	CmdEmergencyStopLoco(const LocoAddr loco) : loco(loco) {}
 	std::vector<uint8_t> getBytes() const override { return {0x92, loco.hi(), loco.lo()}; }
 	QString msg() const override { return "Single Loco Emergency Stop : " + QString::number(loco); }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-using XnGotLIVersion = std::function<void(void *sender, unsigned hw, unsigned sw)>;
+using GotLIVersion = std::function<void(void *sender, unsigned hw, unsigned sw)>;
 
-struct XnCmdGetLIVersion : public XnCmd {
-	XnGotLIVersion const callback;
+struct CmdGetLIVersion : public Cmd {
+	GotLIVersion const callback;
 
-	XnCmdGetLIVersion(XnGotLIVersion const callback) : callback(callback) {}
+	CmdGetLIVersion(GotLIVersion const callback) : callback(callback) {}
 	std::vector<uint8_t> getBytes() const override { return {0xF0}; }
 	QString msg() const override { return "LI Get Version"; }
 };
 
-using XnGotLIAddress = std::function<void(void *sender, unsigned addr)>;
+using GotLIAddress = std::function<void(void *sender, unsigned addr)>;
 
-struct XnCmdGetLIAddress : public XnCmd {
-	XnGotLIAddress const callback;
+struct CmdGetLIAddress : public Cmd {
+	GotLIAddress const callback;
 
-	XnCmdGetLIAddress(XnGotLIAddress const callback) : callback(callback) {}
+	CmdGetLIAddress(GotLIAddress const callback) : callback(callback) {}
 	std::vector<uint8_t> getBytes() const override { return {0xF2, 0x01, 0x00}; }
 	QString msg() const override { return "LI Get Address"; }
 };
 
-struct XnCmdSetLIAddress : public XnCmd {
+struct CmdSetLIAddress : public Cmd {
 	const unsigned addr;
 
-	XnCmdSetLIAddress(const unsigned addr) : addr(addr) {}
+	CmdSetLIAddress(const unsigned addr) : addr(addr) {}
 	std::vector<uint8_t> getBytes() const override {
 		return {0xF2, 0x01, static_cast<uint8_t>(addr)};
 	}
 	QString msg() const override { return "LI Set Address to " + QString(addr); }
 };
 
-using XnGotCSVersion = std::function<void(void *sender, unsigned major, unsigned minor)>;
+using GotCSVersion = std::function<void(void *sender, unsigned major, unsigned minor)>;
 
-struct XnCmdGetCSVersion : public XnCmd {
-	XnGotCSVersion const callback;
+struct CmdGetCSVersion : public Cmd {
+	GotCSVersion const callback;
 
-	XnCmdGetCSVersion(XnGotCSVersion const callback) : callback(callback) {}
+	CmdGetCSVersion(GotCSVersion const callback) : callback(callback) {}
 	std::vector<uint8_t> getBytes() const override { return {0x21, 0x21}; }
 	QString msg() const override { return "Get Command station version"; }
 };
 
-struct XnCmdGetCSStatus : public XnCmd {
+struct CmdGetCSStatus : public Cmd {
 	std::vector<uint8_t> getBytes() const override { return {0x21, 0x24}; }
 	QString msg() const override { return "Get Command station status"; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct XnCmdPomWriteCv : public XnCmd {
+struct CmdPomWriteCv : public Cmd {
 	const LocoAddr loco;
 	const uint16_t cv;
 	const uint8_t value;
 
-	XnCmdPomWriteCv(const LocoAddr loco, const uint16_t cv, const uint8_t value)
+	CmdPomWriteCv(const LocoAddr loco, const uint16_t cv, const uint8_t value)
 	    : loco(loco), cv(cv), value(value) {
 		if (cv > 1023)
 			throw EInvalidCv("CV value is too high!");
@@ -125,13 +125,13 @@ struct XnCmdPomWriteCv : public XnCmd {
 	}
 };
 
-struct XnCmdPomWriteBit : public XnCmd {
+struct CmdPomWriteBit : public Cmd {
 	const LocoAddr loco;
 	const uint16_t cv;
 	const uint8_t biti;
 	const bool value;
 
-	XnCmdPomWriteBit(const LocoAddr loco, const uint16_t cv, const unsigned biti, const bool value)
+	CmdPomWriteBit(const LocoAddr loco, const uint16_t cv, const unsigned biti, const bool value)
 	    : loco(loco), cv(cv), biti(biti), value(value) {
 		if (cv > 1023)
 			throw EInvalidCv("CV value is too high!");
@@ -150,7 +150,7 @@ struct XnCmdPomWriteBit : public XnCmd {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-union XnFA {
+union FA {
 	uint8_t all;
 	struct {
 		bool f1 : 1;
@@ -161,11 +161,11 @@ union XnFA {
 		bool _ : 3;
 	} sep;
 
-	XnFA(uint8_t fa) : all(fa) {}
-	XnFA() : all(0) {}
+	FA(uint8_t fa) : all(fa) {}
+	FA() : all(0) {}
 };
 
-union XnFB {
+union FB {
 	uint8_t all;
 	struct {
 		bool f5 : 1;
@@ -178,23 +178,23 @@ union XnFB {
 		bool f12 : 1;
 	} sep;
 
-	XnFB(uint8_t fb) : all(fb) {}
-	XnFB() : all(0) {}
+	FB(uint8_t fb) : all(fb) {}
+	FB() : all(0) {}
 };
 
-enum class XnDirection {
+enum class Direction {
 	Backward = false,
 	Forward = true,
 };
 
-using XnGotLocoInfo = std::function<void(void *sender, bool used, XnDirection direction,
-                                         unsigned speed, XnFA fa, XnFB fb)>;
+using GotLocoInfo = std::function<void(void *sender, bool used, Direction direction,
+                                         unsigned speed, FA fa, FB fb)>;
 
-struct XnCmdGetLocoInfo : public XnCmd {
+struct CmdGetLocoInfo : public Cmd {
 	const LocoAddr loco;
-	XnGotLocoInfo const callback;
+	GotLocoInfo const callback;
 
-	XnCmdGetLocoInfo(const LocoAddr loco, XnGotLocoInfo const callback)
+	CmdGetLocoInfo(const LocoAddr loco, GotLocoInfo const callback)
 	    : loco(loco), callback(callback) {}
 	std::vector<uint8_t> getBytes() const override { return {0xE3, 0x00, loco.hi(), loco.lo()}; }
 	QString msg() const override { return "Get Loco Information " + QString::number(loco.addr); }
@@ -202,12 +202,12 @@ struct XnCmdGetLocoInfo : public XnCmd {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct XnCmdSetSpeedDir : public XnCmd {
+struct CmdSetSpeedDir : public Cmd {
 	const LocoAddr loco;
 	const unsigned speed;
-	const XnDirection dir;
+	const Direction dir;
 
-	XnCmdSetSpeedDir(const LocoAddr loco, const unsigned speed, const XnDirection dir)
+	CmdSetSpeedDir(const LocoAddr loco, const unsigned speed, const Direction dir)
 	    : loco(loco), speed(speed), dir(dir) {
 		if (speed > 28)
 			throw EInvalidSpeed("Speed out of range!");
@@ -231,11 +231,11 @@ struct XnCmdSetSpeedDir : public XnCmd {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct XnCmdSetFuncA : public XnCmd {
+struct CmdSetFuncA : public Cmd {
 	const LocoAddr loco;
-	const XnFA fa;
+	const FA fa;
 
-	XnCmdSetFuncA(const LocoAddr loco, const XnFA fa) : loco(loco), fa(fa) {}
+	CmdSetFuncA(const LocoAddr loco, const FA fa) : loco(loco), fa(fa) {}
 	std::vector<uint8_t> getBytes() const override {
 		return {0xE4, 0x20, loco.hi(), loco.lo(), fa.all};
 	}
@@ -244,20 +244,20 @@ struct XnCmdSetFuncA : public XnCmd {
 	}
 };
 
-enum class XnFSet {
+enum class FSet {
 	F5toF8,
 	F9toF12,
 };
 
-struct XnCmdSetFuncB : public XnCmd {
+struct CmdSetFuncB : public Cmd {
 	const LocoAddr loco;
-	const XnFB fb;
-	const XnFSet range;
+	const FB fb;
+	const FSet range;
 
-	XnCmdSetFuncB(const LocoAddr loco, const XnFB fb, const XnFSet range)
+	CmdSetFuncB(const LocoAddr loco, const FB fb, const FSet range)
 	    : loco(loco), fb(fb), range(range) {}
 	std::vector<uint8_t> getBytes() const override {
-		if (range == XnFSet::F5toF8)
+		if (range == FSet::F5toF8)
 			return {0xE4, 0x21, loco.hi(), loco.lo(), static_cast<uint8_t>(fb.all & 0xF)};
 		return {0xE4, 0x22, loco.hi(), loco.lo(), static_cast<uint8_t>(fb.all >> 4)};
 	}
@@ -268,7 +268,7 @@ struct XnCmdSetFuncB : public XnCmd {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-enum class XnReadCVStatus {
+enum class ReadCVStatus {
 	Ok = 0x14,
 	ShortCircuit = 0x12,
 	DataByteNotFound = 0x13,
@@ -276,14 +276,14 @@ enum class XnReadCVStatus {
 	CSready = 0x11,
 };
 
-using XnReadCV =
-    std::function<void(void *sender, XnReadCVStatus status, uint8_t cv, uint8_t value)>;
+using ReadCV =
+    std::function<void(void *sender, ReadCVStatus status, uint8_t cv, uint8_t value)>;
 
-struct XnCmdReadDirect : public XnCmd {
+struct CmdReadDirect : public Cmd {
 	const uint8_t cv;
-	XnReadCV const callback;
+	ReadCV const callback;
 
-	XnCmdReadDirect(const uint8_t cv, XnReadCV const callback) : cv(cv), callback(callback) {}
+	CmdReadDirect(const uint8_t cv, ReadCV const callback) : cv(cv), callback(callback) {}
 
 	std::vector<uint8_t> getBytes() const override { return {0x22, 0x15, cv}; }
 	QString msg() const override {
@@ -291,11 +291,11 @@ struct XnCmdReadDirect : public XnCmd {
 	}
 };
 
-struct XnCmdRequestReadResult : public XnCmd {
+struct CmdRequestReadResult : public Cmd {
 	const uint8_t cv;
-	XnReadCV const callback;
+	ReadCV const callback;
 
-	XnCmdRequestReadResult(const uint8_t cv, XnReadCV const callback)
+	CmdRequestReadResult(const uint8_t cv, ReadCV const callback)
 	    : cv(cv), callback(callback) {}
 
 	std::vector<uint8_t> getBytes() const override { return {0x21, 0x10}; }
@@ -304,11 +304,11 @@ struct XnCmdRequestReadResult : public XnCmd {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct XnCmdAccInfoRequest : public XnCmd {
+struct CmdAccInfoRequest : public Cmd {
 	const uint8_t groupAddr;
 	const bool nibble;
 
-	XnCmdAccInfoRequest(const uint8_t groupAddr, const bool nibble)
+	CmdAccInfoRequest(const uint8_t groupAddr, const bool nibble)
 	    : groupAddr(groupAddr), nibble(nibble) {}
 	std::vector<uint8_t> getBytes() const override {
 		return {0x42, groupAddr, static_cast<uint8_t>(0x80+nibble) };
@@ -319,11 +319,11 @@ struct XnCmdAccInfoRequest : public XnCmd {
 	}
 };
 
-struct XnCmdAccOpRequest : public XnCmd {
+struct CmdAccOpRequest : public Cmd {
 	const uint16_t portAddr; // 0-2047
 	const bool state;
 
-	XnCmdAccOpRequest(const uint16_t portAddr, const bool state)
+	CmdAccOpRequest(const uint16_t portAddr, const bool state)
 	    : portAddr(portAddr), state(state) {}
 	std::vector<uint8_t> getBytes() const override {
 		return {

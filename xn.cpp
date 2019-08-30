@@ -236,7 +236,7 @@ void XpressNet::handleMsgLiVersion(MsgType &msg) {
 	log("GET: LI version; HW: " + QString::number(hw) + ", SW: " + QString::number(sw),
 	    XnLogLevel::Commands);
 
-	if (is<XnCmdGetLIVersion>(m_hist.front())) {
+	if (!m_hist.empty() && is<XnCmdGetLIVersion>(m_hist.front())) {
 		std::unique_ptr<const XnCmd> cmd = std::move(m_hist.front().cmd);
 		hist_ok();
 		const auto &hist = dynamic_cast<const XnCmdGetLIVersion&>(*cmd);

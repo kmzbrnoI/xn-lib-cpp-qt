@@ -60,6 +60,12 @@ struct EInvalidTrkStatus : public QStrException {
 	EInvalidTrkStatus(const QString str) : QStrException(str) {}
 };
 
+enum class XnLIType {
+	LI100,
+	LI101,
+	uLI,
+};
+
 enum class XnTrkStatus {
 	Unknown,
 	Off,
@@ -150,7 +156,7 @@ public:
 
 	XpressNet(QObject *parent = nullptr);
 
-	void connect(const QString &portname, int32_t br, QSerialPort::FlowControl fc);
+	void connect(const QString &portname, int32_t br, QSerialPort::FlowControl fc, XnLIType liType);
 	void disconnect();
 	bool connected() const;
 
@@ -207,6 +213,7 @@ private:
 	std::queue<XnHistoryItem> m_out;
 	QTimer m_hist_timer;
 	XnTrkStatus m_trk_status = XnTrkStatus::Unknown;
+	XnLIType m_liType;
 
 	using MsgType = std::vector<uint8_t>;
 	void parseMessage(MsgType &msg);
@@ -234,6 +241,7 @@ private:
 	void send_next_out();
 	void log(const QString &message, XnLogLevel loglevel);
 	QDateTime timeout(const XnCmd *x);
+	bool liAcknowledgesSetAccState() const;
 
 	template <typename DataT>
 	QString dataToStr(DataT, size_t len = 0);

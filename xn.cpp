@@ -15,12 +15,13 @@ XpressNet::XpressNet(QObject *parent) : QObject(parent) {
 	QObject::connect(&m_serialPort, SIGNAL(aboutToClose()), this, SLOT(sp_about_to_close()));
 }
 
-void XpressNet::connect(const QString &portname, int32_t br, QSerialPort::FlowControl fc) {
+void XpressNet::connect(const QString &portname, int32_t br, QSerialPort::FlowControl fc, XnLIType liType) {
 	log("Connecting to " + portname + " (br=" + QString::number(br) + ") ...", XnLogLevel::Info);
 
 	m_serialPort.setBaudRate(br);
 	m_serialPort.setFlowControl(fc);
 	m_serialPort.setPortName(portname);
+	m_liType = liType;
 
 	if (!m_serialPort.open(QIODevice::ReadWrite))
 		throw EOpenError(m_serialPort.errorString());
@@ -89,7 +90,12 @@ void XpressNet::send(std::unique_ptr<const XnCmd> cmd, UPXnCb ok, UPXnCb err) {
 
 	try {
 		send(cmd->getBytes());
-		m_hist.push(XnHistoryItem(cmd, timeout(cmd.get()), 1, std::move(ok), std::move(err)));
+		if (!this->liAcknowledgesSetAccState()) {
+			// acknowledge manually, do not add to history buffer
+			if (nullptr != ok)
+				ok->func(this, ok->data);
+		} else
+			m_hist.push(XnHistoryItem(cmd, timeout(cmd.get()), 1, std::move(ok), std::move(err)));
 	} catch (QStrException &) {
 		log("Fatal error when writing command: " + cmd->msg(), XnLogLevel::Error);
 		if (nullptr != err)
@@ -583,5 +589,13 @@ QString XpressNet::xnReadCVStatusToQString(const XnReadCVStatus st) {
 
 	return "Unknown error";
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+bool XpressNet::liAcknowledgesSetAccState() const {
+	return (this->m_liType == XnLIType::uLI);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 } // namespace Xn

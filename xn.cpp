@@ -15,7 +15,8 @@ XpressNet::XpressNet(QObject *parent) : QObject(parent) {
 	QObject::connect(&m_serialPort, SIGNAL(aboutToClose()), this, SLOT(sp_about_to_close()));
 }
 
-void XpressNet::connect(const QString &portname, int32_t br, QSerialPort::FlowControl fc, XnLIType liType) {
+void XpressNet::connect(const QString &portname, int32_t br, QSerialPort::FlowControl fc,
+                        XnLIType liType) {
 	log("Connecting to " + portname + " (br=" + QString::number(br) + ") ...", XnLogLevel::Info);
 
 	m_serialPort.setBaudRate(br);
@@ -85,7 +86,7 @@ void XpressNet::to_send(std::unique_ptr<const XnCmd> &cmd, UPXnCb ok, UPXnCb err
 	}
 }
 
-void XpressNet::send(std::unique_ptr<const XnCmd> cmd, UPXnCb ok, UPXnCb err) {	
+void XpressNet::send(std::unique_ptr<const XnCmd> cmd, UPXnCb ok, UPXnCb err) {
 	log("PUT: " + cmd->msg(), XnLogLevel::Commands);
 
 	try {
@@ -592,9 +593,7 @@ QString XpressNet::xnReadCVStatusToQString(const XnReadCVStatus st) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool XpressNet::liAcknowledgesSetAccState() const {
-	return (this->m_liType == XnLIType::uLI);
-}
+bool XpressNet::liAcknowledgesSetAccState() const { return (this->m_liType == XnLIType::uLI); }
 
 ///////////////////////////////////////////////////////////////////////////////
 

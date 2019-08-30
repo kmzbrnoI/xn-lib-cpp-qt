@@ -26,7 +26,13 @@ struct Cmd {
 	virtual std::vector<uint8_t> getBytes() const = 0;
 	virtual QString msg() const = 0;
 	virtual ~Cmd() = default;
+	virtual bool conflict(const Cmd &) const { return false; }
 };
+
+template <typename Target>
+bool is(const Cmd &x) {
+	return (dynamic_cast<const Target *>(&x) != nullptr);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +44,7 @@ struct CmdOff : public Cmd {
 struct CmdOn : public Cmd {
 	std::vector<uint8_t> getBytes() const override { return {0x21, 0x81}; }
 	QString msg() const override { return "Track On"; }
+	bool conflict(const Cmd &cmd) const override { return is<CmdOff>(cmd); }
 };
 
 struct CmdEmergencyStop : public Cmd {
@@ -83,6 +90,7 @@ struct CmdSetLIAddress : public Cmd {
 		return {0xF2, 0x01, static_cast<uint8_t>(addr)};
 	}
 	QString msg() const override { return "LI Set Address to " + QString(addr); }
+	bool conflict(const Cmd &cmd) const override { return is<CmdSetLIAddress>(cmd); }
 };
 
 using GotCSVersion = std::function<void(void *sender, unsigned major, unsigned minor)>;
@@ -123,6 +131,13 @@ struct CmdPomWriteCv : public Cmd {
 		return "POM Addr " + QString::number(loco.addr) + ", CV " + QString::number(cv) +
 		       ", Value: " + QString::number(value);
 	}
+	bool conflict(const Cmd &cmd) const override {
+		if (is<CmdPomWriteCv>(cmd)) {
+			const auto &casted = dynamic_cast<const CmdPomWriteCv &>(cmd);
+			return ((casted.loco == this->loco) && (casted.cv == this->cv));
+		}
+		return false;
+	}
 };
 
 struct CmdPomWriteBit : public Cmd {
@@ -145,6 +160,18 @@ struct CmdPomWriteBit : public Cmd {
 	QString msg() const override {
 		return "POM Addr " + QString::number(loco.addr) + ", CV " + QString::number(cv) +
 		       ", Bit: " + QString::number(biti) + ", Value: " + QString::number(value);
+	}
+	bool conflict(const Cmd &cmd) const override {
+		if (is<CmdPomWriteBit>(cmd)) {
+			const auto &casted = dynamic_cast<const CmdPomWriteBit &>(cmd);
+			return ((casted.loco == this->loco) && (casted.cv == this->cv) &&
+			        (casted.biti == this->biti));
+		}
+		if (is<CmdPomWriteCv>(cmd)) {
+			const auto &casted = dynamic_cast<const CmdPomWriteCv &>(cmd);
+			return ((casted.loco == this->loco) && (casted.cv == this->cv));
+		}
+		return false;
 	}
 };
 
@@ -227,6 +254,19 @@ struct CmdSetSpeedDir : public Cmd {
 		return "Loco " + QString::number(loco) + " Set Speed " + QString::number(speed) +
 		       ", Dir " + QString::number(static_cast<int>(dir));
 	}
+	bool conflict(const Cmd &cmd) const override {
+		if (is<CmdSetSpeedDir>(cmd)) {
+			const auto &casted = dynamic_cast<const CmdSetSpeedDir &>(cmd);
+			return (casted.loco == this->loco);
+		}
+		if (is<CmdEmergencyStop>(cmd))
+			return true;
+		if (is<CmdEmergencyStopLoco>(cmd)) {
+			const auto &casted = dynamic_cast<const CmdEmergencyStopLoco &>(cmd);
+			return (casted.loco == this->loco);
+		}
+		return false;
+	}
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -241,6 +281,13 @@ struct CmdSetFuncA : public Cmd {
 	}
 	QString msg() const override {
 		return "Set loco " + QString::number(loco.addr) + " func A: " + QString::number(fa.all, 2);
+	}
+	bool conflict(const Cmd &cmd) const override {
+		if (is<CmdSetFuncA>(cmd)) {
+			const auto &casted = dynamic_cast<const CmdSetFuncA &>(cmd);
+			return (casted.loco == this->loco);
+		}
+		return false;
 	}
 };
 
@@ -263,6 +310,13 @@ struct CmdSetFuncB : public Cmd {
 	}
 	QString msg() const override {
 		return "Set loco " + QString::number(loco.addr) + " func B: " + QString::number(fb.all, 2);
+	}
+	bool conflict(const Cmd &cmd) const override {
+		if (is<CmdSetFuncB>(cmd)) {
+			const auto &casted = dynamic_cast<const CmdSetFuncB &>(cmd);
+			return ((casted.loco == this->loco) && (casted.range == this->range));
+		}
+		return false;
 	}
 };
 
@@ -334,6 +388,13 @@ struct CmdAccOpRequest : public Cmd {
 	QString msg() const override {
 		return "Accessory Decoder Operation Request: port " + QString::number(portAddr) +
 		       ", state:" + QString::number(state);
+	}
+	bool conflict(const Cmd &cmd) const override {
+		if (is<CmdAccOpRequest>(cmd)) {
+			const auto &casted = dynamic_cast<const CmdAccOpRequest &>(cmd);
+			return (casted.portAddr == this->portAddr);
+		}
+		return false;
 	}
 };
 

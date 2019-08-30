@@ -247,9 +247,6 @@ private:
 	QString dataToStr(DataT, size_t len = 0);
 
 	template <typename Target>
-	bool is(const Cmd *x);
-
-	template <typename Target>
 	bool is(const HistoryItem &h);
 };
 

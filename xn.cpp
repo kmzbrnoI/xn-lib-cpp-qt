@@ -54,11 +54,6 @@ bool XpressNet::connected() const { return m_serialPort.isOpen(); }
 TrkStatus XpressNet::getTrkStatus() const { return m_trk_status; }
 
 template <typename Target>
-bool XpressNet::is(const Cmd *x) {
-	return (dynamic_cast<const Target *>(x) != nullptr);
-}
-
-template <typename Target>
 bool XpressNet::is(const HistoryItem &h) {
 	return (dynamic_cast<const Target *>(h.cmd.get()) != nullptr);
 }
@@ -91,7 +86,7 @@ void XpressNet::send(std::unique_ptr<const Cmd> cmd, UPCb ok, UPCb err) {
 
 	try {
 		send(cmd->getBytes());
-		if (is<CmdAccOpRequest>(cmd.get()) && !this->liAcknowledgesSetAccState() &&
+		if (Xn::is<CmdAccOpRequest>(*cmd) && !this->liAcknowledgesSetAccState() &&
 			dynamic_cast<const CmdAccOpRequest &>(*cmd).state) {
 			// acknowledge manually, do not add to history buffer
 			if (nullptr != ok)
@@ -128,7 +123,7 @@ void XpressNet::send(HistoryItem &&hist) {
 
 QDateTime XpressNet::timeout(const Cmd *x) {
 	QDateTime timeout;
-	if (is<CmdReadDirect>(x) || is<CmdRequestReadResult>(x))
+	if (Xn::is<CmdReadDirect>(*x) || Xn::is<CmdRequestReadResult>(*x))
 		timeout = QDateTime::currentDateTime().addMSecs(_HIST_PROG_TIMEOUT);
 	else
 		timeout = QDateTime::currentDateTime().addMSecs(_HIST_TIMEOUT);

@@ -1,4 +1,3 @@
-# QT += core
 TARGET = xn
 TEMPLATE = lib
 DEFINES += QT_DEPRECATED_WARNINGS

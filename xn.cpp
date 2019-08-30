@@ -42,7 +42,7 @@ void XpressNet::disconnect() {
 void XpressNet::sp_about_to_close() {
 	m_hist_timer.stop();
 	while (!m_hist.empty())
-		m_hist.pop(); // Should we call error events?
+		m_hist.pop_front(); // Should we call error events?
 	while (!m_out.empty())
 		m_out.pop(); // Should we call error events?
 	m_trk_status = TrkStatus::Unknown;
@@ -92,7 +92,7 @@ void XpressNet::send(std::unique_ptr<const Cmd> cmd, UPCb ok, UPCb err) {
 			if (nullptr != ok)
 				ok->func(this, ok->data);
 		} else
-			m_hist.push(HistoryItem(cmd, timeout(cmd.get()), 1, std::move(ok), std::move(err)));
+			m_hist.emplace_back(cmd, timeout(cmd.get()), 1, std::move(ok), std::move(err));
 	} catch (QStrException &) {
 		log("Fatal error when writing command: " + cmd->msg(), LogLevel::Error);
 		if (nullptr != err)
@@ -114,7 +114,7 @@ void XpressNet::send(HistoryItem &&hist) {
 
 	try {
 		send(hist.cmd->getBytes());
-		m_hist.push(std::move(hist));
+		m_hist.push_back(std::move(hist));
 	} catch (QStrException &e) {
 		log("PUT ERR: " + e, LogLevel::Error);
 		throw;
@@ -492,7 +492,7 @@ void XpressNet::hist_ok() {
 	}
 
 	HistoryItem hist = std::move(m_hist.front());
-	m_hist.pop();
+	m_hist.pop_front();
 	if (nullptr != hist.callback_ok)
 		hist.callback_ok->func(this, hist.callback_ok->data);
 	if (!m_out.empty())
@@ -506,7 +506,7 @@ void XpressNet::hist_err() {
 	}
 
 	HistoryItem hist = std::move(m_hist.front());
-	m_hist.pop();
+	m_hist.pop_front();
 
 	log("Not responded to command: " + hist.cmd->msg(), LogLevel::Error);
 
@@ -518,7 +518,17 @@ void XpressNet::hist_err() {
 
 void XpressNet::hist_send() {
 	HistoryItem hist = std::move(m_hist.front());
-	m_hist.pop();
+	m_hist.pop_front();
+
+	for(const HistoryItem &newer : m_hist) {
+		if (hist.cmd->conflict(*(newer.cmd)) || newer.cmd->conflict(*(hist.cmd))) {
+			log("Not sending again, conflict: " + hist.cmd->msg() + ", " + newer.cmd->msg(),
+			    LogLevel::Warning);
+			if (nullptr != hist.callback_err)
+				hist.callback_err->func(this, hist.callback_err->data);
+			return;
+		}
+	}
 
 	log("Sending again: " + hist.cmd->msg(), LogLevel::Warning);
 

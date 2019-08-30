@@ -209,7 +209,7 @@ private:
 	QSerialPort m_serialPort;
 	QByteArray m_readData;
 	QDateTime m_receiveTimeout;
-	std::queue<HistoryItem> m_hist;
+	std::deque<HistoryItem> m_hist;
 	std::queue<HistoryItem> m_out;
 	QTimer m_hist_timer;
 	TrkStatus m_trk_status = TrkStatus::Unknown;

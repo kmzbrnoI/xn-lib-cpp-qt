@@ -48,7 +48,7 @@ constexpr size_t _HIST_PROG_TIMEOUT = 10000; // 10 s
 constexpr size_t _HIST_SEND_MAX = 3;
 constexpr size_t _BUF_IN_TIMEOUT = 300; // ms
 constexpr size_t _STEPS_CNT = 28;
-constexpr size_t _MAX_HIST_BUF_COUNT = 5;
+constexpr size_t _MAX_HIST_BUF_COUNT = 3;
 
 struct EOpenError : public QStrException {
 	EOpenError(const QString str) : QStrException(str) {}

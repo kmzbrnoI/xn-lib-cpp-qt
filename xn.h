@@ -188,6 +188,8 @@ public:
 	void accOpRequest(uint16_t portAddr, bool state, // portAddr 0-2048
 	                  UPCb ok = nullptr, UPCb err = nullptr);
 
+	void histClear();
+
 	static QString xnReadCVStatusToQString(ReadCVStatus st);
 
 private slots:

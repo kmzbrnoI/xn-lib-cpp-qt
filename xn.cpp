@@ -561,6 +561,12 @@ void XpressNet::send_next_out() {
 	send(std::move(out));
 }
 
+void XpressNet::histClear() {
+	size_t hist_size = m_hist.size();
+	for (size_t i = 0; i < hist_size; ++i)
+		hist_err(); // can add next items to history!
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void XpressNet::log(const QString &message, const LogLevel loglevel) {

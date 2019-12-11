@@ -64,6 +64,11 @@ void XpressNet::send(MsgType data) {
 		x ^= d;
 	data.push_back(x);
 
+	if (this->m_liType == LIType::LIUSBEth) {
+		data.emplace(data.begin(), 0xFE);
+		data.emplace(data.begin(), 0xFF);
+	}
+
 	log("PUT: " + dataToStr(data), LogLevel::RawData);
 	QByteArray qdata(reinterpret_cast<const char *>(data.data()), data.size());
 
@@ -140,24 +145,41 @@ void XpressNet::handleReadyRead() {
 	m_readData.append(m_serialPort.readAll());
 	m_receiveTimeout = QDateTime::currentDateTime().addMSecs(_BUF_IN_TIMEOUT);
 
-	while (m_readData.size() > 0 && m_readData.size() >= (m_readData[0] & 0x0F)+2) {
-		unsigned int length = (m_readData[0] & 0x0F)+2; // including header byte & xor
+	if (this->m_liType == LIType::LIUSBEth) {
+		int fe_pos = m_readData.indexOf(QByteArray("\255\254"));
+		int fd_pos = m_readData.indexOf(QByteArray("\255\253"));
+		if (fe_pos == -1)
+			fe_pos = m_readData.size();
+		if (fd_pos == -1)
+			fd_pos = m_readData.size();
+		m_readData.remove(0, std::min(fe_pos, fd_pos));
+	}
+
+	int length_pos = (this->m_liType == LIType::LIUSBEth ? 2 : 0);
+
+	while (m_readData.size() > length_pos &&
+	       m_readData.size() >= (m_readData[length_pos] & 0x0F)+2) {
+		unsigned int length = (m_readData[length_pos] & 0x0F)+2; // including header byte & xor
 		uint8_t x = 0;
-		for (uint i = 0; i < length; i++)
+		for (unsigned int i = length_pos; i < length; i++)
 			x ^= m_readData[i];
 
-		log("GET: " + dataToStr(m_readData, length), LogLevel::RawData);
+		log("GET: " + dataToStr(m_readData, length_pos+length), LogLevel::RawData);
 
 		if (x != 0) {
 			// XOR error
-			log("XOR error: " + dataToStr(m_readData, length), LogLevel::Warning);
-			m_readData.remove(0, static_cast<int>(length));
+			log("XOR error: " + dataToStr(m_readData, length_pos+length), LogLevel::Warning);
+			m_readData.remove(0, static_cast<int>(length_pos+length));
 			continue;
 		}
 
-		std::vector<uint8_t> message(m_readData.begin(), m_readData.begin() + length);
+		auto begin = m_readData.begin();
+		for (int i = 0; i < length_pos; i++)
+			++begin;
+
+		std::vector<uint8_t> message(begin, m_readData.begin() + length);
 		parseMessage(message);
-		m_readData.remove(0, static_cast<int>(length));
+		m_readData.remove(0, static_cast<int>(length_pos+length));
 	}
 }
 

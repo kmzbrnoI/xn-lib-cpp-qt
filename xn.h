@@ -64,6 +64,7 @@ enum class LIType {
 	LI100,
 	LI101,
 	uLI,
+	LIUSBEth,
 };
 
 enum class TrkStatus {

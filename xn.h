@@ -192,6 +192,7 @@ public:
 	void histClear();
 
 	static QString xnReadCVStatusToQString(ReadCVStatus st);
+	LIType liType() const;
 
 private slots:
 	void handleReadyRead();

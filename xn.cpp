@@ -629,6 +629,7 @@ QString XpressNet::xnReadCVStatusToQString(const ReadCVStatus st) {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool XpressNet::liAcknowledgesSetAccState() const { return (this->m_liType == LIType::uLI); }
+LIType XpressNet::liType() const { return this->m_liType; }
 
 ///////////////////////////////////////////////////////////////////////////////
 

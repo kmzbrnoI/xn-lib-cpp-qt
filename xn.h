@@ -246,7 +246,7 @@ private:
 	QDateTime timeout(const Cmd *x);
 	bool liAcknowledgesSetAccState() const;
 
-	template <typename DataT>
+	template <typename DataT, typename ItemType>
 	QString dataToStr(DataT, size_t len = 0);
 
 	template <typename Target>

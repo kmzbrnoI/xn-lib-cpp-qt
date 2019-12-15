@@ -69,7 +69,7 @@ void XpressNet::send(MsgType data) {
 		data.emplace(data.begin(), 0xFF);
 	}
 
-	log("PUT: " + dataToStr(data), LogLevel::RawData);
+	log("PUT: " + dataToStr<MsgType, uint8_t>(data), LogLevel::RawData);
 	QByteArray qdata(reinterpret_cast<const char *>(data.data()), data.size());
 
 	qint64 sent = m_serialPort.write(qdata);
@@ -165,11 +165,11 @@ void XpressNet::handleReadyRead() {
 		for (unsigned int i = length_pos; i < length_pos+length; i++)
 			x ^= m_readData[i];
 
-		log("GET: " + dataToStr(m_readData, length_pos+length), LogLevel::RawData);
+		log("GET: " + dataToStr<QByteArray, uint8_t>(m_readData, length_pos+length), LogLevel::RawData);
 
 		if (x != 0) {
 			// XOR error
-			log("XOR error: " + dataToStr(m_readData, length_pos+length), LogLevel::Warning);
+			log("XOR error: " + dataToStr<QByteArray, uint8_t>(m_readData, length_pos+length), LogLevel::Warning);
 			m_readData.remove(0, static_cast<int>(length_pos+length));
 			continue;
 		}
@@ -599,12 +599,12 @@ void XpressNet::log(const QString &message, const LogLevel loglevel) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-template <typename DataT>
+template <typename DataT, typename ItemType>
 QString XpressNet::dataToStr(DataT data, size_t len) {
 	QString out;
 	size_t i = 0;
 	for (auto d = data.begin(); (d != data.end() && (len == 0 || i < len)); d++, i++)
-		out += QString("0x%1 ").arg(*d, 2, 16, QLatin1Char('0'));
+		out += QString("0x%1 ").arg(static_cast<ItemType>(*d), 2, 16, QLatin1Char('0'));
 
 	return out;
 }

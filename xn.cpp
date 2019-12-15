@@ -239,12 +239,22 @@ void XpressNet::handleMsgLiError(MsgType &msg) {
 		}
 		hist_ok();
 	} else if (0x05 == msg[1]) {
-		log("GET: GET: The Command Station is no longer providing the LI "
+		log("GET: ERR: The Command Station is no longer providing the LI "
 		    "a timeslot for communication",
 		    LogLevel::Error);
-		hist_err();
+		this->histClear();
 	} else if (0x06 == msg[1]) {
-		log("GET: GET: Buffer overflow in the LI", LogLevel::Error);
+		log("GET: ERR: Buffer overflow in the LI", LogLevel::Error);
+	} else if (0x07 == msg[1]) {
+		log("GET: INFO: The Command Station started addressing LI again", LogLevel::Info);
+	} else if (0x08 == msg[1]) {
+		log("GET: ERR: No commands can currently be sent to the Command Station", LogLevel::Error);
+		if (!m_hist.empty())
+			hist_err();
+	} else if (0x09 == msg[1]) {
+		log("GET: ERR: Error in the command parameters", LogLevel::Error);
+	} else if (0x0A == msg[1]) {
+		log("GET: ERR: Unknown error (Command Station did not provide the expected answer)", LogLevel::Error);
 	}
 }
 

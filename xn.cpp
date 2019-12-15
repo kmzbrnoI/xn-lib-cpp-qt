@@ -267,7 +267,7 @@ void XpressNet::handleMsgLiVersion(MsgType &msg) {
 void XpressNet::handleMsgCsGeneralEvent(MsgType &msg) {
 	if (0x00 == msg[1]) {
 		log("GET: Status Off", LogLevel::Commands);
-		if (!m_hist.empty() > 0 && is<CmdOff>(m_hist.front()))
+		if (!m_hist.empty() && is<CmdOff>(m_hist.front()))
 			hist_ok();
 		if (m_trk_status != TrkStatus::Off) {
 			m_trk_status = TrkStatus::Off;
@@ -275,7 +275,7 @@ void XpressNet::handleMsgCsGeneralEvent(MsgType &msg) {
 		}
 	} else if (0x01 == msg[1]) {
 		log("GET: Status On", LogLevel::Commands);
-		if (!m_hist.empty() > 0 && is<CmdOn>(m_hist.front()))
+		if (!m_hist.empty() && is<CmdOn>(m_hist.front()))
 			hist_ok();
 		if (m_trk_status != TrkStatus::On) {
 			m_trk_status = TrkStatus::On;
@@ -325,7 +325,7 @@ void XpressNet::handleMsgCsStatus(MsgType &msg) {
 }
 
 void XpressNet::handleMsgCsVersion(MsgType &msg) {
-	if (!m_hist.empty() > 0 && is<CmdGetCSVersion>(m_hist.front())) {
+	if (!m_hist.empty() && is<CmdGetCSVersion>(m_hist.front())) {
 		std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
 		hist_ok();
 		if (dynamic_cast<const CmdGetCSVersion *>(cmd.get())->callback != nullptr) {
@@ -339,7 +339,7 @@ void XpressNet::handleMsgCsVersion(MsgType &msg) {
 void XpressNet::handleMsgCvRead(MsgType &msg) {
 	log("GET: CV " + QString::number(msg[2]) + " value=" + QString::number(msg[3]),
 	    LogLevel::Commands);
-	if (!m_hist.empty() > 0 && is<CmdRequestReadResult>(m_hist.front())) {
+	if (!m_hist.empty() && is<CmdRequestReadResult>(m_hist.front())) {
 		std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
 		hist_ok();
 		dynamic_cast<const CmdRequestReadResult *>(cmd.get())->callback(
@@ -351,7 +351,7 @@ void XpressNet::handleMsgCvRead(MsgType &msg) {
 void XpressNet::handleMsgLocoInfo(MsgType &msg) {
 	log("GET: loco information", LogLevel::Commands);
 
-	if (!m_hist.empty() > 0 && is<CmdGetLocoInfo>(m_hist.front())) {
+	if (!m_hist.empty() && is<CmdGetLocoInfo>(m_hist.front())) {
 		std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
 		hist_ok();
 
@@ -399,13 +399,13 @@ void XpressNet::handleMsgLocoInfo(MsgType &msg) {
 
 void XpressNet::handleMsgLIAddr(MsgType &msg) {
 	log("GET: LI Address is " + QString::number(msg[2]), LogLevel::Commands);
-	if (!m_hist.empty() > 0 && is<CmdGetLIAddress>(m_hist.front())) {
+	if (!m_hist.empty() && is<CmdGetLIAddress>(m_hist.front())) {
 		std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
 		hist_ok();
 		if (dynamic_cast<const CmdGetLIAddress *>(cmd.get())->callback != nullptr) {
 			dynamic_cast<const CmdGetLIAddress *>(cmd.get())->callback(this, msg[2]);
 		}
-	} else if (!m_hist.empty() > 0 && is<CmdSetLIAddress>(m_hist.front())) {
+	} else if (!m_hist.empty() && is<CmdSetLIAddress>(m_hist.front())) {
 		hist_ok();
 	}
 }
@@ -420,7 +420,7 @@ void XpressNet::handleMsgAcc(MsgType &msg) {
 	log("GET: Acc state: group " + QString::number(groupAddr) + ", nibble " +
 		QString::number(nibble) + ", state " + QString::number(state.all, 2).rightJustified(4, '0'),
 	    LogLevel::Commands);
-	if ((!m_hist.empty() > 0) && (is<CmdAccInfoRequest>(m_hist.front())) &&
+	if ((!m_hist.empty()) && (is<CmdAccInfoRequest>(m_hist.front())) &&
 	    (dynamic_cast<const CmdAccInfoRequest *>(m_hist.front().cmd.get())->groupAddr == groupAddr) &&
 	    (dynamic_cast<const CmdAccInfoRequest *>(m_hist.front().cmd.get())->nibble == nibble))
 		hist_ok();

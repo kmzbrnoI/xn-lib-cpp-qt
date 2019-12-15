@@ -146,8 +146,9 @@ void XpressNet::handleReadyRead() {
 	m_receiveTimeout = QDateTime::currentDateTime().addMSecs(_BUF_IN_TIMEOUT);
 
 	if (this->m_liType == LIType::LIUSBEth) {
-		int fe_pos = m_readData.indexOf(QByteArray("\255\254"));
-		int fd_pos = m_readData.indexOf(QByteArray("\255\253"));
+		// remove message till 0xFF 0xFE or 0xFF 0xFD
+		int fe_pos = m_readData.indexOf(QByteArray("\xFF\xFE"));
+		int fd_pos = m_readData.indexOf(QByteArray("\xFF\xFD"));
 		if (fe_pos == -1)
 			fe_pos = m_readData.size();
 		if (fd_pos == -1)
@@ -161,7 +162,7 @@ void XpressNet::handleReadyRead() {
 	       m_readData.size() >= (m_readData[length_pos] & 0x0F)+2) {
 		unsigned int length = (m_readData[length_pos] & 0x0F)+2; // including header byte & xor
 		uint8_t x = 0;
-		for (unsigned int i = length_pos; i < length; i++)
+		for (unsigned int i = length_pos; i < length_pos+length; i++)
 			x ^= m_readData[i];
 
 		log("GET: " + dataToStr(m_readData, length_pos+length), LogLevel::RawData);
@@ -177,7 +178,7 @@ void XpressNet::handleReadyRead() {
 		for (int i = 0; i < length_pos; i++)
 			++begin;
 
-		std::vector<uint8_t> message(begin, m_readData.begin() + length);
+		std::vector<uint8_t> message(begin, begin + length);
 		parseMessage(message);
 		m_readData.remove(0, static_cast<int>(length_pos+length));
 	}

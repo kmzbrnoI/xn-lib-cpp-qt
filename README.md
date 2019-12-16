@@ -4,14 +4,14 @@ This repository contains a fully open-source C++ library for communicating
 with [XpressNET](https://dccwiki.com/XpressNet_Protocol)
 [DCC Command Station](https://dccwiki.com/Command_station).
 
-It connects to the (virtual) serial port, which is typically connected to the
-LI.
+It connects to the (virtual) serial port, which is typically served by LI.
 
-Currently, it implements commands of [XpressNET
-v3.0](http://www.lenzusa.com/1newsite1/Manuals/xpressnet.pdf) protocol,
-however, you may simply add more commands from newer versions of XpressNET (for
-example [XpressNET
+Currently, it implements basic commands of [XpressNET
+v3.0](http://www.lenzusa.com/1newsite1/Manuals/xpressnet.pdf) protocol as well
+as some advances commands of [XpressNET
 v3.6](https://www.lenz-elektronik.de/pdf/XpressNet%20und%20USB%20Interface.pdf)).
+
+See `xn.h: class XpressNET` for list of supported commands.
 
 ## Requirements for use
 
@@ -30,7 +30,8 @@ You may use this library in two major ways:
 
  * Simply include `xn.h` header file into your project and use instance of
    `XpressNet` class.
- * Compile this project using `qmake` and use compiled object file.
+ * Compile this project using `qmake` and use compiled `.so` or `.dll` file.
+   (Support for this type of usage not fully implemented yet.)
 
 ## Basic information
 
@@ -85,14 +86,14 @@ This library could be cross-compiled for Windows via [MXE](https://mxe.cc/).
 Follow [these instructions](https://stackoverflow.com/questions/14170590/building-qt-5-on-linux-for-windows)
 for building standalone `dll` file.
 
-You may want to use similar script as `activate.sh`:
+You may want to use activation script:
 
 ```bash
 export PATH="$HOME/...../mxe/usr/bin:$PATH"
 ~/...../mxe/usr/i686-w64-mingw32.static/qt5/bin/qmake ..
 ```
 
-Make MXE this way:
+Compile MXE this way:
 
 ```bash
 make qtbase qtserialport

@@ -1,11 +1,9 @@
-#include <sstream>
+#include "xn.h"
 
 /* Global definitions & helpers of XpressNet class. Specific functions that
  * do the real work are places in xn-*.cpp (logically divided into multiple
  * shorter source codes.
  */
-
-#include "xn.h"
 
 namespace Xn {
 

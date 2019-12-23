@@ -1,8 +1,6 @@
-#include <sstream>
+#include "xn.h"
 
 /* Receiving data from XpressNet & parsing it. */
-
-#include "xn.h"
 
 namespace Xn {
 

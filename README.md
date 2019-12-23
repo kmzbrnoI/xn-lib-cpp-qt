@@ -30,6 +30,8 @@ You may use this library in two major ways:
 
  * Simply include `xn.h` header file into your project and use instance of
    `XpressNet` class.
+   - Add all `.cpp` files in `xn.pro` to `yourproject.pro`. Exception: you can
+     omit `lib-api.cpp`.
  * Compile this project using `qmake` and use compiled `.so` or `.dll` file.
    (Support for this type of usage not fully implemented yet.)
 

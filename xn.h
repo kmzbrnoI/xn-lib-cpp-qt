@@ -230,9 +230,8 @@ private:
 	void to_send(HistoryItem &&);
 	void to_send(std::unique_ptr<const Cmd> &, UPCb ok = nullptr, UPCb err = nullptr, size_t no_sent = 1);
 
-	template <typename DataT>
-	void to_send(const DataT &&, UPCb ok = nullptr, UPCb err = nullptr);
-
+	template <typename T>
+	void to_send(const T &&cmd, UPCb ok = nullptr, UPCb err = nullptr);
 
 	void handleMsgLiError(MsgType &msg);
 	void handleMsgLiVersion(MsgType &msg);
@@ -258,6 +257,29 @@ private:
 	template <typename Target>
 	bool is(const HistoryItem &h);
 };
+
+// Templated functions must be in header file to compile
+
+template <typename T>
+void XpressNet::to_send(const T &&cmd, UPCb ok, UPCb err) {
+	std::unique_ptr<const Cmd> cmd2(std::make_unique<const T>(cmd));
+	to_send(cmd2, std::move(ok), std::move(err));
+}
+
+template <typename DataT, typename ItemType>
+QString XpressNet::dataToStr(DataT data, size_t len) {
+	QString out;
+	size_t i = 0;
+	for (auto d = data.begin(); (d != data.end() && (len == 0 || i < len)); d++, i++)
+		out += QString("0x%1 ").arg(static_cast<ItemType>(*d), 2, 16, QLatin1Char('0'));
+
+	return out;
+}
+
+template <typename Target>
+bool XpressNet::is(const HistoryItem &h) {
+	return (dynamic_cast<const Target *>(h.cmd.get()) != nullptr);
+}
 
 } // namespace Xn
 

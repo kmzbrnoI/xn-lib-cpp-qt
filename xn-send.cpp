@@ -61,12 +61,6 @@ void XpressNet::to_send(std::unique_ptr<const Cmd> &cmd, UPCb ok, UPCb err, size
 	}
 }
 
-template <typename T>
-void XpressNet::to_send(const T &&cmd, UPCb ok, UPCb err) {
-	std::unique_ptr<const Cmd> cmd2(std::make_unique<const T>(cmd));
-	to_send(cmd2, std::move(ok), std::move(err));
-}
-
 void XpressNet::to_send(HistoryItem &&hist) {
 	// History resending uses m_out queue (could try to resend multiple messages once)
 	std::unique_ptr<const Cmd> cmd2(std::move(hist.cmd));

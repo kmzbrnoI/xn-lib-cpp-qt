@@ -32,24 +32,14 @@ void XpressNet::sp_about_to_close() {
 	log("Disconnected", LogLevel::Info);
 }
 
-template <typename Target>
-bool XpressNet::is(const HistoryItem &h) {
-	return (dynamic_cast<const Target *>(h.cmd.get()) != nullptr);
-}
-
 void XpressNet::log(const QString &message, const LogLevel loglevel) {
 	if (loglevel <= this->loglevel)
 		onLog(message, loglevel);
 }
 
-template <typename DataT, typename ItemType>
-QString XpressNet::dataToStr(DataT data, size_t len) {
-	QString out;
-	size_t i = 0;
-	for (auto d = data.begin(); (d != data.end() && (len == 0 || i < len)); d++, i++)
-		out += QString("0x%1 ").arg(static_cast<ItemType>(*d), 2, 16, QLatin1Char('0'));
-
-	return out;
+void XpressNet::handleError(QSerialPort::SerialPortError serialPortError) {
+	if (serialPortError != QSerialPort::NoError)
+		onError(m_serialPort.errorString());
 }
 
 QString XpressNet::xnReadCVStatusToQString(const ReadCVStatus st) {

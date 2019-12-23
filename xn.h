@@ -186,7 +186,7 @@ public:
 	void setFuncB(LocoAddr, FB, FSet, UPCb ok = nullptr, UPCb err = nullptr);
 
 	void accInfoRequest(uint8_t groupAddr, bool nibble, UPCb err = nullptr);
-	void accOpRequest(uint16_t portAddr, bool state, // portAddr 0-2048
+	void accOpRequest(uint16_t portAddr, bool state, // portAddr 0-2047
 	                  UPCb ok = nullptr, UPCb err = nullptr);
 
 	void histClear();

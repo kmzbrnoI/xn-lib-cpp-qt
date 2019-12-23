@@ -1,5 +1,9 @@
 #include <sstream>
 
+/* Handling of the history of outer data (e.g. resending data with no response
+ * etc.).
+ */
+
 #include "xn.h"
 
 namespace Xn {

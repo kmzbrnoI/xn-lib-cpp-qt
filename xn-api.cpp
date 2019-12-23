@@ -1,5 +1,7 @@
 #include "xn.h"
 
+/* XpressNet class public methods implementation. */
+
 namespace Xn {
 
 void XpressNet::connect(const QString &portname, int32_t br, QSerialPort::FlowControl fc,

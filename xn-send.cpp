@@ -70,7 +70,8 @@ void XpressNet::to_send(HistoryItem &&hist) {
 void XpressNet::m_out_timer_tick() {
 	if (m_out.empty())
 		m_out_timer.stop();
-	send_next_out();
+	else
+		send_next_out();
 }
 
 void XpressNet::send_next_out() {

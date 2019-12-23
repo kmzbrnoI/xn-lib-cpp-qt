@@ -2,8 +2,8 @@ TARGET = xn
 TEMPLATE = lib
 DEFINES += QT_DEPRECATED_WARNINGS
 
-SOURCES += xn.cpp
-HEADERS += xn.h xn-loco-addr.h xn-commands.h q-str-exception.h
+SOURCES += xn.cpp xn-api.cpp xn-receive.cpp xn-send.cpp xn-hist.cpp lib-api.cpp
+HEADERS += xn.h xn-loco-addr.h xn-commands.h q-str-exception.h lib-api.h
 
 CONFIG += c++14 dll
 QMAKE_CXXFLAGS += -Wall -Wextra -pedantic

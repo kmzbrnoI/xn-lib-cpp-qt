@@ -227,8 +227,9 @@ private:
 	void parseMessage(MsgType &msg);
 	void send(MsgType);
 	void send(std::unique_ptr<const Cmd>, UPCb ok = nullptr, UPCb err = nullptr, size_t no_sent = 1);
-	void to_send(HistoryItem &&);
-	void to_send(std::unique_ptr<const Cmd> &, UPCb ok = nullptr, UPCb err = nullptr, size_t no_sent = 1);
+	void to_send(HistoryItem &&, bool bypass_m_out_emptiness = false);
+	void to_send(std::unique_ptr<const Cmd> &, UPCb ok = nullptr, UPCb err = nullptr, size_t no_sent = 1,
+				 bool bypass_m_out_emptiness = false);
 
 	template <typename T>
 	void to_send(const T &&cmd, UPCb ok = nullptr, UPCb err = nullptr);

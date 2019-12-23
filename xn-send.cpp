@@ -43,15 +43,18 @@ void XpressNet::send(std::unique_ptr<const Cmd> cmd, UPCb ok, UPCb err, size_t n
 	}
 }
 
-void XpressNet::to_send(std::unique_ptr<const Cmd> &cmd, UPCb ok, UPCb err, size_t no_sent) {
+void XpressNet::to_send(std::unique_ptr<const Cmd> &cmd, UPCb ok, UPCb err, size_t no_sent,
+						bool bypass_m_out_emptiness) {
 	// Sends or queues
-	if (m_hist.size() >= _MAX_HIST_BUF_COUNT) {
+	if ((m_hist.size() >= _MAX_HIST_BUF_COUNT) || (!m_out.empty() && !bypass_m_out_emptiness)) {
 		// History full -> push & do not start timer (response from CS will send automatically)
+		log("ENQUEUE: " + cmd->msg(), LogLevel::Debug);
 		m_out.push(HistoryItem(cmd, timeout(cmd.get()), no_sent, std::move(ok), std::move(err)));
 	} else {
 		if (m_lastSent.addMSecs(_OUT_TIMER_INTERVAL) > QDateTime::currentDateTime()) {
 			// Last command sent too early, still space in hist buffer ->
 			// queue & activate timer for next send
+			log("ENQUEUE: " + cmd->msg(), LogLevel::Debug);
 			m_out.push(HistoryItem(cmd, timeout(cmd.get()), no_sent, std::move(ok), std::move(err)));
 			if (!m_out_timer.isActive())
 				m_out_timer.start();
@@ -61,23 +64,28 @@ void XpressNet::to_send(std::unique_ptr<const Cmd> &cmd, UPCb ok, UPCb err, size
 	}
 }
 
-void XpressNet::to_send(HistoryItem &&hist) {
+void XpressNet::to_send(HistoryItem &&hist, bool bypass_m_out_emptiness) {
 	// History resending uses m_out queue (could try to resend multiple messages once)
 	std::unique_ptr<const Cmd> cmd2(std::move(hist.cmd));
-	to_send(cmd2, std::move(hist.callback_ok), std::move(hist.callback_err), hist.no_sent + 1);
+	to_send(cmd2, std::move(hist.callback_ok), std::move(hist.callback_err), hist.no_sent + 1,
+			bypass_m_out_emptiness);
 }
 
 void XpressNet::m_out_timer_tick() {
 	if (m_out.empty())
-		m_out_timer.stop();
+		m_out_timer.stop();		
 	else
 		send_next_out();
 }
 
 void XpressNet::send_next_out() {
+	if (m_lastSent.addMSecs(_OUT_TIMER_INTERVAL) > QDateTime::currentDateTime())
+		return;
+
 	HistoryItem out = std::move(m_out.front());
+	log("DEQUEUE: " + out.cmd->msg(), LogLevel::Debug);
 	m_out.pop();
-	to_send(std::move(out));
+	to_send(std::move(out), true);
 }
 
 QDateTime XpressNet::timeout(const Cmd *x) {

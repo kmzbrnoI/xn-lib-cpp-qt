@@ -49,6 +49,7 @@ constexpr size_t _HIST_SEND_MAX = 3;
 constexpr size_t _BUF_IN_TIMEOUT = 300; // ms
 constexpr size_t _STEPS_CNT = 28;
 constexpr size_t _MAX_HIST_BUF_COUNT = 3;
+constexpr size_t _OUT_TIMER_INTERVAL = 50; // 50 ms
 
 struct EOpenError : public QStrException {
 	EOpenError(const QString str) : QStrException(str) {}
@@ -198,6 +199,7 @@ private slots:
 	void handleReadyRead();
 	void handleError(QSerialPort::SerialPortError);
 	void m_hist_timer_tick();
+	void m_out_timer_tick();
 	void sp_about_to_close();
 
 signals:
@@ -213,21 +215,24 @@ private:
 	QSerialPort m_serialPort;
 	QByteArray m_readData;
 	QDateTime m_receiveTimeout;
+	QDateTime m_lastSent;
 	std::deque<HistoryItem> m_hist;
 	std::queue<HistoryItem> m_out;
 	QTimer m_hist_timer;
+	QTimer m_out_timer;
 	TrkStatus m_trk_status = TrkStatus::Unknown;
 	LIType m_liType;
 
 	using MsgType = std::vector<uint8_t>;
 	void parseMessage(MsgType &msg);
 	void send(MsgType);
-	void send(HistoryItem &&);
-	void send(std::unique_ptr<const Cmd>, UPCb ok = nullptr, UPCb err = nullptr);
-	void to_send(std::unique_ptr<const Cmd> &, UPCb ok = nullptr, UPCb err = nullptr);
+	void send(std::unique_ptr<const Cmd>, UPCb ok = nullptr, UPCb err = nullptr, size_t no_sent = 1);
+	void to_send(HistoryItem &&);
+	void to_send(std::unique_ptr<const Cmd> &, UPCb ok = nullptr, UPCb err = nullptr, size_t no_sent = 1);
 
 	template <typename DataT>
 	void to_send(const DataT &&, UPCb ok = nullptr, UPCb err = nullptr);
+
 
 	void handleMsgLiError(MsgType &msg);
 	void handleMsgLiVersion(MsgType &msg);

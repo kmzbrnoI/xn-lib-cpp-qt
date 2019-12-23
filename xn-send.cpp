@@ -25,19 +25,11 @@ void XpressNet::send(MsgType data) {
 		throw EWriteError("No data could we written!");
 }
 
-void XpressNet::to_send(std::unique_ptr<const Cmd> &cmd, UPCb ok, UPCb err) {
-	// Sends or queues
-	if (m_hist.size() >= _MAX_HIST_BUF_COUNT) {
-		m_out.push(HistoryItem(cmd, timeout(cmd.get()), 1, std::move(ok), std::move(err)));
-	} else {
-		send(std::move(cmd), std::move(ok), std::move(err));
-	}
-}
-
-void XpressNet::send(std::unique_ptr<const Cmd> cmd, UPCb ok, UPCb err) {
+void XpressNet::send(std::unique_ptr<const Cmd> cmd, UPCb ok, UPCb err, size_t no_sent) {
 	log("PUT: " + cmd->msg(), LogLevel::Commands);
 
 	try {
+		m_lastSent = QDateTime::currentDateTime();
 		send(cmd->getBytes());
 		if (Xn::is<CmdAccOpRequest>(*cmd) && !this->liAcknowledgesSetAccState() &&
 			dynamic_cast<const CmdAccOpRequest &>(*cmd).state) {
@@ -45,11 +37,29 @@ void XpressNet::send(std::unique_ptr<const Cmd> cmd, UPCb ok, UPCb err) {
 			if (nullptr != ok)
 				ok->func(this, ok->data);
 		} else
-			m_hist.emplace_back(cmd, timeout(cmd.get()), 1, std::move(ok), std::move(err));
+			m_hist.emplace_back(cmd, timeout(cmd.get()), no_sent, std::move(ok), std::move(err));
 	} catch (QStrException &) {
 		log("Fatal error when writing command: " + cmd->msg(), LogLevel::Error);
 		if (nullptr != err)
 			err->func(this, err->data);
+	}
+}
+
+void XpressNet::to_send(std::unique_ptr<const Cmd> &cmd, UPCb ok, UPCb err, size_t no_sent) {
+	// Sends or queues
+	if (m_hist.size() >= _MAX_HIST_BUF_COUNT) {
+		// History full -> push & do not start timer (response from CS will send automatically)
+		m_out.push(HistoryItem(cmd, timeout(cmd.get()), no_sent, std::move(ok), std::move(err)));
+	} else {
+		if (m_lastSent.addMSecs(_OUT_TIMER_INTERVAL) > QDateTime::currentDateTime()) {
+			// Last command sent too early, still space in hist buffer ->
+			// queue & activate timer for next send
+			m_out.push(HistoryItem(cmd, timeout(cmd.get()), no_sent, std::move(ok), std::move(err)));
+			if (!m_out_timer.isActive())
+				m_out_timer.start();
+		} else {
+			send(std::move(cmd), std::move(ok), std::move(err));
+		}
 	}
 }
 
@@ -59,19 +69,22 @@ void XpressNet::to_send(const T &&cmd, UPCb ok, UPCb err) {
 	to_send(cmd2, std::move(ok), std::move(err));
 }
 
-void XpressNet::send(HistoryItem &&hist) {
-	hist.no_sent++;
-	hist.timeout = timeout(hist.cmd.get());
+void XpressNet::to_send(HistoryItem &&hist) {
+	// History resending uses m_out queue (could try to resend multiple messages once)
+	std::unique_ptr<const Cmd> cmd2(std::move(hist.cmd));
+	to_send(cmd2, std::move(hist.callback_ok), std::move(hist.callback_err), hist.no_sent + 1);
+}
 
-	log("PUT: " + hist.cmd->msg(), LogLevel::Commands);
+void XpressNet::m_out_timer_tick() {
+	if (m_out.empty())
+		m_out_timer.stop();
+	send_next_out();
+}
 
-	try {
-		send(hist.cmd->getBytes());
-		m_hist.push_back(std::move(hist));
-	} catch (QStrException &e) {
-		log("PUT ERR: " + e, LogLevel::Error);
-		throw;
-	}
+void XpressNet::send_next_out() {
+	HistoryItem out = std::move(m_out.front());
+	m_out.pop();
+	to_send(std::move(out));
 }
 
 QDateTime XpressNet::timeout(const Cmd *x) {

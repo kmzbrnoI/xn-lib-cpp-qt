@@ -11,12 +11,15 @@ namespace Xn {
 
 XpressNet::XpressNet(QObject *parent) : QObject(parent) {
 	m_serialPort.setReadBufferSize(256);
+	m_lastSent = QDateTime::currentDateTime();
 
 	QObject::connect(&m_serialPort, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
 	QObject::connect(&m_serialPort, SIGNAL(errorOccurred(QSerialPort::SerialPortError)), this,
 	                 SLOT(handleError(QSerialPort::SerialPortError)));
 
 	QObject::connect(&m_hist_timer, SIGNAL(timeout()), this, SLOT(m_hist_timer_tick()));
+	m_out_timer.setInterval(_OUT_TIMER_INTERVAL);
+	QObject::connect(&m_out_timer, SIGNAL(timeout()), this, SLOT(m_out_timer_tick()));
 	QObject::connect(&m_serialPort, SIGNAL(aboutToClose()), this, SLOT(sp_about_to_close()));
 }
 

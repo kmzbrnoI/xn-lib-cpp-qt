@@ -56,7 +56,7 @@ void XpressNet::hist_send() {
 	log("Sending again: " + hist.cmd->msg(), LogLevel::Warning);
 
 	try {
-		send(std::move(hist));
+		to_send(std::move(hist));
 	} catch (...) {}
 }
 
@@ -75,13 +75,6 @@ void XpressNet::m_hist_timer_tick() {
 		else
 			hist_send();
 	}
-}
-
-void XpressNet::send_next_out() {
-	HistoryItem out = std::move(m_out.front());
-	m_out.pop();
-	out.no_sent = 0;
-	send(std::move(out));
 }
 
 void XpressNet::histClear() {

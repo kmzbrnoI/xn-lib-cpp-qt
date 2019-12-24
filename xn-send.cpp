@@ -59,7 +59,7 @@ void XpressNet::to_send(std::unique_ptr<const Cmd> &cmd, UPCb ok, UPCb err, size
 			if (!m_out_timer.isActive())
 				m_out_timer.start();
 		} else {
-			send(std::move(cmd), std::move(ok), std::move(err));
+			send(std::move(cmd), std::move(ok), std::move(err), no_sent);
 		}
 	}
 }

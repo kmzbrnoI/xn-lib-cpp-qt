@@ -30,7 +30,7 @@ void XpressNet::send(std::unique_ptr<const Cmd> cmd, UPCb ok, UPCb err, size_t n
 		m_lastSent = QDateTime::currentDateTime();
 		send(cmd->getBytes());
 		if (Xn::is<CmdAccOpRequest>(*cmd) && !this->liAcknowledgesSetAccState() &&
-			dynamic_cast<const CmdAccOpRequest &>(*cmd).state) {
+		    dynamic_cast<const CmdAccOpRequest &>(*cmd).state) {
 			// acknowledge manually, do not add to history buffer
 			if (nullptr != ok)
 				ok->func(this, ok->data);
@@ -44,10 +44,10 @@ void XpressNet::send(std::unique_ptr<const Cmd> cmd, UPCb ok, UPCb err, size_t n
 }
 
 void XpressNet::to_send(std::unique_ptr<const Cmd> &cmd, UPCb ok, UPCb err, size_t no_sent,
-						bool bypass_m_out_emptiness) {
+                        bool bypass_m_out_emptiness) {
 	// Sends or queues
 	if ((m_hist.size() >= _MAX_HIST_BUF_COUNT) || (!m_out.empty() && !bypass_m_out_emptiness) ||
-			conflictWithHistory(*cmd)) {
+	    conflictWithHistory(*cmd)) {
 		// History full -> push & do not start timer (response from CS will send automatically)
 		// We ensure history buffer never contains commands with conflict
 		log("ENQUEUE: " + cmd->msg(), LogLevel::Debug);
@@ -70,12 +70,12 @@ void XpressNet::to_send(HistoryItem &&hist, bool bypass_m_out_emptiness) {
 	// History resending uses m_out queue (could try to resend multiple messages once)
 	std::unique_ptr<const Cmd> cmd2(std::move(hist.cmd));
 	to_send(cmd2, std::move(hist.callback_ok), std::move(hist.callback_err), hist.no_sent + 1,
-			bypass_m_out_emptiness);
+	        bypass_m_out_emptiness);
 }
 
 void XpressNet::m_out_timer_tick() {
 	if (m_out.empty())
-		m_out_timer.stop();		
+		m_out_timer.stop();
 	else
 		send_next_out();
 }

@@ -84,14 +84,14 @@ void XpressNet::histClear() {
 }
 
 bool XpressNet::conflictWithHistory(const Cmd &cmd) const {
-	for(const HistoryItem &hist : m_hist)
+	for (const HistoryItem &hist : m_hist)
 		if (hist.cmd->conflict(cmd) || cmd.conflict(*(hist.cmd)))
 			return true;
 	return false;
 }
 
 bool XpressNet::conflictWithOut(const Cmd &cmd) const {
-	for(const HistoryItem &out : m_out)
+	for (const HistoryItem &out : m_out)
 		if (out.cmd->conflict(cmd) || cmd.conflict(*(out.cmd)))
 			return true;
 	return false;

@@ -90,7 +90,7 @@ using UPCb = std::unique_ptr<CommandCallback>;
 
 struct HistoryItem {
 	HistoryItem(std::unique_ptr<const Cmd> &cmd, QDateTime timeout, size_t no_sent,
-	              std::unique_ptr<Cb> &&callback_ok, std::unique_ptr<Cb> &&callback_err)
+	            std::unique_ptr<Cb> &&callback_ok, std::unique_ptr<Cb> &&callback_err)
 	    : cmd(std::move(cmd))
 	    , timeout(timeout)
 	    , no_sent(no_sent)
@@ -174,8 +174,7 @@ public:
 	void getLIAddress(GotLIAddress const &, UPCb err = nullptr);
 	void setLIAddress(uint8_t addr, UPCb ok = nullptr, UPCb err = nullptr);
 
-	void pomWriteCv(LocoAddr, uint16_t cv, uint8_t value, UPCb ok = nullptr,
-	                UPCb err = nullptr);
+	void pomWriteCv(LocoAddr, uint16_t cv, uint8_t value, UPCb ok = nullptr, UPCb err = nullptr);
 	void pomWriteBit(LocoAddr, uint16_t cv, uint8_t biti, bool value, UPCb ok = nullptr,
 	                 UPCb err = nullptr);
 	void readCVdirect(uint8_t cv, ReadCV const &callback, UPCb err = nullptr);
@@ -226,10 +225,11 @@ private:
 	using MsgType = std::vector<uint8_t>;
 	void parseMessage(MsgType &msg);
 	void send(MsgType);
-	void send(std::unique_ptr<const Cmd>, UPCb ok = nullptr, UPCb err = nullptr, size_t no_sent = 1);
+	void send(std::unique_ptr<const Cmd>, UPCb ok = nullptr, UPCb err = nullptr,
+	          size_t no_sent = 1);
 	void to_send(HistoryItem &&, bool bypass_m_out_emptiness = false);
-	void to_send(std::unique_ptr<const Cmd> &, UPCb ok = nullptr, UPCb err = nullptr, size_t no_sent = 1,
-				 bool bypass_m_out_emptiness = false);
+	void to_send(std::unique_ptr<const Cmd> &, UPCb ok = nullptr, UPCb err = nullptr,
+	             size_t no_sent = 1, bool bypass_m_out_emptiness = false);
 
 	template <typename T>
 	void to_send(const T &&cmd, UPCb ok = nullptr, UPCb err = nullptr);

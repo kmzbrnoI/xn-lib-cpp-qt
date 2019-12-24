@@ -34,11 +34,13 @@ void XpressNet::handleReadyRead() {
 		for (unsigned int i = length_pos; i < length_pos+length; i++)
 			x ^= m_readData[i];
 
-		log("GET: " + dataToStr<QByteArray, uint8_t>(m_readData, length_pos+length), LogLevel::RawData);
+		log("GET: " + dataToStr<QByteArray, uint8_t>(m_readData, length_pos+length),
+		    LogLevel::RawData);
 
 		if (x != 0) {
 			// XOR error
-			log("XOR error: " + dataToStr<QByteArray, uint8_t>(m_readData, length_pos+length), LogLevel::Warning);
+			log("XOR error: " + dataToStr<QByteArray, uint8_t>(m_readData, length_pos+length),
+			    LogLevel::Warning);
 			m_readData.remove(0, static_cast<int>(length_pos+length));
 			continue;
 		}
@@ -89,8 +91,7 @@ void XpressNet::handleMsgLiError(MsgType &msg) {
 	if (0x01 == msg[1]) {
 		log("GET: Error occurred between the interfaces and the PC", LogLevel::Error);
 	} else if (0x02 == msg[1]) {
-		log("GET: Error occurred between the interfaces and the command station",
-		    LogLevel::Error);
+		log("GET: Error occurred between the interfaces and the command station", LogLevel::Error);
 	} else if (0x03 == msg[1]) {
 		log("GET: Unknown communication error", LogLevel::Error);
 	} else if (0x04 == msg[1]) {
@@ -118,7 +119,8 @@ void XpressNet::handleMsgLiError(MsgType &msg) {
 	} else if (0x09 == msg[1]) {
 		log("GET: ERR: Error in the command parameters", LogLevel::Error);
 	} else if (0x0A == msg[1]) {
-		log("GET: ERR: Unknown error (Command Station did not provide the expected answer)", LogLevel::Error);
+		log("GET: ERR: Unknown error (Command Station did not provide the expected answer)",
+		    LogLevel::Error);
 	}
 }
 
@@ -132,7 +134,7 @@ void XpressNet::handleMsgLiVersion(MsgType &msg) {
 	if (!m_hist.empty() && is<CmdGetLIVersion>(m_hist.front())) {
 		std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
 		hist_ok();
-		const auto &hist = dynamic_cast<const CmdGetLIVersion&>(*cmd);
+		const auto &hist = dynamic_cast<const CmdGetLIVersion &>(*cmd);
 		if (hist.callback != nullptr)
 			hist.callback(this, hw, sw);
 	}

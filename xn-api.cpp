@@ -93,8 +93,7 @@ void XpressNet::setFuncA(const LocoAddr addr, const FA fa, UPCb ok, UPCb err) {
 	to_send(CmdSetFuncA(addr, fa), std::move(ok), std::move(err));
 }
 
-void XpressNet::setFuncB(const LocoAddr addr, const FB fb, const FSet range, UPCb ok,
-                         UPCb err) {
+void XpressNet::setFuncB(const LocoAddr addr, const FB fb, const FSet range, UPCb ok, UPCb err) {
 	to_send(CmdSetFuncB(addr, fb, range), std::move(ok), std::move(err));
 }
 

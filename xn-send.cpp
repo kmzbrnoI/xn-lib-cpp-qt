@@ -46,16 +46,18 @@ void XpressNet::send(std::unique_ptr<const Cmd> cmd, UPCb ok, UPCb err, size_t n
 void XpressNet::to_send(std::unique_ptr<const Cmd> &cmd, UPCb ok, UPCb err, size_t no_sent,
 						bool bypass_m_out_emptiness) {
 	// Sends or queues
-	if ((m_hist.size() >= _MAX_HIST_BUF_COUNT) || (!m_out.empty() && !bypass_m_out_emptiness)) {
+	if ((m_hist.size() >= _MAX_HIST_BUF_COUNT) || (!m_out.empty() && !bypass_m_out_emptiness) ||
+			conflictWithHistory(*cmd)) {
 		// History full -> push & do not start timer (response from CS will send automatically)
+		// We ensure history buffer never contains commands with conflict
 		log("ENQUEUE: " + cmd->msg(), LogLevel::Debug);
-		m_out.push(HistoryItem(cmd, timeout(cmd.get()), no_sent, std::move(ok), std::move(err)));
+		m_out.push_back(HistoryItem(cmd, timeout(cmd.get()), no_sent, std::move(ok), std::move(err)));
 	} else {
 		if (m_lastSent.addMSecs(_OUT_TIMER_INTERVAL) > QDateTime::currentDateTime()) {
 			// Last command sent too early, still space in hist buffer ->
 			// queue & activate timer for next send
 			log("ENQUEUE: " + cmd->msg(), LogLevel::Debug);
-			m_out.push(HistoryItem(cmd, timeout(cmd.get()), no_sent, std::move(ok), std::move(err)));
+			m_out.push_back(HistoryItem(cmd, timeout(cmd.get()), no_sent, std::move(ok), std::move(err)));
 			if (!m_out_timer.isActive())
 				m_out_timer.start();
 		} else {
@@ -84,7 +86,7 @@ void XpressNet::send_next_out() {
 
 	HistoryItem out = std::move(m_out.front());
 	log("DEQUEUE: " + out.cmd->msg(), LogLevel::Debug);
-	m_out.pop();
+	m_out.pop_front();
 	to_send(std::move(out), true);
 }
 

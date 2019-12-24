@@ -26,7 +26,7 @@ void XpressNet::sp_about_to_close() {
 	while (!m_hist.empty())
 		m_hist.pop_front(); // Should we call error events?
 	while (!m_out.empty())
-		m_out.pop(); // Should we call error events?
+		m_out.pop_front(); // Should we call error events?
 	m_trk_status = TrkStatus::Unknown;
 
 	log("Disconnected", LogLevel::Info);

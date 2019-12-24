@@ -217,7 +217,7 @@ private:
 	QDateTime m_receiveTimeout;
 	QDateTime m_lastSent;
 	std::deque<HistoryItem> m_hist;
-	std::queue<HistoryItem> m_out;
+	std::deque<HistoryItem> m_out;
 	QTimer m_hist_timer;
 	QTimer m_out_timer;
 	TrkStatus m_trk_status = TrkStatus::Unknown;
@@ -251,6 +251,8 @@ private:
 	void log(const QString &message, LogLevel loglevel);
 	QDateTime timeout(const Cmd *x);
 	bool liAcknowledgesSetAccState() const;
+	bool conflictWithHistory(const Cmd &) const;
+	bool conflictWithOut(const Cmd &) const;
 
 	template <typename DataT, typename ItemType>
 	QString dataToStr(DataT, size_t len = 0);

@@ -41,14 +41,16 @@ void XpressNet::hist_send() {
 	HistoryItem hist = std::move(m_hist.front());
 	m_hist.pop_front();
 
-	for(const HistoryItem &newer : m_hist) {
-		if (hist.cmd->conflict(*(newer.cmd)) || newer.cmd->conflict(*(hist.cmd))) {
-			log("Not sending again, conflict: " + hist.cmd->msg() + ", " + newer.cmd->msg(),
-			    LogLevel::Warning);
-			if (nullptr != hist.callback_err)
-				hist.callback_err->func(this, hist.callback_err->data);
-			return;
-		}
+	// to_send guarantees us that conflict can never occur in hist buffer
+	// we just check conflict in out buffer
+
+	if (this->conflictWithOut(*(hist.cmd))) {
+		log("Not sending again, conflict: " + hist.cmd->msg(), LogLevel::Warning);
+		if (nullptr != hist.callback_err)
+			hist.callback_err->func(this, hist.callback_err->data);
+		if (!m_out.empty())
+			send_next_out();
+		return;
 	}
 
 	log("Sending again: " + hist.cmd->msg(), LogLevel::Warning);
@@ -79,6 +81,20 @@ void XpressNet::histClear() {
 	size_t hist_size = m_hist.size();
 	for (size_t i = 0; i < hist_size; ++i)
 		hist_err(); // can add next items to history!
+}
+
+bool XpressNet::conflictWithHistory(const Cmd &cmd) const {
+	for(const HistoryItem &hist : m_hist)
+		if (hist.cmd->conflict(cmd) || cmd.conflict(*(hist.cmd)))
+			return true;
+	return false;
+}
+
+bool XpressNet::conflictWithOut(const Cmd &cmd) const {
+	for(const HistoryItem &out : m_out)
+		if (out.cmd->conflict(cmd) || cmd.conflict(*(out.cmd)))
+			return true;
+	return false;
 }
 
 } // namespace Xn

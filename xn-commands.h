@@ -392,7 +392,7 @@ struct CmdAccOpRequest : public Cmd {
 	bool conflict(const Cmd &cmd) const override {
 		if (is<CmdAccOpRequest>(cmd)) {
 			const auto &casted = dynamic_cast<const CmdAccOpRequest &>(cmd);
-			return (casted.portAddr == this->portAddr);
+			return ((casted.portAddr/2) == (this->portAddr/2));
 		}
 		return false;
 	}

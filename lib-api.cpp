@@ -35,6 +35,25 @@ unsigned int features() {
 // Connect / disconnect
 
 int connect() {
+	if (lib.xn.connected())
+		return TRK_ALREADY_OPENNED;
+
+	lib.events.call(lib.events.beforeOpen);
+	lib.guiOnOpen();
+
+	try {
+		lib.xn.connect(lib.s["XN"]["port"].toString(), lib.s["XN"]["baudrate"].toInt(),
+		               static_cast<QSerialPort::FlowControl>(lib.s["XN"]["flowcontrol"].toInt()),
+		               lib.interface(lib.s["XN"]["interface"].toString()));
+	} catch (const Xn::QStrException &e) {
+		const QString errMsg = "XN connect error while opening serial port '" +
+			lib.s["XN"]["port"].toString() + "': " + e;
+		lib.log(errMsg, LogLevel::Error);
+		lib.events.call(lib.events.afterClose);
+		lib.guiOnClose();
+		return TRK_CANNOT_OPEN_PORT;
+	}
+
 	return 0;
 }
 

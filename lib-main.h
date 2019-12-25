@@ -39,6 +39,8 @@ public:
 private slots:
 	void b_serial_refresh_handle();
 	void cb_connections_changed(int);
+	void b_info_update_handle();
+	void b_li_addr_set_handle();
 
 	void xnOnLog(QString message, LogLevel loglevel);
 	void xnOnError(QString error);

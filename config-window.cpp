@@ -18,6 +18,10 @@ void LibMain::guiInit() {
 
 	QObject::connect(form.ui.b_serial_refresh, SIGNAL(released()), this,
 	                 SLOT(b_serial_refresh_handle()));
+	QObject::connect(form.ui.b_info_update, SIGNAL(released()), this,
+	                 SLOT(b_info_update_handle()));
+	QObject::connect(form.ui.b_li_addr_set, SIGNAL(released()), this,
+	                 SLOT(b_li_addr_set_handle()));
 
 	QString text;
 	text.sprintf("Nastavení XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR);
@@ -106,9 +110,37 @@ void LibMain::guiOnClose() {
 	form.ui.l_cs_id->setText("???");
 	form.ui.l_li_version->setText("???");
 	form.ui.sb_li_addr->setEnabled(false);
+	form.ui.sb_li_addr->setValue(0);
 	form.ui.b_li_addr_set->setEnabled(false);
 	form.ui.b_info_update->setEnabled(false);
 	form.ui.l_info_datetime->setText("???");
+}
+
+void LibMain::b_info_update_handle() {
+	form.ui.l_cs_version->setText("???");
+	form.ui.l_cs_id->setText("???");
+	form.ui.l_li_version->setText("???");
+	form.ui.sb_li_addr->setValue(0);
+
+	try {
+		xn.getLIVersion(
+		    [this](void *s, unsigned hw, unsigned sw) { xnGotLIVersion(s, hw, sw); }
+		);
+		xn.getLIAddress(
+		    [this](void *s, unsigned addr) { xnGotLIAddress(s, addr); }
+		);
+		xn.getCommandStationVersion(
+		    [this](void *s, unsigned major, unsigned minor, uint8_t id) {
+		        xnGotCSVersion(s, major, minor, id);
+		    }
+		);
+
+	} catch (const Xn::QStrException& e) {
+		log("Get CS & LI Info: " + e.str(), LogLevel::Error);
+	}
+}
+
+void LibMain::b_li_addr_set_handle() {
 }
 
 } // namespace RcsXn

@@ -108,6 +108,7 @@ void LibMain::guiOnClose() {
 	form.ui.sb_li_addr->setEnabled(false);
 	form.ui.b_li_addr_set->setEnabled(false);
 	form.ui.b_info_update->setEnabled(false);
+	form.ui.l_info_datetime->setText("???");
 }
 
 } // namespace RcsXn

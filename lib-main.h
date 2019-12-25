@@ -50,7 +50,7 @@ private:
 	void xnGotLIVersion(void *, unsigned hw, unsigned sw);
 	void xnOnLIVersionError(void *, void *);
 	void xnOnCSStatusError(void *, void *);
-	void xnGotCSVersion(void *, unsigned major, unsigned minor);
+	void xnGotCSVersion(void *, unsigned major, unsigned minor, uint8_t id);
 	void xnGotLIAddress(void *, unsigned addr);
 
 };

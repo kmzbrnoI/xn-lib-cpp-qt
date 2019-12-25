@@ -98,13 +98,16 @@ void LibMain::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
 	this->li_ver_sw = sw;
 
 	form.ui.l_li_version->setText(version);
+	form.ui.l_info_datetime->setText(QTime::currentTime().toString("hh:mm:ss"));
 
 	try {
 		xn.getLIAddress(
 		    [this](void *s, unsigned addr) { xnGotLIAddress(s, addr); }
 		);
 		xn.getCommandStationVersion(
-		    [this](void *s, unsigned major, unsigned minor) { xnGotCSVersion(s, major, minor);}
+		    [this](void *s, unsigned major, unsigned minor, uint8_t id) {
+		        xnGotCSVersion(s, major, minor, id);
+		    }
 		);
 		xn.getCommandStationStatus(
 		    nullptr,
@@ -116,15 +119,19 @@ void LibMain::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
 	}
 }
 
-void LibMain::xnGotCSVersion(void *, unsigned major, unsigned minor) {
+void LibMain::xnGotCSVersion(void *, unsigned major, unsigned minor, uint8_t id) {
 	QString version = QString::number(major) + "." + QString::number(minor);
-	log("Got command station version: " + version, LogLevel::Info);
+	log("Got command station version: " + version + ", ID: " + QString::number(id),
+	    LogLevel::Info);
 	form.ui.l_cs_version->setText(version);
+	form.ui.l_cs_id->setText(QString::number(id));
+	form.ui.l_info_datetime->setText(QTime::currentTime().toString("hh:mm:ss"));
 }
 
 void LibMain::xnGotLIAddress(void *, unsigned addr) {
 	log("Got LI address: " + QString::number(addr), LogLevel::Info);
 	form.ui.sb_li_addr->setValue(addr);
+	form.ui.l_info_datetime->setText(QTime::currentTime().toString("hh:mm:ss"));
 }
 
 } // namespace Xn

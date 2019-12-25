@@ -2,7 +2,7 @@
 
 namespace Xn {
 
-extern AppThread main_thread;
-extern LibMain lib;
+AppThread main_thread;
+LibMain lib;
 
 } // namespace Xn

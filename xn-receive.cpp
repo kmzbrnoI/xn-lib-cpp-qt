@@ -206,7 +206,7 @@ void XpressNet::handleMsgCsVersion(MsgType &msg) {
 		hist_ok();
 		if (dynamic_cast<const CmdGetCSVersion *>(cmd.get())->callback != nullptr) {
 			dynamic_cast<const CmdGetCSVersion *>(cmd.get())->callback(
-				this, msg[2] >> 4, msg[2] & 0x0F
+				this, msg[2] >> 4, msg[2] & 0x0F, msg[3]
 			);
 		}
 	}

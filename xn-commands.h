@@ -93,7 +93,7 @@ struct CmdSetLIAddress : public Cmd {
 	bool conflict(const Cmd &cmd) const override { return is<CmdSetLIAddress>(cmd); }
 };
 
-using GotCSVersion = std::function<void(void *sender, unsigned major, unsigned minor)>;
+using GotCSVersion = std::function<void(void *sender, unsigned major, unsigned minor, uint8_t id)>;
 
 struct CmdGetCSVersion : public Cmd {
 	GotCSVersion const callback;

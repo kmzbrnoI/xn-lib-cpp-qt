@@ -4,6 +4,13 @@
 namespace Xn {
 
 ///////////////////////////////////////////////////////////////////////////////
+
+void callEv(void *sender, const LibStdCallback &callback) {
+	if (nullptr != callback.func)
+		callback.func(sender, callback.data);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Connect / disconnect
 
 int connect() {
@@ -54,5 +61,18 @@ void bindOnLocoStolen(TrkLocoEv f, void *data) {
 void showConfigDialog() {
 	lib.form.show();
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+XN_SHARED_EXPORT void CALL_CONV setTrackStatus(unsigned int trkStatus, LibStdCallback ok,
+                                               LibStdCallback err) {
+	lib.xn.setTrkStatus(
+		static_cast<TrkStatus>(trkStatus),
+		std::make_unique<Cb>([ok](void *s, void *) { callEv(s, ok); }),
+		std::make_unique<Cb>([err](void *s, void *) { callEv(s, err); })
+	);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 } // namespace Xn

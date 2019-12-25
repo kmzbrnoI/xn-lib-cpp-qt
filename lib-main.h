@@ -6,6 +6,7 @@
 
 #include "config-window.h"
 #include "xn.h"
+#include "lib-events.h"
 
 namespace Xn {
 
@@ -16,6 +17,7 @@ class LibMain : public QObject {
 public:
 	XpressNet xn;
 	ConfigWindow form;
+	XnEvents events;
 
 private slots:
 

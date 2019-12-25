@@ -45,7 +45,7 @@ XN_SHARED_EXPORT void CALL_CONV setTrackStatus(unsigned int trkStatus, LibStdCal
 XN_SHARED_EXPORT void CALL_CONV emergencyStop(LibStdCallback ok, LibStdCallback err);
 XN_SHARED_EXPORT void CALL_CONV locoEmergencyStop(uint16_t addr, LibStdCallback ok,
                                                   LibStdCallback err);
-XN_SHARED_EXPORT void CALL_CONV locoSetSpeed(uint16_t addr, int speed, int dir, LibStdCallback ok,
+XN_SHARED_EXPORT void CALL_CONV locoSetSpeed(uint16_t addr, int speed, bool dir, LibStdCallback ok,
                                              LibStdCallback err);
 XN_SHARED_EXPORT void CALL_CONV locoSetFunc(uint16_t addr, uint32_t funcMask, uint32_t funcState,
                                             LibStdCallback ok, LibStdCallback err);

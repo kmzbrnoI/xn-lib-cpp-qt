@@ -83,22 +83,52 @@ int trackStatus() {
 }
 
 void setTrackStatus(unsigned int trkStatus, LibStdCallback ok, LibStdCallback err) {
-	lib.xn.setTrkStatus(
-		static_cast<TrkStatus>(trkStatus),
-		std::make_unique<Cb>([ok](void *s, void *) { callEv(s, ok); }),
-		std::make_unique<Cb>([err](void *s, void *) { callEv(s, err); })
-	);
+	try {
+		lib.xn.setTrkStatus(
+			static_cast<TrkStatus>(trkStatus),
+			std::make_unique<Cb>([ok](void *s, void *) { callEv(s, ok); }),
+			std::make_unique<Cb>([err](void *s, void *) { callEv(s, err); })
+		);
+	} catch (...) {
+		callEv(&lib.xn, err);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void emergencyStop(LibStdCallback ok, LibStdCallback err) {
+	try {
+		lib.xn.emergencyStop(
+			std::make_unique<Cb>([ok](void *s, void *) { callEv(s, ok); }),
+			std::make_unique<Cb>([err](void *s, void *) { callEv(s, err); })
+		);
+	} catch (...) {
+		callEv(&lib.xn, err);
+	}
 }
 
 void locoEmergencyStop(uint16_t addr, LibStdCallback ok, LibStdCallback err) {
+	try {
+		lib.xn.emergencyStop(
+			LocoAddr(addr),
+			std::make_unique<Cb>([ok](void *s, void *) { callEv(s, ok); }),
+			std::make_unique<Cb>([err](void *s, void *) { callEv(s, err); })
+		);
+	} catch (...) {
+		callEv(&lib.xn, err);
+	}
 }
 
-void locoSetSpeed(uint16_t addr, int speed, int dir, LibStdCallback ok, LibStdCallback err) {
+void locoSetSpeed(uint16_t addr, int speed, bool dir, LibStdCallback ok, LibStdCallback err) {
+	try {
+		lib.xn.setSpeed(
+			LocoAddr(addr), speed, static_cast<Direction>(dir),
+			std::make_unique<Cb>([ok](void *s, void *) { callEv(s, ok); }),
+			std::make_unique<Cb>([err](void *s, void *) { callEv(s, err); })
+		);
+	} catch (...) {
+		callEv(&lib.xn, err);
+	}
 }
 
 void locoSetFunc(uint16_t addr, uint32_t funcMask, uint32_t funcState, LibStdCallback ok,
@@ -112,6 +142,15 @@ void locoRelease(uint16_t addr, LibStdCallback ok) {
 }
 
 void pomWriteCv(uint16_t addr, uint16_t cv, uint8_t value, LibStdCallback ok, LibStdCallback err) {
+	try {
+		lib.xn.pomWriteCv(
+			LocoAddr(addr), cv, value,
+			std::make_unique<Cb>([ok](void *s, void *) { callEv(s, ok); }),
+			std::make_unique<Cb>([err](void *s, void *) { callEv(s, err); })
+		);
+	} catch (...) {
+		callEv(&lib.xn, err);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

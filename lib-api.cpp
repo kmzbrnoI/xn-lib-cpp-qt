@@ -79,6 +79,7 @@ bool connected() {
 ///////////////////////////////////////////////////////////////////////////////
 
 int trackStatus() {
+	return static_cast<int>(lib.xn.getTrkStatus());
 }
 
 void setTrackStatus(unsigned int trkStatus, LibStdCallback ok, LibStdCallback err) {

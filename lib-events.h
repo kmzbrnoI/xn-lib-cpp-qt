@@ -13,14 +13,15 @@
 
 namespace Xn {
 
-using TrkStdNotifyEvent = void CALL_CONV (*)(const void *sender);
-using TrkStatusChangedEv = void(*)(const void *sender, int trkStatus);
-using TrkLogEvent = void CALL_CONV (*)(const void *sender, int loglevel, const uint16_t *msg);
-using TrkLocoEv = void(*)(const void *sender, uint16_t addr);
+using TrkStdNotifyEvent = void CALL_CONV (*)(const void *sender, void *data);
+using TrkStatusChangedEv = void(*)(const void *sender, void *data, int trkStatus);
+using TrkLogEv = void CALL_CONV (*)(const void *sender, void *data, int loglevel, const uint16_t *msg);
+using TrkLocoEv = void(*)(const void *sender, void *data, uint16_t addr);
 
 template <typename F>
 struct EventData {
 	F func = nullptr;
+	void *data = nullptr;
 	bool defined() const { return this->func != nullptr; }
 };
 
@@ -30,26 +31,27 @@ struct XnEvents {
 	EventData<TrkStdNotifyEvent> beforeClose;
 	EventData<TrkStdNotifyEvent> afterClose;
 
-	EventData<TrkLogEvent> onLog;
+	EventData<TrkLogEv> onLog;
 	EventData<TrkStatusChangedEv> onTrkStatusChanged;
 	EventData<TrkLocoEv> onLocoStolen;
 
 	void call(const EventData<TrkStdNotifyEvent> &e) const {
 		if (e.defined())
-			e.func(this);
+			e.func(this, e.data);
 	}
-	void call(const EventData<TrkLogEvent> &e, LogLevel loglevel, const QString &msg) const {
+	void call(const EventData<TrkLogEv> &e, LogLevel loglevel, const QString &msg) const {
 		if (e.defined())
-			e.func(this, static_cast<int>(loglevel), msg.utf16());
+			e.func(this, e.data, static_cast<int>(loglevel), msg.utf16());
 	}
 	void call(const EventData<TrkStatusChangedEv> &e, TrkStatus status) const {
 		if (e.defined())
-			e.func(this, static_cast<int>(status));
+			e.func(this, e.data, static_cast<int>(status));
 	}
 
 	template <typename F>
-	static void bind(EventData<F> &event, const F &func) {
+	static void bind(EventData<F> &event, const F &func, void *const data) {
 		event.func = func;
+		event.data = data;
 	}
 };
 

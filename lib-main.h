@@ -7,6 +7,7 @@
 #include "config-window.h"
 #include "xn.h"
 #include "lib-events.h"
+#include "settings.h"
 
 namespace Xn {
 
@@ -18,6 +19,7 @@ public:
 	XpressNet xn;
 	ConfigWindow form;
 	XnEvents events;
+	Settings s;
 
 private slots:
 

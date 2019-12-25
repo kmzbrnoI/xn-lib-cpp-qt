@@ -18,13 +18,15 @@ HEADERS += \
 # Do not import when using as static library
 SOURCES += \
 	lib-api.cpp \
-	lib-main.cpp
+	lib-main.cpp \
+	settings.cpp
 HEADERS += \
 	lib-api.h \
 	config-window.h \
 	lib-main.h \
 	lib-events.h \
-	lib-api-common-def.h
+	lib-api-common-def.h \
+	settings.h
 
 FORMS += config-window.ui
 

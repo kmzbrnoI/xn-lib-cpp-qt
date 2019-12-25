@@ -19,7 +19,8 @@ HEADERS += \
 SOURCES += \
 	lib-api.cpp \
 	lib-main.cpp \
-	settings.cpp
+	settings.cpp \
+	config-window.cpp
 HEADERS += \
 	lib-api.h \
 	config-window.h \

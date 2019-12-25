@@ -21,8 +21,20 @@ public:
 	XnEvents events;
 	Settings s;
 	unsigned int api_version = 0x0001;
+	bool gui_config_changing = false;
+
+	void guiInit();
+	void fillConnectionsCbs();
+	void fillPortCb();
+	void guiOnOpen();
+	void guiOnClose();
+
+	LIType interface(const QString &name) const;
+	void log(const QString &msg, LogLevel loglevel);
 
 private slots:
+	void b_serial_refresh_handle();
+	void cb_connections_changed(int);
 
 private:
 

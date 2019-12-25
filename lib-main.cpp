@@ -58,7 +58,7 @@ void LibMain::xnOnConnect() {
 	try {
 		xn.getLIVersion(
 		    [this](void *s, unsigned hw, unsigned sw) { xnGotLIVersion(s, hw, sw); },
-		    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnLIVersionError(s, d); })
+		    std::make_unique<Cb>([this](void *s, void *d) { xnOnLIVersionError(s, d); })
 		);
 	} catch (const Xn::QStrException& e) {
 		log("Get LI Version: " + e.str(), LogLevel::Error);
@@ -92,22 +92,31 @@ void LibMain::xnOnCSStatusError(void *, void *) {
 }
 
 void LibMain::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
-	log("Got LI version. HW: " + QString::number(hw) + ", SW: " + QString::number(sw),
-	    LogLevel::Info);
+	QString version = "HW:" + QString::number(hw) + ", SW: " + QString::number(sw);
+	log("Got LI version: " + version, LogLevel::Info);
 	this->li_ver_hw = hw;
 	this->li_ver_sw = sw;
 
-	form.ui.l_li_version->setText("HW:" + QString::number(hw) + ", SW: " + QString::number(sw));
+	form.ui.l_li_version->setText(version);
 
 	try {
 		xn.getCommandStationStatus(
 		    nullptr,
-		    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnCSStatusError(s, d); })
+		    std::make_unique<Cb>([this](void *s, void *d) { xnOnCSStatusError(s, d); })
+		);
+		xn.getCommandStationVersion(
+		    [this](void *s, unsigned major, unsigned minor) { xnGotCSVersion(s, major, minor);}
 		);
 	} catch (const Xn::QStrException& e) {
 		log("Get CS Status: " + e.str(), LogLevel::Error);
 		xn.disconnect();
 	}
+}
+
+void LibMain::xnGotCSVersion(void *, unsigned major, unsigned minor) {
+	QString version = QString::number(major) + "." + QString::number(minor);
+	log("Got command station version: " + version, LogLevel::Info);
+	form.ui.l_cs_version->setText(version);
 }
 
 } // namespace Xn

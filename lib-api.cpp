@@ -49,4 +49,10 @@ void bindOnLocoStolen(TrkLocoEv f, void *data) {
 	lib.events.bind(lib.events.onLocoStolen, f, data);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+void showConfigDialog() {
+	lib.form.show();
+}
+
 } // namespace Xn

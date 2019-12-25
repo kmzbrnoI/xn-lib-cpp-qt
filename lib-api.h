@@ -19,6 +19,8 @@ XN_SHARED_EXPORT void CALL_CONV bindAfterClose(TrkStdNotifyEvent f, void *data);
 XN_SHARED_EXPORT void CALL_CONV bindOnTrackStatusChange(TrkStatusChangedEv f, void *data);
 XN_SHARED_EXPORT void CALL_CONV bindOnLog(TrkLogEv f, void *data);
 XN_SHARED_EXPORT void CALL_CONV bindOnLocoStolen(TrkLocoEv f, void *data);
+
+XN_SHARED_EXPORT void CALL_CONV showConfigDialog();
 }
 
 } // namespace Xn

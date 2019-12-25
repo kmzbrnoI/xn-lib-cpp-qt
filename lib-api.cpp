@@ -2,7 +2,13 @@
 
 namespace Xn {
 
-AppThread main_thread;
-XpressNet xn;
+int connect() {
+}
+
+int disconnect() {
+}
+
+bool connected() {
+}
 
 } // namespace Xn

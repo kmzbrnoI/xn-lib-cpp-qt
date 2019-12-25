@@ -3,8 +3,8 @@ TEMPLATE = lib
 DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += XN_SHARED_LIBRARY
 
-SOURCES += xn.cpp xn-api.cpp xn-receive.cpp xn-send.cpp xn-hist.cpp lib-api.cpp
-HEADERS += xn.h xn-loco-addr.h xn-commands.h q-str-exception.h lib-api.h
+SOURCES += xn.cpp xn-api.cpp xn-receive.cpp xn-send.cpp xn-hist.cpp lib-api.cpp lib-main.cpp
+HEADERS += xn.h xn-loco-addr.h xn-commands.h q-str-exception.h lib-api.h config-window.h lib-main.h
 
 FORMS += config-window.ui
 

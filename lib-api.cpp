@@ -58,6 +58,17 @@ int connect() {
 }
 
 int disconnect() {
+	lib.events.call(lib.events.beforeClose);
+
+	if (!lib.xn.connected())
+		return TRK_NOT_OPENED;
+
+	try {
+		lib.xn.disconnect();
+	} catch (const Xn::QStrException &e) {
+		lib.log("XN disconnect error while closing serial port:" + e, LogLevel::Error);
+	}
+
 	return 0;
 }
 

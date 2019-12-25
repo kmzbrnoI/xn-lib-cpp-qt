@@ -100,12 +100,15 @@ void LibMain::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
 	form.ui.l_li_version->setText(version);
 
 	try {
-		xn.getCommandStationStatus(
-		    nullptr,
-		    std::make_unique<Cb>([this](void *s, void *d) { xnOnCSStatusError(s, d); })
+		xn.getLIAddress(
+		    [this](void *s, unsigned addr) { xnGotLIAddress(s, addr); }
 		);
 		xn.getCommandStationVersion(
 		    [this](void *s, unsigned major, unsigned minor) { xnGotCSVersion(s, major, minor);}
+		);
+		xn.getCommandStationStatus(
+		    nullptr,
+		    std::make_unique<Cb>([this](void *s, void *d) { xnOnCSStatusError(s, d); })
 		);
 	} catch (const Xn::QStrException& e) {
 		log("Get CS Status: " + e.str(), LogLevel::Error);
@@ -117,6 +120,11 @@ void LibMain::xnGotCSVersion(void *, unsigned major, unsigned minor) {
 	QString version = QString::number(major) + "." + QString::number(minor);
 	log("Got command station version: " + version, LogLevel::Info);
 	form.ui.l_cs_version->setText(version);
+}
+
+void LibMain::xnGotLIAddress(void *, unsigned addr) {
+	log("Got LI address: " + QString::number(addr), LogLevel::Info);
+	form.ui.sb_li_addr->setValue(addr);
 }
 
 } // namespace Xn

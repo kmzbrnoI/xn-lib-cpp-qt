@@ -51,6 +51,7 @@ private:
 	void xnOnLIVersionError(void *, void *);
 	void xnOnCSStatusError(void *, void *);
 	void xnGotCSVersion(void *, unsigned major, unsigned minor);
+	void xnGotLIAddress(void *, unsigned addr);
 
 };
 

@@ -5,6 +5,24 @@ namespace Xn {
 AppThread main_thread;
 LibMain lib;
 
+///////////////////////////////////////////////////////////////////////////////
+
+LibMain::LibMain() {
+	QObject::connect(&xn, SIGNAL(onError(QString)), this, SLOT(xnOnError(QString)));
+	QObject::connect(&xn, SIGNAL(onLog(QString, Xn::LogLevel)), this,
+	                 SLOT(xnOnLog(QString, Xn::LogLevel)));
+	QObject::connect(&xn, SIGNAL(onConnect()), this, SLOT(xnOnConnect()));
+	QObject::connect(&xn, SIGNAL(onDisconnect()), this, SLOT(xnOnDisconnect()));
+	QObject::connect(&xn, SIGNAL(onTrkStatusChanged(Xn::TrkStatus)), this,
+	                 SLOT(xnOnTrkStatusChanged(TrkStatus)));
+
+	this->guiInit();
+	log("Library loaded.", LogLevel::Info);
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 LIType LibMain::interface(const QString &name) const {
 	if (name == "LI101")
 		return Xn::LIType::LI101;
@@ -17,6 +35,76 @@ LIType LibMain::interface(const QString &name) const {
 
 void LibMain::log(const QString &msg, LogLevel loglevel) {
 	events.call(events.onLog, loglevel, msg);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Xn events:
+
+void LibMain::xnOnLog(QString message, LogLevel loglevel) {
+	this->events.call(this->events.onLog, loglevel, message);
+}
+
+void LibMain::xnOnError(QString error) {
+	// Xn error is considered fatal -> close device
+	log("XN error: " + error, LogLevel::Error);
+	if (xn.connected())
+		xn.disconnect();
+}
+
+void LibMain::xnOnConnect() {
+	this->opening = true;
+
+	try {
+		xn.getLIVersion(
+		    [this](void *s, unsigned hw, unsigned sw) { xnGotLIVersion(s, hw, sw); },
+		    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnLIVersionError(s, d); })
+		);
+	} catch (const Xn::QStrException& e) {
+		log("Get LI Version: " + e.str(), LogLevel::Error);
+		xn.disconnect();
+	}
+}
+
+void LibMain::xnOnDisconnect() {
+	this->opening = false;
+	this->guiOnClose();
+	this->events.call(this->events.afterClose);
+}
+
+void LibMain::xnOnTrkStatusChanged(TrkStatus trkStatus) {
+	this->events.call(this->events.onTrkStatusChanged, trkStatus);
+
+	if (this->opening) {
+		this->opening = false;
+		this->events.call(this->events.afterOpen);
+	}
+}
+
+void LibMain::xnOnLIVersionError(void *, void *) {
+	log("Get LI Version: no response!", LogLevel::Error);
+	xn.disconnect();
+}
+
+void LibMain::xnOnCSStatusError(void *, void *) {
+	log("Get CS Status: no response!", LogLevel::Error);
+	xn.disconnect();
+}
+
+void LibMain::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
+	log("Got LI version. HW: " + QString::number(hw) + ", SW: " + QString::number(sw),
+	    LogLevel::Info);
+	this->li_ver_hw = hw;
+	this->li_ver_sw = sw;
+
+	try {
+		xn.getCommandStationStatus(
+		    nullptr,
+		    std::make_unique<Xn::Cb>([this](void *s, void *d) { xnOnCSStatusError(s, d); })
+		);
+	} catch (const Xn::QStrException& e) {
+		log("Get CS Status: " + e.str(), LogLevel::Error);
+		xn.disconnect();
+	}
 }
 
 } // namespace Xn

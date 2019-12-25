@@ -22,6 +22,10 @@ public:
 	Settings s;
 	unsigned int api_version = 0x0001;
 	bool gui_config_changing = false;
+	bool opening = false;
+	unsigned int li_ver_hw = 0, li_ver_sw = 0;
+
+	LibMain();
 
 	void guiInit();
 	void fillConnectionsCbs();
@@ -36,7 +40,16 @@ private slots:
 	void b_serial_refresh_handle();
 	void cb_connections_changed(int);
 
+	void xnOnLog(QString message, LogLevel loglevel);
+	void xnOnError(QString error);
+	void xnOnConnect();
+	void xnOnDisconnect();
+	void xnOnTrkStatusChanged(TrkStatus);
+
 private:
+	void xnGotLIVersion(void *, unsigned hw, unsigned sw);
+	void xnOnLIVersionError(void *, void *);
+	void xnOnCSStatusError(void *, void *);
 
 };
 

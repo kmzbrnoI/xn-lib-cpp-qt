@@ -63,6 +63,7 @@ int disconnect() {
 	if (!lib.xn.connected())
 		return TRK_NOT_OPENED;
 
+	lib.opening = false;
 	try {
 		lib.xn.disconnect();
 	} catch (const Xn::QStrException &e) {
@@ -139,6 +140,8 @@ void locoAcquire(uint16_t addr, TrkAcquiredCallback, LibStdCallback err) {
 }
 
 void locoRelease(uint16_t addr, LibStdCallback ok) {
+	(void)addr;
+	callEv(&lib.xn, ok);
 }
 
 void pomWriteCv(uint16_t addr, uint16_t cv, uint8_t value, LibStdCallback ok, LibStdCallback err) {

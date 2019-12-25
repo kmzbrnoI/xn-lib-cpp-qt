@@ -37,6 +37,7 @@ XN_SHARED_EXPORT bool CALL_CONV connected();
 XN_SHARED_EXPORT int CALL_CONV trackStatus();
 XN_SHARED_EXPORT void CALL_CONV setTrackStatus(unsigned int trkStatus, LibStdCallback ok,
                                                LibStdCallback err);
+
 XN_SHARED_EXPORT void CALL_CONV emergencyStop(LibStdCallback ok, LibStdCallback err);
 XN_SHARED_EXPORT void CALL_CONV locoEmergencyStop(uint16_t addr, LibStdCallback ok,
                                                   LibStdCallback err);

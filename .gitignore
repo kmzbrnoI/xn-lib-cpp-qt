@@ -38,3 +38,5 @@
 build*
 
 *.pro.user
+
+compile_commands.json

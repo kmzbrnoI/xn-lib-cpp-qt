@@ -52,6 +52,7 @@ void LibMain::xnOnError(QString error) {
 }
 
 void LibMain::xnOnConnect() {
+	lib.guiOnOpen();
 	this->opening = true;
 
 	try {
@@ -95,6 +96,8 @@ void LibMain::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
 	    LogLevel::Info);
 	this->li_ver_hw = hw;
 	this->li_ver_sw = sw;
+
+	form.ui.l_li_version->setText("HW:" + QString::number(hw) + ", SW: " + QString::number(sw));
 
 	try {
 		xn.getCommandStationStatus(

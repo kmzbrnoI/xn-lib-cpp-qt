@@ -39,7 +39,6 @@ int connect() {
 		return TRK_ALREADY_OPENNED;
 
 	lib.events.call(lib.events.beforeOpen);
-	lib.guiOnOpen();
 
 	try {
 		lib.xn.connect(lib.s["XN"]["port"].toString(), lib.s["XN"]["baudrate"].toInt(),

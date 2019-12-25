@@ -283,7 +283,7 @@
           <string>Verze FW v LI:</string>
          </property>
         </widget>
-        <widget class="QLabel" name="l_liversion">
+        <widget class="QLabel" name="l_li_version">
          <property name="geometry">
           <rect>
            <x>160</x>

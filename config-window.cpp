@@ -89,6 +89,10 @@ void LibMain::guiOnOpen() {
 	form.ui.cb_serial_speed->setEnabled(false);
 	form.ui.cb_serial_flowcontrol->setEnabled(false);
 	form.ui.b_serial_refresh->setEnabled(false);
+
+	form.ui.sb_li_addr->setEnabled(true);
+	form.ui.b_li_addr_set->setEnabled(true);
+	form.ui.b_info_update->setEnabled(true);
 }
 
 void LibMain::guiOnClose() {
@@ -97,6 +101,13 @@ void LibMain::guiOnClose() {
 	form.ui.cb_serial_speed->setEnabled(true);
 	form.ui.cb_serial_flowcontrol->setEnabled(true);
 	form.ui.b_serial_refresh->setEnabled(true);
+
+	form.ui.l_cs_version->setText("???");
+	form.ui.l_cs_id->setText("???");
+	form.ui.l_li_version->setText("???");
+	form.ui.sb_li_addr->setEnabled(false);
+	form.ui.b_li_addr_set->setEnabled(false);
+	form.ui.b_info_update->setEnabled(false);
 }
 
 } // namespace RcsXn

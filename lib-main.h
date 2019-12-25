@@ -20,6 +20,7 @@ public:
 	ConfigWindow form;
 	XnEvents events;
 	Settings s;
+	unsigned int api_version = 0x0001;
 
 private slots:
 

@@ -26,7 +26,8 @@ HEADERS += \
 	lib-main.h \
 	lib-events.h \
 	lib-api-common-def.h \
-	settings.h
+	settings.h \
+	lib-errors.h
 
 FORMS += config-window.ui
 

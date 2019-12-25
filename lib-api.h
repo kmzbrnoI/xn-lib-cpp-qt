@@ -7,6 +7,10 @@
 
 namespace Xn {
 
+constexpr std::array<unsigned int, 1> API_SUPPORTED_VERSIONS {
+    0x0001, // v1.0
+};
+
 extern "C" {
 
 using LibCallbackFunc = void(*)(void *sender, void *data);

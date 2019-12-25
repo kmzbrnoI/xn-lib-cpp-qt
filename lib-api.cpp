@@ -1,5 +1,6 @@
 #include "lib-api.h"
 #include "lib-main.h"
+#include "lib-errors.h"
 
 namespace Xn {
 
@@ -14,12 +15,20 @@ void callEv(void *sender, const LibStdCallback &callback) {
 // API
 
 bool apiSupportsVersion(unsigned int version) {
+	return std::find(API_SUPPORTED_VERSIONS.begin(), API_SUPPORTED_VERSIONS.end(), version) !=
+	       API_SUPPORTED_VERSIONS.end();
 }
 
 int apiSetVersion(unsigned int version) {
+	if (!apiSupportsVersion(version))
+		return TRK_UNSUPPORTED_API_VERSION;
+
+	lib.api_version = version;
+	return 0;
 }
 
 unsigned int features() {
+	return 0; // no features yet
 }
 
 ///////////////////////////////////////////////////////////////////////////////

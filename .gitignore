@@ -36,3 +36,5 @@
 
 # build directory
 build*
+
+*.pro.user

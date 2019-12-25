@@ -6,6 +6,8 @@ DEFINES += XN_SHARED_LIBRARY
 SOURCES += xn.cpp xn-api.cpp xn-receive.cpp xn-send.cpp xn-hist.cpp lib-api.cpp
 HEADERS += xn.h xn-loco-addr.h xn-commands.h q-str-exception.h lib-api.h
 
+FORMS += config-window.ui
+
 CONFIG += c++14 dll
 QMAKE_CXXFLAGS += -Wall -Wextra -pedantic
 

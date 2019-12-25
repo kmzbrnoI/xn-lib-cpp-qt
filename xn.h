@@ -69,10 +69,10 @@ enum class LIType {
 };
 
 enum class TrkStatus {
-	Unknown,
-	Off,
-	On,
-	Programming,
+	Unknown = 0,
+	Off = 1,
+	On = 2,
+	Programming = 3,
 };
 
 using CommandCallbackFunc = std::function<void(void *sender, void *data)>;

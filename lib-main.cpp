@@ -60,7 +60,7 @@ void LibMain::xnOnConnect() {
 		    [this](void *s, unsigned hw, unsigned sw) { xnGotLIVersion(s, hw, sw); },
 		    std::make_unique<Cb>([this](void *s, void *d) { xnOnLIVersionError(s, d); })
 		);
-	} catch (const Xn::QStrException& e) {
+	} catch (const QStrException &e) {
 		log("Get LI Version: " + e.str(), LogLevel::Error);
 		xn.disconnect();
 	}
@@ -113,7 +113,7 @@ void LibMain::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
 		    nullptr,
 		    std::make_unique<Cb>([this](void *s, void *d) { xnOnCSStatusError(s, d); })
 		);
-	} catch (const Xn::QStrException& e) {
+	} catch (const QStrException &e) {
 		log("Get CS Status: " + e.str(), LogLevel::Error);
 		xn.disconnect();
 	}

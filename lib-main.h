@@ -55,6 +55,9 @@ private:
 	void xnGotCSVersion(void *, unsigned major, unsigned minor, uint8_t id);
 	void xnGotLIAddress(void *, unsigned addr);
 
+	void userLiAddrSet();
+	void userLiAddrSetErr();
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////

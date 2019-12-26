@@ -1,4 +1,5 @@
 #include <QSerialPortInfo>
+#include <QMessageBox>
 
 #include "lib-main.h"
 
@@ -135,12 +136,37 @@ void LibMain::b_info_update_handle() {
 		    }
 		);
 
-	} catch (const Xn::QStrException& e) {
+	} catch (const QStrException &e) {
 		log("Get CS & LI Info: " + e.str(), LogLevel::Error);
 	}
 }
 
+void LibMain::userLiAddrSet() {
+	QMessageBox::information(&form, "Info", "Adresa LI úspěšně změněna.", QMessageBox::Ok);
+}
+
+void LibMain::userLiAddrSetErr() {
+	QMessageBox::warning(&form, "Chyba", "Nepodařilo se změnit adresu LI!", QMessageBox::Ok);
+}
+
 void LibMain::b_li_addr_set_handle() {
+	int addr = form.ui.sb_li_addr->value();
+	QMessageBox::StandardButton reply = QMessageBox::question(
+	    &form, "Smazat?", "Skutečné změnit adresu LI na "+QString::number(addr)+"?",
+	    QMessageBox::Yes | QMessageBox::No
+	);
+	if (reply != QMessageBox::Yes)
+		return;
+
+	try {
+		xn.setLIAddress(
+		    addr,
+		    std::make_unique<Cb>([this](void *, void *) { userLiAddrSet(); }),
+		    std::make_unique<Cb>([this](void *, void *) { userLiAddrSetErr(); })
+		);
+	} catch (const QStrException &e) {
+		userLiAddrSetErr();
+	}
 }
 
 } // namespace RcsXn

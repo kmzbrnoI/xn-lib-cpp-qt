@@ -145,6 +145,7 @@ enum class RecvCmdType {
 	CsStatus = 0x62,
 	CsX63 = 0x63,
 	CsLocoInfo = 0xE4,
+	CsLocoFunc = 0xE3,
 	CsAccInfoResp = 0x42,
 };
 
@@ -182,6 +183,7 @@ public:
 	void setSpeed(LocoAddr, uint8_t speed, Direction direction, UPCb ok = nullptr,
 	              UPCb err = nullptr);
 	void getLocoInfo(LocoAddr, GotLocoInfo const &, UPCb err = nullptr);
+	void getLocoFunc1328(LocoAddr, GotLocoFunc1328, UPCb err = nullptr);
 	void setFuncA(LocoAddr, FA, UPCb ok = nullptr, UPCb err = nullptr);
 	void setFuncB(LocoAddr, FB, FSet, UPCb ok = nullptr, UPCb err = nullptr);
 	void setFuncC(LocoAddr, FC, UPCb ok = nullptr, UPCb err = nullptr);
@@ -243,6 +245,7 @@ private:
 	void handleMsgCsVersion(MsgType &msg);
 	void handleMsgCvRead(MsgType &msg);
 	void handleMsgLocoInfo(MsgType &msg);
+	void handleMsgLocoFunc(MsgType &msg);
 	void handleMsgLIAddr(MsgType &msg);
 	void handleMsgAcc(MsgType &msg);
 

@@ -82,6 +82,8 @@ void XpressNet::parseMessage(MsgType &msg) {
 			return;
 	case RecvCmdType::CsLocoInfo:
 		return handleMsgLocoInfo(msg);
+	case RecvCmdType::CsLocoFunc:
+		return handleMsgLocoFunc(msg);
 	case RecvCmdType::CsAccInfoResp:
 		return handleMsgAcc(msg);
 	}
@@ -269,6 +271,23 @@ void XpressNet::handleMsgLocoInfo(MsgType &msg) {
 		if (dynamic_cast<const CmdGetLocoInfo *>(cmd.get())->callback != nullptr) {
 			dynamic_cast<const CmdGetLocoInfo *>(cmd.get())->callback(
 			    this, used, direction, speed, FA(msg[3]), FB(msg[4]));
+		}
+	}
+}
+
+void XpressNet::handleMsgLocoFunc(MsgType &msg) {
+	if (msg[1] == 0x52) {
+		log("GET: Loco Func 13-28 Status", LogLevel::Commands);
+
+		if (!m_hist.empty() && is<CmdGetLocoFunc1328>(m_hist.front())) {
+			std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
+			hist_ok();
+
+			if (dynamic_cast<const CmdGetLocoFunc1328 *>(cmd.get())->callback != nullptr) {
+				dynamic_cast<const CmdGetLocoFunc1328 *>(cmd.get())->callback(
+					this, FC(msg[2]), FD(msg[3])
+				);
+			}
 		}
 	}
 }

@@ -261,6 +261,19 @@ struct CmdGetLocoInfo : public Cmd {
 	QString msg() const override { return "Get Loco Information " + QString::number(loco.addr); }
 };
 
+using GotLocoFunc1328 = std::function<void(void *sender, FC fc, FD fd)>;
+
+struct CmdGetLocoFunc1328 : public Cmd {
+	const LocoAddr loco;
+	GotLocoFunc1328 const callback;
+
+	CmdGetLocoFunc1328(const LocoAddr loco, GotLocoFunc1328 const callback)
+	    : loco(loco), callback(callback) {}
+	std::vector<uint8_t> getBytes() const override { return {0xE3, 0x09, loco.hi(), loco.lo()}; }
+	QString msg() const override {
+		return "Get Loco Function 13-28 Status " + QString::number(loco.addr);
+	}
+};
 ///////////////////////////////////////////////////////////////////////////////
 
 struct CmdSetSpeedDir : public Cmd {

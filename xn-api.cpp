@@ -89,6 +89,10 @@ void XpressNet::getLocoInfo(const LocoAddr addr, GotLocoInfo const &callback, UP
 	to_send(CmdGetLocoInfo(addr, callback), nullptr, std::move(err));
 }
 
+void XpressNet::getLocoFunc1328(LocoAddr addr, GotLocoFunc1328 callback, UPCb err) {
+	to_send(CmdGetLocoFunc1328(addr, callback), nullptr, std::move(err));
+}
+
 void XpressNet::setFuncA(const LocoAddr addr, const FA fa, UPCb ok, UPCb err) {
 	to_send(CmdSetFuncA(addr, fa), std::move(ok), std::move(err));
 }

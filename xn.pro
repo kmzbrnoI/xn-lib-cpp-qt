@@ -23,7 +23,6 @@ SOURCES += \
 	config-window.cpp
 HEADERS += \
 	lib-api.h \
-	config-window.h \
 	lib-main.h \
 	lib-events.h \
 	lib-api-common-def.h \

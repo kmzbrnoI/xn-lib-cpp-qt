@@ -3,8 +3,9 @@
 
 #include <memory>
 #include <QApplication>
+#include <QMainWindow>
 
-#include "config-window.h"
+#include "ui_config-window.h"
 #include "xn.h"
 #include "lib-events.h"
 #include "settings.h"
@@ -12,6 +13,13 @@
 namespace Xn {
 
 ///////////////////////////////////////////////////////////////////////////////
+
+class ConfigWindow : public QMainWindow {
+	Q_OBJECT
+public:
+	Ui::MainWindow ui;
+	ConfigWindow(QWidget *parent = nullptr) : QMainWindow(parent) { ui.setupUi(this); }
+};
 
 class LibMain : public QObject {
 	Q_OBJECT

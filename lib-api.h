@@ -13,7 +13,7 @@ constexpr std::array<unsigned int, 1> API_SUPPORTED_VERSIONS {
 
 extern "C" {
 
-using LibCallbackFunc = void(*)(void *sender, void *data);
+using LibCallbackFunc = void CALL_CONV (*) (void *sender, void *data);
 
 struct LibStdCallback {
 	LibCallbackFunc func;
@@ -29,7 +29,7 @@ struct LocoInfo {
 	bool usedByAnother;
 };
 
-using TrkAcquiredCallback = void(*)(const void *sender, LocoInfo);
+using TrkAcquiredCallback = void CALL_CONV (*)(const void *sender, LocoInfo);
 
 XN_SHARED_EXPORT bool CALL_CONV apiSupportsVersion(unsigned int version);
 XN_SHARED_EXPORT int CALL_CONV apiSetVersion(unsigned int version);

@@ -23,6 +23,7 @@ XpressNet::XpressNet(QObject *parent) : QObject(parent) {
 
 void XpressNet::sp_about_to_close() {
 	m_hist_timer.stop();
+	m_out_timer.stop();
 	while (!m_hist.empty())
 		m_hist.pop_front(); // Should we call error events?
 	while (!m_out.empty())

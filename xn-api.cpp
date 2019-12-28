@@ -23,7 +23,6 @@ void XpressNet::connect(const QString &portname, int32_t br, QSerialPort::FlowCo
 
 void XpressNet::disconnect() {
 	log("Disconnecting...", LogLevel::Info);
-	m_hist_timer.stop();
 	m_serialPort.close();
 	onDisconnect();
 }

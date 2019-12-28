@@ -59,6 +59,18 @@ Dynamic-library-api specification is located on
    files use `xn*{.cpp,.h}` files.
    - See `lib-main.h` for dynamic API specification.
 
+## XpressNET API
+
+This library has been tested with:
+
+ * [uLI](https://uli.kmz-brno.cz/)
+ * Lenz LI-USB-Ethernet
+ * NanoX's LI
+
+It should support all LI100-like or LI101-like interfaces. It also supports
+newer interfaces which add `0xFF 0xFE` to the header of each packet. User
+chooses which version of protocol the library should use.
+
 ## Building & toolkit
 
 This SW was developed in `vim` using `qmake` & `make`. Downloads are available

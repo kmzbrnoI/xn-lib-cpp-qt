@@ -184,6 +184,8 @@ public:
 	void getLocoInfo(LocoAddr, GotLocoInfo const &, UPCb err = nullptr);
 	void setFuncA(LocoAddr, FA, UPCb ok = nullptr, UPCb err = nullptr);
 	void setFuncB(LocoAddr, FB, FSet, UPCb ok = nullptr, UPCb err = nullptr);
+	void setFuncC(LocoAddr, FC, UPCb ok = nullptr, UPCb err = nullptr);
+	void setFuncD(LocoAddr, FD, UPCb ok = nullptr, UPCb err = nullptr);
 
 	void accInfoRequest(uint8_t groupAddr, bool nibble, UPCb err = nullptr);
 	void accOpRequest(uint16_t portAddr, bool state, // portAddr 0-2047

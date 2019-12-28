@@ -209,6 +209,40 @@ union FB {
 	FB() : all(0) {}
 };
 
+union FC {
+	uint8_t all;
+	struct {
+		bool f13 : 1;
+		bool f14 : 1;
+		bool f15 : 1;
+		bool f16 : 1;
+		bool f17 : 1;
+		bool f18 : 1;
+		bool f19 : 1;
+		bool f20 : 1;
+	} sep;
+
+	FC(uint8_t fc) : all(fc) {}
+	FC() : all(0) {}
+};
+
+union FD {
+	uint8_t all;
+	struct {
+		bool f21 : 1;
+		bool f22 : 1;
+		bool f23 : 1;
+		bool f24 : 1;
+		bool f25 : 1;
+		bool f26 : 1;
+		bool f27 : 1;
+		bool f28 : 1;
+	} sep;
+
+	FD(uint8_t fd) : all(fd) {}
+	FD() : all(0) {}
+};
+
 enum class Direction {
 	Backward = false,
 	Forward = true,
@@ -315,6 +349,46 @@ struct CmdSetFuncB : public Cmd {
 		if (is<CmdSetFuncB>(cmd)) {
 			const auto &casted = dynamic_cast<const CmdSetFuncB &>(cmd);
 			return ((casted.loco == this->loco) && (casted.range == this->range));
+		}
+		return false;
+	}
+};
+
+struct CmdSetFuncC : public Cmd {
+	const LocoAddr loco;
+	const FC fc;
+
+	CmdSetFuncC(const LocoAddr loco, const FC fc) : loco(loco), fc(fc) {}
+	std::vector<uint8_t> getBytes() const override {
+		return {0xE4, 0x23, loco.hi(), loco.lo(), fc.all};
+	}
+	QString msg() const override {
+		return "Set loco " + QString::number(loco.addr) + " func C: " + QString::number(fc.all, 2);
+	}
+	bool conflict(const Cmd &cmd) const override {
+		if (is<CmdSetFuncC>(cmd)) {
+			const auto &casted = dynamic_cast<const CmdSetFuncC &>(cmd);
+			return (casted.loco == this->loco);
+		}
+		return false;
+	}
+};
+
+struct CmdSetFuncD : public Cmd {
+	const LocoAddr loco;
+	const FD fd;
+
+	CmdSetFuncD(const LocoAddr loco, const FD fd) : loco(loco), fd(fd) {}
+	std::vector<uint8_t> getBytes() const override {
+		return {0xE4, 0x28, loco.hi(), loco.lo(), fd.all};
+	}
+	QString msg() const override {
+		return "Set loco " + QString::number(loco.addr) + " func D: " + QString::number(fd.all, 2);
+	}
+	bool conflict(const Cmd &cmd) const override {
+		if (is<CmdSetFuncD>(cmd)) {
+			const auto &casted = dynamic_cast<const CmdSetFuncD &>(cmd);
+			return (casted.loco == this->loco);
 		}
 		return false;
 	}

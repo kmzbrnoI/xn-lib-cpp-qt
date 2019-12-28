@@ -97,6 +97,14 @@ void XpressNet::setFuncB(const LocoAddr addr, const FB fb, const FSet range, UPC
 	to_send(CmdSetFuncB(addr, fb, range), std::move(ok), std::move(err));
 }
 
+void XpressNet::setFuncC(LocoAddr addr, FC fc, UPCb ok, UPCb err) {
+	to_send(CmdSetFuncC(addr, fc), std::move(ok), std::move(err));
+}
+
+void XpressNet::setFuncD(LocoAddr addr, FD fd, UPCb ok, UPCb err) {
+	to_send(CmdSetFuncD(addr, fd), std::move(ok), std::move(err));
+}
+
 void XpressNet::readCVdirect(const uint8_t cv, ReadCV const &callback, UPCb err) {
 	to_send(CmdReadDirect(cv, callback), nullptr, std::move(err));
 }

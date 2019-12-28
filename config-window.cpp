@@ -45,12 +45,13 @@ void LibMain::cb_connections_changed(int) {
 }
 
 void LibMain::fillConnectionsCbs() {
+	this->gui_config_changing = true;
+
 	// Interface type
 	form.ui.cb_interface_type->setCurrentText(s["XN"]["interface"].toString());
 
 	// Port
 	this->fillPortCb();
-
 	this->gui_config_changing = true;
 
 	// Speed

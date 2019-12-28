@@ -36,6 +36,7 @@ public:
 	unsigned int li_ver_hw = 0, li_ver_sw = 0;
 
 	LibMain();
+	~LibMain();
 
 	void guiInit();
 	void fillConnectionsCbs();

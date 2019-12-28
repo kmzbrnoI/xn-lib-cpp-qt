@@ -21,6 +21,15 @@ LibMain::LibMain() {
 	log("Library loaded.", LogLevel::Info);
 }
 
+LibMain::~LibMain() {
+	try {
+		if (xn.connected())
+			xn.disconnect();
+	} catch (...) {
+		// No exceptions in destructor!
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 LIType LibMain::interface(const QString &name) const {

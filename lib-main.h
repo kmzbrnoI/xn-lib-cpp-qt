@@ -52,11 +52,11 @@ private slots:
 	void b_info_update_handle();
 	void b_li_addr_set_handle();
 
-	void xnOnLog(QString message, LogLevel loglevel);
+	void xnOnLog(QString message, Xn::LogLevel loglevel);
 	void xnOnError(QString error);
 	void xnOnConnect();
 	void xnOnDisconnect();
-	void xnOnTrkStatusChanged(TrkStatus);
+	void xnOnTrkStatusChanged(Xn::TrkStatus);
 
 private:
 	void xnGotLIVersion(void *, unsigned hw, unsigned sw);

@@ -10,16 +10,15 @@ LibMain lib;
 LibMain::LibMain() {
 	QObject::connect(&xn, SIGNAL(onError(QString)), this, SLOT(xnOnError(QString)));
 	QObject::connect(&xn, SIGNAL(onLog(QString, Xn::LogLevel)), this,
-	                 SLOT(xnOnLog(QString, Xn::LogLevel)));
+					 SLOT(xnOnLog(QString, Xn::LogLevel)));
 	QObject::connect(&xn, SIGNAL(onConnect()), this, SLOT(xnOnConnect()));
 	QObject::connect(&xn, SIGNAL(onDisconnect()), this, SLOT(xnOnDisconnect()));
 	QObject::connect(&xn, SIGNAL(onTrkStatusChanged(Xn::TrkStatus)), this,
-	                 SLOT(xnOnTrkStatusChanged(TrkStatus)));
+					 SLOT(xnOnTrkStatusChanged(Xn::TrkStatus)));
 
-	this->guiInit();
 	s.load(_CONFIG_FILENAME);
+	this->guiInit();
 	log("Library loaded.", LogLevel::Info);
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -137,7 +137,7 @@ struct FuncToSet {
 };
 
 void locoFuncSet(LibStdCallback ok, void *, void *data) {
-	FuncToSet *funcToSet = static_cast<FuncToSet *>(data);
+	auto *funcToSet = static_cast<FuncToSet *>(data);
 	funcToSet->setRemaining--;
 	if (funcToSet->setRemaining == 0) {
 		if (!funcToSet->error)
@@ -147,7 +147,7 @@ void locoFuncSet(LibStdCallback ok, void *, void *data) {
 }
 
 void locoFuncSetErr(LibStdCallback err, void *, void *data) {
-	FuncToSet *funcToSet = static_cast<FuncToSet *>(data);
+	auto *funcToSet = static_cast<FuncToSet *>(data);
 	funcToSet->setRemaining--;
 	funcToSet->error = true;
 	if (funcToSet->setRemaining == 0)
@@ -157,7 +157,7 @@ void locoFuncSetErr(LibStdCallback err, void *, void *data) {
 
 void locoSetFunc(uint16_t addr, uint32_t funcMask, uint32_t funcState, LibStdCallback ok,
                  LibStdCallback err) {
-	FuncToSet *toSet = new FuncToSet();
+	auto *toSet = new FuncToSet();
 	bool setFa, setFb58, setFb912, setFc, setFd;
 	FA fa;
 	FB fb;

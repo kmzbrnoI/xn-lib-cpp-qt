@@ -171,4 +171,4 @@ void LibMain::b_li_addr_set_handle() {
 	}
 }
 
-} // namespace RcsXn
+} // namespace Xn

@@ -14,9 +14,9 @@
 namespace Xn {
 
 using TrkStdNotifyEvent = void CALL_CONV (*)(const void *sender, void *data);
-using TrkStatusChangedEv = void(*)(const void *sender, void *data, int trkStatus);
+using TrkStatusChangedEv = void CALL_CONV (*)(const void *sender, void *data, int trkStatus);
 using TrkLogEv = void CALL_CONV (*)(const void *sender, void *data, int loglevel, const uint16_t *msg);
-using TrkLocoEv = void(*)(const void *sender, void *data, uint16_t addr);
+using TrkLocoEv = void CALL_CONV (*)(const void *sender, void *data, uint16_t addr);
 
 template <typename F>
 struct EventData {

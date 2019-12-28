@@ -8,7 +8,7 @@ It connects to the (virtual) serial port, which is typically served by LI.
 
 Currently, it implements basic commands of [XpressNET
 v3.0](http://www.lenzusa.com/1newsite1/Manuals/xpressnet.pdf) protocol as well
-as some advances commands of [XpressNET
+as some advanced commands of [XpressNET
 v3.6](https://www.lenz-elektronik.de/pdf/XpressNet%20und%20USB%20Interface.pdf)).
 
 See `xn.h: class XpressNET` for list of supported commands.
@@ -20,7 +20,7 @@ This library uses [Qt](https://www.qt.io/)'s
 very good cross-platform abstraction of serial port interface. Thus, the
 library uses Qt's mechanisms like slots and signals.
 
-It is **not** usable without Qt.
+When library is used as static library, it is **not** usable without Qt.
 
 There are no other requirements.
 
@@ -28,21 +28,36 @@ There are no other requirements.
 
 You may use this library in two major ways:
 
- * Simply include `xn.h` header file into your project and use instance of
-   `XpressNet` class.
-   - Add all `.cpp` files in `xn.pro` to `yourproject.pro`. Exception: you can
-     omit `lib-api.cpp`.
- * Compile this project using `qmake` and use compiled `.so` or `.dll` file.
-   (Support for this type of usage not fully implemented yet.)
+### Static library
+
+Simply include header files listed in `xn.pro` into your project and use
+instance of `XpressNet` class (see `xn.h`).
+
+Add `.cpp` and `.h` files from `xn.pro` to `yourproject.pro`. `xn.pro` is not
+used in your project. You just include header files as in plain C.
+
+### Dynamic library
+
+Compile this project using `qmake` and use compiled `.so` or `.dll` file.
+Dynamic-library-api specification is located on
+[wiki](https://github.com/kmzbrnoI/xn-lib-cpp-qt/wiki).
 
 ## Basic information
 
- * See `xn.h` for API specification.
  * This library uses 28 speed steps only. It simplifies things a lot. Other
    speed steps could be added in future.
  * To change the version of this library, update both constants at `xn.pro`
-   file and `xn.h` file. This is needed for proper behavior as a standalone-lib
-   and plain header too.
+   file and `xn.h` file. This is needed for proper behavior as a dynamic and
+   static library too.
+
+## Project structure
+
+ * `xn*{.cpp,.h}` files contain low-level implementations of XpressNET library.
+   Only these files are needed for static-library use.
+   - See `xn.h` for static API specification.
+ * `lib-*{.cpp,.h}` files contain implementations of dynamic-library API. These
+   files use `xn*{.cpp,.h}` files.
+   - See `lib-main.h` for dynamic API specification.
 
 ## Building & toolkit
 
@@ -67,10 +82,10 @@ $ apt install bear
 
 ### Build
 
-Clone this repository (including submodules!):
+Clone this repository:
 
 ```
-$ git clone --recurse-submodules https://github.com/kmzbrnoI/xn-lib-cpp-qt
+$ git clone https://github.com/kmzbrnoI/xn-lib-cpp-qt
 ```
 
 And then build:
@@ -84,7 +99,7 @@ $ bear make
 
 ## Cross-compiling for Windows
 
-This library could be cross-compiled for Windows via [MXE](https://mxe.cc/).
+This library could be cross-compiled for Windows `dll` via [MXE](https://mxe.cc/).
 Follow [these instructions](https://stackoverflow.com/questions/14170590/building-qt-5-on-linux-for-windows)
 for building standalone `dll` file.
 
@@ -95,7 +110,7 @@ export PATH="$HOME/...../mxe/usr/bin:$PATH"
 ~/...../mxe/usr/i686-w64-mingw32.static/qt5/bin/qmake ..
 ```
 
-Compile MXE this way:
+MXE must be compiled with `qtserialport`:
 
 ```bash
 make qtbase qtserialport

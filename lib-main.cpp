@@ -8,6 +8,8 @@ LibMain lib;
 ///////////////////////////////////////////////////////////////////////////////
 
 LibMain::LibMain() {
+	xn.loglevel = LogLevel::Debug;
+
 	QObject::connect(&xn, SIGNAL(onError(QString)), this, SLOT(xnOnError(QString)));
 	QObject::connect(&xn, SIGNAL(onLog(QString, Xn::LogLevel)), this,
 					 SLOT(xnOnLog(QString, Xn::LogLevel)));

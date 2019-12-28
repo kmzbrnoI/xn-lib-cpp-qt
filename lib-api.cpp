@@ -131,8 +131,98 @@ void locoSetSpeed(uint16_t addr, int speed, bool dir, LibStdCallback ok, LibStdC
 	}
 }
 
+struct FuncToSet {
+	size_t setRemaining = 0;
+	bool error = false;
+};
+
+void locoFuncSet(LibStdCallback ok, void *, void *data) {
+	FuncToSet *funcToSet = static_cast<FuncToSet *>(data);
+	funcToSet->setRemaining--;
+	if (funcToSet->setRemaining == 0) {
+		if (!funcToSet->error)
+			callEv(&lib.xn, ok);
+		delete funcToSet;
+	}
+}
+
+void locoFuncSetErr(LibStdCallback err, void *, void *data) {
+	FuncToSet *funcToSet = static_cast<FuncToSet *>(data);
+	funcToSet->setRemaining--;
+	funcToSet->error = true;
+	if (funcToSet->setRemaining == 0)
+		delete funcToSet;
+	callEv(&lib.xn, err);
+}
+
 void locoSetFunc(uint16_t addr, uint32_t funcMask, uint32_t funcState, LibStdCallback ok,
                  LibStdCallback err) {
+	FuncToSet *toSet = new FuncToSet();
+	bool setFa, setFb58, setFb912, setFc, setFd;
+	FA fa;
+	FB fb;
+	FC fc;
+	FD fd;
+
+	fa.sep.f0 = funcState & 1;
+	for (size_t i = 0; i < 4; i++)
+		fa.all |= (funcState >> (i+1)) & 1;
+	fb.all = (funcState >> 5) & 0xFF;
+	fc.all = (funcState >> 13) & 0xFF;
+	fd.all = (funcState >> 21) & 0xFF;
+
+	setFa = (funcMask & 0x1F) > 0;
+	setFb58 = ((funcMask >> 5) & 0x0F) > 0;
+	setFb912 = ((funcMask >> 9) & 0x0F) > 0;
+	setFc = ((funcMask >> 13) & 0xFF) > 0;
+	setFd = ((funcMask >> 21) & 0xFF) > 0;
+
+	if (setFa)
+		toSet->setRemaining++;
+	if (setFb58)
+		toSet->setRemaining++;
+	if (setFb912)
+		toSet->setRemaining++;
+	if (setFc)
+		toSet->setRemaining++;
+	if (setFd)
+		toSet->setRemaining++;
+
+	try {
+		LocoAddr laddr(addr);
+		if (setFa)
+			lib.xn.setFuncA(
+				laddr, fa,
+				std::make_unique<Cb>([ok](void *s, void *d) { locoFuncSet(ok, s, d); }, toSet),
+				std::make_unique<Cb>([err](void *s, void *d) { locoFuncSetErr(err, s, d); }, toSet)
+			);
+		if (setFb58)
+			lib.xn.setFuncB(
+				laddr, fb, FSet::F5toF8,
+				std::make_unique<Cb>([ok](void *s, void *d) { locoFuncSet(ok, s, d); }, toSet),
+				std::make_unique<Cb>([err](void *s, void *d) { locoFuncSetErr(err, s, d); }, toSet)
+			);
+		if (setFb912)
+			lib.xn.setFuncB(
+				laddr, fb, FSet::F9toF12,
+				std::make_unique<Cb>([ok](void *s, void *d) { locoFuncSet(ok, s, d); }, toSet),
+				std::make_unique<Cb>([err](void *s, void *d) { locoFuncSetErr(err, s, d); }, toSet)
+			);
+		if (setFc)
+			lib.xn.setFuncC(
+				laddr, fc,
+				std::make_unique<Cb>([ok](void *s, void *d) { locoFuncSet(ok, s, d); }, toSet),
+				std::make_unique<Cb>([err](void *s, void *d) { locoFuncSetErr(err, s, d); }, toSet)
+			);
+		if (setFd)
+			lib.xn.setFuncD(
+				laddr, fd,
+				std::make_unique<Cb>([ok](void *s, void *d) { locoFuncSet(ok, s, d); }, toSet),
+				std::make_unique<Cb>([err](void *s, void *d) { locoFuncSetErr(err, s, d); }, toSet)
+			);
+	} catch (...) {
+		callEv(&lib.xn, err);
+	}
 }
 
 void locoAcquiredGotFunc(LocoInfo locoInfo, TrkAcquiredCallback acquired, void *, FC fc, FD fd) {

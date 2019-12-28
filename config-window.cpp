@@ -38,6 +38,8 @@ void LibMain::cb_connections_changed(int) {
 	s["XN"]["port"] = form.ui.cb_serial_port->currentText();
 	s["XN"]["baudrate"] = form.ui.cb_serial_speed->currentText().toInt();
 	s["XN"]["flowcontrol"] = form.ui.cb_serial_flowcontrol->currentIndex();
+
+	s.save(_CONFIG_FILENAME);
 }
 
 void LibMain::fillConnectionsCbs() {

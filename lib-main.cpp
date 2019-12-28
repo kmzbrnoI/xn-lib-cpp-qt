@@ -17,6 +17,7 @@ LibMain::LibMain() {
 	                 SLOT(xnOnTrkStatusChanged(TrkStatus)));
 
 	this->guiInit();
+	s.load(_CONFIG_FILENAME);
 	log("Library loaded.", LogLevel::Info);
 
 }

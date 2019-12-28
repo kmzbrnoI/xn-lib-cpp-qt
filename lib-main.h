@@ -14,6 +14,8 @@ namespace Xn {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+const QString _CONFIG_FILENAME = "trakce-xn.ini";
+
 class ConfigWindow : public QMainWindow {
 	Q_OBJECT
 public:

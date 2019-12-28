@@ -26,6 +26,7 @@ struct LocoInfo {
 	uint8_t speed;
 	uint8_t maxSpeed;
 	uint32_t functions;
+	bool usedByAnother;
 };
 
 using TrkAcquiredCallback = void(*)(const void *sender, LocoInfo);

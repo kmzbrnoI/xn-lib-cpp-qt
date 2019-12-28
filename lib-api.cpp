@@ -135,7 +135,62 @@ void locoSetFunc(uint16_t addr, uint32_t funcMask, uint32_t funcState, LibStdCal
                  LibStdCallback err) {
 }
 
-void locoAcquire(uint16_t addr, TrkAcquiredCallback, LibStdCallback err) {
+void locoAcquiredGotFunc(LocoInfo locoInfo, TrkAcquiredCallback acquired, void *, FC fc, FD fd) {
+	for (size_t i = 0; i < 8; i++)
+		if (fc.all & (1 << i))
+			locoInfo.functions |= (1 << (i+13));
+	for (size_t i = 0; i < 8; i++)
+		if (fd.all & (1 << i))
+			locoInfo.functions |= (1 << (i+21));
+
+	if (acquired != nullptr)
+		acquired(&lib.xn, locoInfo);
+}
+
+void locoAcquired(LocoAddr addr, TrkAcquiredCallback acquired, LibStdCallback err,
+                  void *, bool used, Direction direction, unsigned speed, FA fa, FB fb) {
+	LocoInfo locoInfo;
+	locoInfo.addr = addr.addr;
+	locoInfo.direction = static_cast<bool>(direction);
+	locoInfo.speed = speed;
+	locoInfo.maxSpeed = 28;
+	locoInfo.usedByAnother = used;
+
+	locoInfo.functions = 0;
+	locoInfo.functions |= fa.sep.f0;
+	for (size_t i = 0; i < 4; i++)
+		if (fa.all & (1 << i))
+			locoInfo.functions |= (1 << (i+1));
+	for (size_t i = 0; i < 8; i++)
+		if (fb.all & (1 << i))
+			locoInfo.functions |= (1 << (i+5));
+
+	try {
+		lib.xn.getLocoFunc1328(
+			addr,
+			[locoInfo, acquired](void *s, FC fc, FD fd) {
+				locoAcquiredGotFunc(locoInfo, acquired, s, fc, fd);
+			},
+			std::make_unique<Cb>([err](void *s, void *) { callEv(s, err); })
+		);
+	} catch (...) {
+		callEv(&lib.xn, err);
+	}
+}
+
+void locoAcquire(uint16_t addr, TrkAcquiredCallback acquired, LibStdCallback err) {
+	try {
+		lib.xn.getLocoInfo(
+			LocoAddr(addr),
+			[addr, acquired, err](void *s, bool used, Direction direction, unsigned speed, FA fa,
+			                      FB fb) {
+				locoAcquired(LocoAddr(addr), acquired, err, s, used, direction, speed, fa, fb);
+			},
+			std::make_unique<Cb>([err](void *s, void *) { callEv(s, err); })
+		);
+	} catch (...) {
+		callEv(&lib.xn, err);
+	}
 }
 
 void locoRelease(uint16_t addr, LibStdCallback ok) {

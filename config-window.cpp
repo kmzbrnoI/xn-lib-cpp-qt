@@ -24,6 +24,8 @@ void LibMain::guiInit() {
 	QObject::connect(form.ui.b_li_addr_set, SIGNAL(released()), this,
 	                 SLOT(b_li_addr_set_handle()));
 
+	this->fillConnectionsCbs();
+
 	QString text;
 	text.sprintf("Nastavení XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR);
 	form.setWindowTitle(text);

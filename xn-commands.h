@@ -327,7 +327,7 @@ struct CmdSetFuncA : public Cmd {
 		return {0xE4, 0x20, loco.hi(), loco.lo(), fa.all};
 	}
 	QString msg() const override {
-		return "Set loco " + QString::number(loco.addr) + " func A: " + QString::number(fa.all, 2);
+		return "Set loco " + QString::number(loco.addr) + " func A (0-4): " + QString::number(fa.all, 2).rightJustified(5, '0');
 	}
 	bool conflict(const Cmd &cmd) const override {
 		if (is<CmdSetFuncA>(cmd)) {
@@ -356,7 +356,7 @@ struct CmdSetFuncB : public Cmd {
 		return {0xE4, 0x22, loco.hi(), loco.lo(), static_cast<uint8_t>(fb.all >> 4)};
 	}
 	QString msg() const override {
-		return "Set loco " + QString::number(loco.addr) + " func B: " + QString::number(fb.all, 2);
+		return "Set loco " + QString::number(loco.addr) + " func B (5-12): " + QString::number(fb.all, 2).rightJustified(8, '0');
 	}
 	bool conflict(const Cmd &cmd) const override {
 		if (is<CmdSetFuncB>(cmd)) {
@@ -376,7 +376,7 @@ struct CmdSetFuncC : public Cmd {
 		return {0xE4, 0x23, loco.hi(), loco.lo(), fc.all};
 	}
 	QString msg() const override {
-		return "Set loco " + QString::number(loco.addr) + " func C: " + QString::number(fc.all, 2);
+		return "Set loco " + QString::number(loco.addr) + " func C (13-20): " + QString::number(fc.all, 2).rightJustified(8, '0');
 	}
 	bool conflict(const Cmd &cmd) const override {
 		if (is<CmdSetFuncC>(cmd)) {
@@ -396,7 +396,7 @@ struct CmdSetFuncD : public Cmd {
 		return {0xE4, 0x28, loco.hi(), loco.lo(), fd.all};
 	}
 	QString msg() const override {
-		return "Set loco " + QString::number(loco.addr) + " func D: " + QString::number(fd.all, 2);
+		return "Set loco " + QString::number(loco.addr) + " func D (21-28): " + QString::number(fd.all, 2).rightJustified(8, '0');
 	}
 	bool conflict(const Cmd &cmd) const override {
 		if (is<CmdSetFuncD>(cmd)) {

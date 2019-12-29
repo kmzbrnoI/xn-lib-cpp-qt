@@ -165,8 +165,8 @@ void locoSetFunc(uint16_t addr, uint32_t funcMask, uint32_t funcState, LibStdCal
 	FD fd;
 
 	fa.sep.f0 = funcState & 1;
-	for (size_t i = 0; i < 4; i++)
-		fa.all |= (funcState >> (i+1)) & 1;
+	for (size_t i = 1; i < 5; i++)
+		fa.all |= (funcState & (1 << i)) >> 1;
 	fb.all = (funcState >> 5) & 0xFF;
 	fc.all = (funcState >> 13) & 0xFF;
 	fd.all = (funcState >> 21) & 0xFF;

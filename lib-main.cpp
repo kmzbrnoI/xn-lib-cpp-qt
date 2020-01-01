@@ -15,6 +15,7 @@ LibMain::LibMain() {
 					 SLOT(xnOnLog(QString, Xn::LogLevel)));
 	QObject::connect(&xn, SIGNAL(onConnect()), this, SLOT(xnOnConnect()));
 	QObject::connect(&xn, SIGNAL(onDisconnect()), this, SLOT(xnOnDisconnect()));
+	QObject::connect(&xn, SIGNAL(onLocoStolen(LocoAddr)), this, SLOT(xnOnLocoStolen(LocoAddr)));
 	QObject::connect(&xn, SIGNAL(onTrkStatusChanged(Xn::TrkStatus)), this,
 					 SLOT(xnOnTrkStatusChanged(Xn::TrkStatus)));
 
@@ -81,6 +82,10 @@ void LibMain::xnOnDisconnect() {
 	this->opening = false;
 	this->guiOnClose();
 	this->events.call(this->events.afterClose);
+}
+
+void LibMain::xnOnLocoStolen(LocoAddr addr) {
+	this->events.call(this->events.onLocoStolen, addr);
 }
 
 void LibMain::xnOnTrkStatusChanged(TrkStatus trkStatus) {

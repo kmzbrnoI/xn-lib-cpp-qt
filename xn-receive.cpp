@@ -276,7 +276,15 @@ void XpressNet::handleMsgLocoInfo(MsgType &msg) {
 }
 
 void XpressNet::handleMsgLocoFunc(MsgType &msg) {
-	if (msg[1] == 0x52) {
+	if (msg[1] == 0x40) {
+		try {
+			LocoAddr addr(msg[3], msg[2]);
+			log("GET: Loco "+QString(addr)+" stolen", LogLevel::Commands);
+			this->onLocoStolen(addr);
+		} catch (...) {
+
+		}
+	} else if (msg[1] == 0x52) {
 		log("GET: Loco Func 13-28 Status", LogLevel::Commands);
 
 		if (!m_hist.empty() && is<CmdGetLocoFunc1328>(m_hist.front())) {

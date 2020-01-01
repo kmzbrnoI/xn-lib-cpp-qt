@@ -211,6 +211,7 @@ signals:
 	void onConnect();
 	void onDisconnect();
 	void onTrkStatusChanged(Xn::TrkStatus);
+	void onLocoStolen(LocoAddr);
 	void onAccInputChanged(uint8_t groupAddr, bool nibble, bool error, Xn::FeedbackType inputType,
 	                       Xn::AccInputsState state);
 

@@ -47,6 +47,10 @@ struct XnEvents {
 		if (e.defined())
 			e.func(this, e.data, static_cast<int>(status));
 	}
+	void call(const EventData<TrkLocoEv> &e, LocoAddr addr) const {
+		if (e.defined())
+			e.func(this, e.data, addr.addr);
+	}
 
 	template <typename F>
 	static void bind(EventData<F> &event, const F &func, void *const data) {

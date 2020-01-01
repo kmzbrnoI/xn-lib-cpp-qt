@@ -122,7 +122,7 @@ void locoEmergencyStop(uint16_t addr, LibStdCallback ok, LibStdCallback err) {
 void locoSetSpeed(uint16_t addr, int speed, bool dir, LibStdCallback ok, LibStdCallback err) {
 	try {
 		lib.xn.setSpeed(
-			LocoAddr(addr), speed, static_cast<Direction>(dir),
+			LocoAddr(addr), speed, static_cast<Direction>(!dir),
 			std::make_unique<Cb>([ok](void *s, void *) { callEv(s, ok); }),
 			std::make_unique<Cb>([err](void *s, void *) { callEv(s, err); })
 		);
@@ -241,7 +241,7 @@ void locoAcquired(LocoAddr addr, TrkAcquiredCallback acquired, LibStdCallback er
                   void *, bool used, Direction direction, unsigned speed, FA fa, FB fb) {
 	LocoInfo locoInfo;
 	locoInfo.addr = addr.addr;
-	locoInfo.direction = static_cast<bool>(direction);
+	locoInfo.direction = !static_cast<bool>(direction);
 	locoInfo.speed = speed;
 	locoInfo.maxSpeed = 28;
 	locoInfo.usedByAnother = used;

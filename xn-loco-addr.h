@@ -37,7 +37,7 @@ struct LocoAddr {
 	uint8_t hi() const { return ((addr >> 8) & 0xFF) + (addr < 100 ? 0 : 0xC0); }
 
 	operator uint16_t() const { return addr; }
-	operator QString() const { return QString(addr); }
+	operator QString() const { return QString::number(addr); }
 };
 
 } // namespace Xn

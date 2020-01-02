@@ -81,8 +81,11 @@ void XpressNet::m_out_timer_tick() {
 }
 
 void XpressNet::send_next_out() {
-	if (m_lastSent.addMSecs(_OUT_TIMER_INTERVAL) > QDateTime::currentDateTime())
+	if (m_lastSent.addMSecs(_OUT_TIMER_INTERVAL) > QDateTime::currentDateTime()) {
+		if (!m_out_timer.isActive())
+			m_out_timer.start();
 		return;
+	}
 
 	HistoryItem out = std::move(m_out.front());
 	log("DEQUEUE: " + out.cmd->msg(), LogLevel::Debug);

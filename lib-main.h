@@ -82,9 +82,11 @@ class AppThread {
 
 public:
 	AppThread() {
-		app = std::make_unique<QApplication>(argc, nullptr);
-		QMetaObject::invokeMethod(qApp, "quit", Qt::QueuedConnection);
-		app->exec();
+		if (nullptr == QApplication::instance()) {
+			app = std::make_unique<QApplication>(argc, nullptr);
+			QMetaObject::invokeMethod(qApp, "quit", Qt::QueuedConnection);
+			app->exec();
+		}
 	}
 };
 

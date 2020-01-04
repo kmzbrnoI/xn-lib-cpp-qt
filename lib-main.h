@@ -76,14 +76,11 @@ private:
 
 // Dirty magic for Qt's event loop
 // This class should be created first
-class AppThread {
-	std::unique_ptr<QApplication> app;
-	int argc {0};
-
-public:
+struct AppThread {
 	AppThread() {
-		if (nullptr == QApplication::instance()) {
-			app = std::make_unique<QApplication>(argc, nullptr);
+		if (qApp == nullptr) {
+			int argc = 0;
+			QApplication* app = new QApplication(argc, nullptr);
 			QMetaObject::invokeMethod(qApp, "quit", Qt::QueuedConnection);
 			app->exec();
 		}

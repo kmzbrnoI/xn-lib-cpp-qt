@@ -316,6 +316,9 @@
          </property>
         </widget>
         <widget class="QSpinBox" name="sb_li_addr">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="geometry">
           <rect>
            <x>160</x>
@@ -326,6 +329,9 @@
          </property>
         </widget>
         <widget class="QPushButton" name="b_li_addr_set">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="geometry">
           <rect>
            <x>210</x>
@@ -339,6 +345,9 @@
          </property>
         </widget>
         <widget class="QPushButton" name="b_info_update">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="geometry">
           <rect>
            <x>10</x>

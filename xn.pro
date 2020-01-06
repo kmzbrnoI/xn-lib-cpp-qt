@@ -55,3 +55,8 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR" \
 #Target version
 VERSION = $${VERSION_MAJOR}.$${VERSION_MINOR}
 DEFINES += "VERSION=\\\"$${VERSION}\\\""
+
+
+#When >=O1, segfault happens in lib-api.cpp
+QMAKE_CXXFLAGS_RELEASE -= -O2
+QMAKE_CXXFLAGS_RELEASE += -O0

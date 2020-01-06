@@ -235,6 +235,7 @@ void locoAcquiredGotFunc(LocoInfo locoInfo, TrkAcquiredCallback acquired, void *
 
 	if (acquired != nullptr)
 		acquired(&lib.xn, locoInfo);
+	// When >O0, segfault happens in the return below (don't know why).
 }
 
 void locoAcquired(LocoAddr addr, TrkAcquiredCallback acquired, LibStdCallback err,

@@ -32,6 +32,27 @@ unsigned int features() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Config
+
+int loadConfig(char16_t *filename) {
+	if (lib.xn.connected())
+		return TRK_FILE_DEVICE_OPENED;
+	try {
+		lib.config_filename = QString::fromUtf16(filename);
+		lib.s.load(lib.config_filename);
+		lib.fillConnectionsCbs();
+	} catch (...) { return TRK_FILE_CANNOT_ACCESS; }
+	return 0;
+}
+
+int saveConfig(char16_t *filename) {
+	try {
+		lib.s.save(QString::fromUtf16(filename));
+	} catch (...) { return TRK_FILE_CANNOT_ACCESS; }
+	return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Connect / disconnect
 
 int connect() {

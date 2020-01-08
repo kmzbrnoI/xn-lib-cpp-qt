@@ -35,6 +35,9 @@ XN_SHARED_EXPORT bool CALL_CONV apiSupportsVersion(unsigned int version);
 XN_SHARED_EXPORT int CALL_CONV apiSetVersion(unsigned int version);
 XN_SHARED_EXPORT unsigned int CALL_CONV features();
 
+XN_SHARED_EXPORT int CALL_CONV loadConfig(char16_t *filename);
+XN_SHARED_EXPORT int CALL_CONV saveConfig(char16_t *filename);
+
 XN_SHARED_EXPORT int CALL_CONV connect();
 XN_SHARED_EXPORT int CALL_CONV disconnect();
 XN_SHARED_EXPORT bool CALL_CONV connected();

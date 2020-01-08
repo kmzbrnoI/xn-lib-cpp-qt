@@ -14,7 +14,7 @@ namespace Xn {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const QString _CONFIG_FILENAME = "trakce-xn.ini";
+const QString _DEFAULT_CONFIG_FILENAME = "trakce-xn.ini";
 
 class ConfigWindow : public QMainWindow {
 	Q_OBJECT
@@ -30,6 +30,7 @@ public:
 	ConfigWindow form;
 	XnEvents events;
 	Settings s;
+	QString config_filename = "";
 	unsigned int api_version = 0x0001;
 	bool gui_config_changing = false;
 	bool opening = false;

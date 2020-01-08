@@ -19,7 +19,8 @@ LibMain::LibMain() {
 	QObject::connect(&xn, SIGNAL(onTrkStatusChanged(Xn::TrkStatus)), this,
 					 SLOT(xnOnTrkStatusChanged(Xn::TrkStatus)));
 
-	s.load(_CONFIG_FILENAME);
+	this->config_filename = _DEFAULT_CONFIG_FILENAME;
+	s.load(this->config_filename);
 	this->guiInit();
 	log("Library loaded.", LogLevel::Info);
 }
@@ -28,6 +29,8 @@ LibMain::~LibMain() {
 	try {
 		if (xn.connected())
 			xn.disconnect();
+		if (this->config_filename != "")
+			this->s.save(this->config_filename);
 	} catch (...) {
 		// No exceptions in destructor!
 	}

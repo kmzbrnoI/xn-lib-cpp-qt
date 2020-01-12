@@ -24,10 +24,16 @@ XpressNet::XpressNet(QObject *parent) : QObject(parent) {
 void XpressNet::sp_about_to_close() {
 	m_hist_timer.stop();
 	m_out_timer.stop();
-	while (!m_hist.empty())
-		m_hist.pop_front(); // Should we call error events?
-	while (!m_out.empty())
-		m_out.pop_front(); // Should we call error events?
+	while (!m_hist.empty()) {
+		if (nullptr != m_hist.front().callback_err)
+			m_hist.front().callback_err->func(this, m_hist.front().callback_err->data);
+		m_hist.pop_front();
+	}
+	while (!m_out.empty()) {
+		if (nullptr != m_out.front().callback_err)
+			m_out.front().callback_err->func(this, m_out.front().callback_err->data);
+		m_out.pop_front();
+	}
 	m_trk_status = TrkStatus::Unknown;
 
 	log("Disconnected", LogLevel::Info);

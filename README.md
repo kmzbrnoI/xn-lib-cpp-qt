@@ -25,8 +25,8 @@ Since v2.0 release, this library is distributed as `trakce-xn.dll` file.
 This library is developed in Qt framework, thus some more dll are required on
 your computer for `trakce-xn.dll` to work. These libraries are available in
 *Relaeses* in zips `trakce-xn-required-libs-*.zip`. Use `min` variant by default,
-*this should be enough. If your computer complains about unmet dependencies, use
-*`all` variant.
+this should be enough. If your computer complains about unmet dependencies, use
+`all` variant.
 
 Dynamic-library-api specification is located on
 [wiki](https://github.com/kmzbrnoI/xn-lib-cpp-qt/wiki).

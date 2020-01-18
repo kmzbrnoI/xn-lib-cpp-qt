@@ -13,20 +13,23 @@ v3.6](https://www.lenz-elektronik.de/pdf/XpressNet%20und%20USB%20Interface.pdf))
 
 See `xn.h: class XpressNET` for list of supported commands.
 
-## Requirements for use
-
-This library uses [Qt](https://www.qt.io/)'s
-[SerialPort](http://doc.qt.io/qt-5/qtserialport-index.html) which creates a
-very good cross-platform abstraction of serial port interface. Thus, the
-library uses Qt's mechanisms like slots and signals.
-
-When library is used as static library, it is **not** usable without Qt.
-
-There are no other requirements.
-
 ## Usage
 
 You may use this library in two major ways:
+
+### Dynamic library
+
+You can download precompiled `dll` version of this library in *Releases* section.
+
+Since v2.0 release, this library is distributed as `trakce-xn.dll` file.
+This library is developed in Qt framework, thus some more dll are required on
+your computer for `trakce-xn.dll` to work. These libraries are available in
+*Relaeses* in zips `trakce-xn-required-libs-*.zip`. Use `min` variant by default,
+*this should be enough. If your computer complains about unmet dependencies, use
+*`all` variant.
+
+Dynamic-library-api specification is located on
+[wiki](https://github.com/kmzbrnoI/xn-lib-cpp-qt/wiki).
 
 ### Static library
 
@@ -36,11 +39,12 @@ instance of `XpressNet` class (see `xn.h`).
 Add `.cpp` and `.h` files from `xn.pro` to `yourproject.pro`. `xn.pro` is not
 used in your project. You just include header files as in plain C.
 
-### Dynamic library
+This library uses [Qt](https://www.qt.io/)'s
+[SerialPort](http://doc.qt.io/qt-5/qtserialport-index.html) which creates a
+very good cross-platform abstraction of serial port interface. Thus, the
+library uses Qt's mechanisms like slots and signals.
 
-Compile this project using `qmake` and use compiled `.so` or `.dll` file.
-Dynamic-library-api specification is located on
-[wiki](https://github.com/kmzbrnoI/xn-lib-cpp-qt/wiki).
+When library is used as static library, it is **not** usable without Qt.
 
 ## Basic information
 

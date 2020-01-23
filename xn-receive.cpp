@@ -140,6 +140,11 @@ void XpressNet::handleMsgLiVersion(MsgType &msg) {
 		if (hist.callback != nullptr)
 			hist.callback(this, hw, sw);
 	}
+
+	if (!m_hist.empty() && is<CmdGetLIAddress>(m_hist.front())) {
+		// Report NanoX error faster
+		hist_err();
+	}
 }
 
 void XpressNet::handleMsgCsGeneralEvent(MsgType &msg) {

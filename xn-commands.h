@@ -89,7 +89,7 @@ struct CmdSetLIAddress : public Cmd {
 	std::vector<uint8_t> getBytes() const override {
 		return {0xF2, 0x01, static_cast<uint8_t>(addr)};
 	}
-	QString msg() const override { return "LI Set Address to " + QString(addr); }
+	QString msg() const override { return "LI Set Address to " + QString::number(addr); }
 	bool conflict(const Cmd &cmd) const override { return is<CmdSetLIAddress>(cmd); }
 };
 

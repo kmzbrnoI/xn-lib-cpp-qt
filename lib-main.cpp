@@ -56,6 +56,9 @@ void LibMain::log(const QString &msg, LogLevel loglevel) {
 // Xn events:
 
 void LibMain::xnOnLog(QString message, LogLevel loglevel) {
+	if (this->opening && (message == "Not responded to command: LI Get Address" ||
+						  message == "Not responded to command: Get Command station version"))
+		loglevel = LogLevel::Warning;
 	this->events.call(this->events.onLog, loglevel, message);
 }
 
@@ -69,16 +72,7 @@ void LibMain::xnOnError(QString error) {
 void LibMain::xnOnConnect() {
 	lib.guiOnOpen();
 	this->opening = true;
-
-	try {
-		xn.getLIVersion(
-		    [this](void *s, unsigned hw, unsigned sw) { xnGotLIVersion(s, hw, sw); },
-		    std::make_unique<Cb>([this](void *s, void *d) { xnOnLIVersionError(s, d); })
-		);
-	} catch (const QStrException &e) {
-		log("Get LI Version: " + e.str(), LogLevel::Error);
-		xn.disconnect();
-	}
+	this->getLIVersion();
 }
 
 void LibMain::xnOnDisconnect() {
@@ -100,19 +94,20 @@ void LibMain::xnOnTrkStatusChanged(TrkStatus trkStatus) {
 	}
 }
 
-void LibMain::xnOnLIVersionError(void *, void *) {
-	log("Get LI Version: no response!", LogLevel::Error);
-	xn.disconnect();
-}
-
-void LibMain::xnOnCSStatusError(void *, void *) {
-	log("Get CS Status: no response!", LogLevel::Error);
-	xn.disconnect();
+void LibMain::getLIVersion() {
+	try {
+		xn.getLIVersion(
+			[this](void *s, unsigned hw, unsigned sw) { xnGotLIVersion(s, hw, sw); },
+			std::make_unique<Cb>([this](void *s, void *d) { xnOnLIVersionError(s, d); })
+		);
+	} catch (const QStrException &e) {
+		log("Get LI Version: " + e.str(), LogLevel::Error);
+		xn.disconnect();
+	}
 }
 
 void LibMain::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
 	QString version = "HW:" + QString::number(hw) + ", SW: " + QString::number(sw);
-	log("Got LI version: " + version, LogLevel::Info);
 	this->li_ver_hw = hw;
 	this->li_ver_sw = sw;
 
@@ -121,16 +116,67 @@ void LibMain::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
 
 	try {
 		xn.getLIAddress(
-		    [this](void *s, unsigned addr) { xnGotLIAddress(s, addr); }
+			[this](void *s, unsigned addr) { xnGotLIAddress(s, addr); },
+			std::make_unique<Cb>([this](void *s, void *d) { xnOnLIAddrError(s, d); })
 		);
+	} catch (const QStrException &e) {
+		log("Get LI Address: " + e.str(), LogLevel::Error);
+		xn.disconnect();
+	}
+}
+
+void LibMain::xnOnLIVersionError(void *, void *) {
+	log("Get LI Version: no response!", LogLevel::Error);
+	xn.disconnect();
+}
+
+void LibMain::xnGotLIAddress(void *, unsigned addr) {
+	form.ui.sb_li_addr->setValue(addr);
+	form.ui.l_info_datetime->setText(QTime::currentTime().toString("hh:mm:ss"));
+	this->getCSVersion();
+}
+
+void LibMain::xnOnLIAddrError(void *, void *) {
+	log("Unable to get LI address, ignoring!", LogLevel::Warning);
+	form.ui.l_info_datetime->setText(QTime::currentTime().toString("hh:mm:ss"));
+	this->getCSVersion();
+}
+
+void LibMain::getCSVersion() {
+	try {
 		xn.getCommandStationVersion(
-		    [this](void *s, unsigned major, unsigned minor, uint8_t id) {
-		        xnGotCSVersion(s, major, minor, id);
-		    }
+			[this](void *s, unsigned major, unsigned minor, uint8_t id) {
+				xnGotCSVersion(s, major, minor, id);
+			},
+			std::make_unique<Cb>([this](void *s, void *d) { xnOnCsVersionError(s, d); })
 		);
+	} catch (const QStrException &e) {
+		log("Get CS Version: " + e.str(), LogLevel::Error);
+		xn.disconnect();
+	}
+}
+
+void LibMain::xnGotCSVersion(void *, unsigned major, unsigned minor, uint8_t id) {
+	QString version = QString::number(major) + "." + QString::number(minor);
+	form.ui.l_cs_version->setText(version);
+	form.ui.l_cs_id->setText(QString::number(id));
+	form.ui.l_info_datetime->setText(QTime::currentTime().toString("hh:mm:ss"));
+	this->getCSStatus();
+}
+
+void LibMain::xnOnCsVersionError(void *, void *) {
+	log("Command station version not received, ignoring!", LogLevel::Warning);
+	form.ui.l_cs_version->setText("Nelze zjistit");
+	form.ui.l_cs_id->setText("Nelze zjistit");
+	form.ui.l_info_datetime->setText(QTime::currentTime().toString("hh:mm:ss"));
+	this->getCSStatus();
+}
+
+void LibMain::getCSStatus() {
+	try {
 		xn.getCommandStationStatus(
-		    nullptr,
-		    std::make_unique<Cb>([this](void *s, void *d) { xnOnCSStatusError(s, d); })
+			nullptr,
+			std::make_unique<Cb>([this](void *s, void *d) { xnOnCSStatusError(s, d); })
 		);
 	} catch (const QStrException &e) {
 		log("Get CS Status: " + e.str(), LogLevel::Error);
@@ -138,19 +184,9 @@ void LibMain::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
 	}
 }
 
-void LibMain::xnGotCSVersion(void *, unsigned major, unsigned minor, uint8_t id) {
-	QString version = QString::number(major) + "." + QString::number(minor);
-	log("Got command station version: " + version + ", ID: " + QString::number(id),
-	    LogLevel::Info);
-	form.ui.l_cs_version->setText(version);
-	form.ui.l_cs_id->setText(QString::number(id));
-	form.ui.l_info_datetime->setText(QTime::currentTime().toString("hh:mm:ss"));
-}
-
-void LibMain::xnGotLIAddress(void *, unsigned addr) {
-	log("Got LI address: " + QString::number(addr), LogLevel::Info);
-	form.ui.sb_li_addr->setValue(addr);
-	form.ui.l_info_datetime->setText(QTime::currentTime().toString("hh:mm:ss"));
+void LibMain::xnOnCSStatusError(void *, void *) {
+	log("Get CS Status: no response!", LogLevel::Error);
+	xn.disconnect();
 }
 
 } // namespace Xn

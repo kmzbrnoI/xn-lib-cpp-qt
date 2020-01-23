@@ -64,6 +64,8 @@ private slots:
 private:
 	void xnGotLIVersion(void *, unsigned hw, unsigned sw);
 	void xnOnLIVersionError(void *, void *);
+	void xnOnLIAddrError(void *, void *);
+	void xnOnCsVersionError(void *, void *);
 	void xnOnCSStatusError(void *, void *);
 	void xnGotCSVersion(void *, unsigned major, unsigned minor, uint8_t id);
 	void xnGotLIAddress(void *, unsigned addr);
@@ -71,6 +73,9 @@ private:
 	void userLiAddrSet();
 	void userLiAddrSetErr();
 
+	void getLIVersion();
+	void getCSVersion();
+	void getCSStatus();
 };
 
 ///////////////////////////////////////////////////////////////////////////////

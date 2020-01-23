@@ -125,23 +125,7 @@ void LibMain::b_info_update_handle() {
 	form.ui.l_cs_id->setText("???");
 	form.ui.l_li_version->setText("???");
 	form.ui.sb_li_addr->setValue(0);
-
-	try {
-		xn.getLIVersion(
-		    [this](void *s, unsigned hw, unsigned sw) { xnGotLIVersion(s, hw, sw); }
-		);
-		xn.getLIAddress(
-		    [this](void *s, unsigned addr) { xnGotLIAddress(s, addr); }
-		);
-		xn.getCommandStationVersion(
-		    [this](void *s, unsigned major, unsigned minor, uint8_t id) {
-		        xnGotCSVersion(s, major, minor, id);
-		    }
-		);
-
-	} catch (const QStrException &e) {
-		log("Get CS & LI Info: " + e.str(), LogLevel::Error);
-	}
+	this->getLIVersion();
 }
 
 void LibMain::userLiAddrSet() {

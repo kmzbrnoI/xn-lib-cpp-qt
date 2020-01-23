@@ -203,12 +203,19 @@ void XpressNet::handleMsgCsStatus(MsgType &msg) {
 }
 
 void XpressNet::handleMsgCsVersion(MsgType &msg) {
+	unsigned major = msg[2] >> 4;
+	unsigned minor =  msg[2] & 0x0F;
+	uint8_t id = msg[3];
+
+	log("GET: Command Station Version " + QString::number(major) + "." +
+		QString::number(minor) + ", id " + QString::number(id), LogLevel::Commands);
+
 	if (!m_hist.empty() && is<CmdGetCSVersion>(m_hist.front())) {
 		std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
 		hist_ok();
 		if (dynamic_cast<const CmdGetCSVersion *>(cmd.get())->callback != nullptr) {
 			dynamic_cast<const CmdGetCSVersion *>(cmd.get())->callback(
-				this, msg[2] >> 4, msg[2] & 0x0F, msg[3]
+				this, major, minor, id
 			);
 		}
 	}

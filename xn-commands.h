@@ -27,6 +27,7 @@ struct Cmd {
 	virtual QString msg() const = 0;
 	virtual ~Cmd() = default;
 	virtual bool conflict(const Cmd &) const { return false; }
+	virtual bool okResponse() const { return false; }
 };
 
 template <typename Target>
@@ -58,6 +59,7 @@ struct CmdEmergencyStopLoco : public Cmd {
 	CmdEmergencyStopLoco(const LocoAddr loco) : loco(loco) {}
 	std::vector<uint8_t> getBytes() const override { return {0x92, loco.hi(), loco.lo()}; }
 	QString msg() const override { return "Single Loco Emergency Stop : " + QString::number(loco); }
+	bool okResponse() const override { return true; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -138,6 +140,7 @@ struct CmdPomWriteCv : public Cmd {
 		}
 		return false;
 	}
+	bool okResponse() const override { return true; }
 };
 
 struct CmdPomWriteBit : public Cmd {
@@ -173,6 +176,7 @@ struct CmdPomWriteBit : public Cmd {
 		}
 		return false;
 	}
+	bool okResponse() const override { return true; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -314,6 +318,7 @@ struct CmdSetSpeedDir : public Cmd {
 		}
 		return false;
 	}
+	bool okResponse() const override { return true; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -336,6 +341,7 @@ struct CmdSetFuncA : public Cmd {
 		}
 		return false;
 	}
+	bool okResponse() const override { return true; }
 };
 
 enum class FSet {
@@ -365,6 +371,7 @@ struct CmdSetFuncB : public Cmd {
 		}
 		return false;
 	}
+	bool okResponse() const override { return true; }
 };
 
 struct CmdSetFuncC : public Cmd {
@@ -385,6 +392,7 @@ struct CmdSetFuncC : public Cmd {
 		}
 		return false;
 	}
+	bool okResponse() const override { return true; }
 };
 
 struct CmdSetFuncD : public Cmd {
@@ -405,6 +413,7 @@ struct CmdSetFuncD : public Cmd {
 		}
 		return false;
 	}
+	bool okResponse() const override { return true; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -430,6 +439,7 @@ struct CmdReadDirect : public Cmd {
 	QString msg() const override {
 		return "Direct Mode CV " + QString::number(cv) + " read request";
 	}
+	bool okResponse() const override { return true; }
 };
 
 struct CmdRequestReadResult : public Cmd {
@@ -483,6 +493,7 @@ struct CmdAccOpRequest : public Cmd {
 		}
 		return false;
 	}
+	bool okResponse() const override { return true; } // jus for uLI
 };
 
 ///////////////////////////////////////////////////////////////////////////////

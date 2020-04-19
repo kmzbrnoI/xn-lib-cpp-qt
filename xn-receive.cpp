@@ -104,7 +104,8 @@ void XpressNet::handleMsgLiError(MsgType &msg) {
 			to_send(CmdRequestReadResult(rd.cv, rd.callback), nullptr,
 			        std::move(m_hist.front().callback_err));
 		}
-		hist_ok();
+		if (!m_hist.empty() && m_hist.front().cmd->okResponse())
+			hist_ok();
 	} else if (0x05 == msg[1]) {
 		log("GET: ERR: The Command Station is no longer providing the LI "
 		    "a timeslot for communication",

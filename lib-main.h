@@ -45,7 +45,6 @@ public:
 	void guiOnOpen();
 	void guiOnClose();
 
-	LIType interface(const QString &name) const;
 	void log(const QString &msg, LogLevel loglevel);
 
 private slots:

@@ -70,4 +70,14 @@ bool XpressNet::liAcknowledgesSetAccState() const {
 
 LIType XpressNet::liType() const { return this->m_liType; }
 
+LIType interface(const QString &name) {
+	if (name == "LI101")
+		return Xn::LIType::LI101;
+	if (name == "uLI")
+		return Xn::LIType::uLI;
+	if (name == "LI-USB-Ethernet")
+		return Xn::LIType::LIUSBEth;
+	return Xn::LIType::LI100;
+}
+
 } // namespace Xn

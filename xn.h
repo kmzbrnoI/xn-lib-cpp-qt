@@ -68,6 +68,8 @@ enum class LIType {
 	LIUSBEth,
 };
 
+LIType interface(const QString &name);
+
 enum class TrkStatus {
 	Unknown = 0,
 	Off = 1,

@@ -282,7 +282,8 @@ QString XpressNet::dataToStr(DataT data, size_t len) {
 	QString out;
 	size_t i = 0;
 	for (auto d = data.begin(); (d != data.end() && (len == 0 || i < len)); d++, i++)
-		out += QString("0x%1 ").arg(static_cast<ItemType>(*d), 2, 16, QLatin1Char('0'));
+		out += "0x" +
+		       QString("%1 ").arg(static_cast<ItemType>(*d), 2, 16, QLatin1Char('0')).toUpper();
 	return out.trimmed();
 }
 

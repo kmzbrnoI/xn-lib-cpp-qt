@@ -80,4 +80,24 @@ LIType interface(const QString &name) {
 	return Xn::LIType::LI100;
 }
 
+QString interfaceName(const LIType &type) {
+	if (type == LIType::LI101)
+		return "LI101";
+	if (type == LIType::uLI)
+		return "uLI";
+	if (type == LIType::LIUSBEth)
+		return "LI-USB-Ethernet";
+	return "LI100";
+}
+
+QString flowControlToStr(QSerialPort::FlowControl fc) {
+	if (fc == QSerialPort::FlowControl::HardwareControl)
+		return "hardware";
+	if (fc == QSerialPort::FlowControl::SoftwareControl)
+		return "software";
+	if (fc == QSerialPort::FlowControl::NoFlowControl)
+		return "no";
+	return "unknown";
+}
+
 } // namespace Xn

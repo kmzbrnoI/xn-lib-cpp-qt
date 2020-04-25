@@ -6,7 +6,8 @@ namespace Xn {
 
 void XpressNet::connect(const QString &portname, int32_t br, QSerialPort::FlowControl fc,
                         LIType liType) {
-	log("Connecting to " + portname + " (br=" + QString::number(br) + ") ...", LogLevel::Info);
+    log("Connecting to " + portname + " ("+interfaceName(liType)+
+        ", br=" + QString::number(br) + ", fc=" + flowControlToStr(fc)  + ") ...", LogLevel::Info);
 
 	m_serialPort.setBaudRate(br);
 	m_serialPort.setFlowControl(fc);

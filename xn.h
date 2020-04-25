@@ -69,6 +69,7 @@ enum class LIType {
 };
 
 LIType interface(const QString &name);
+QString interfaceName(const LIType &type);
 
 enum class TrkStatus {
 	Unknown = 0,
@@ -291,6 +292,8 @@ template <typename Target>
 bool XpressNet::is(const HistoryItem &h) {
 	return (dynamic_cast<const Target *>(h.cmd.get()) != nullptr);
 }
+
+QString flowControlToStr(QSerialPort::FlowControl);
 
 } // namespace Xn
 

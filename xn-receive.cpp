@@ -140,9 +140,7 @@ void XpressNet::handleMsgLiVersion(MsgType &msg) {
 		const auto &hist = dynamic_cast<const CmdGetLIVersion &>(*cmd);
 		if (hist.callback != nullptr)
 			hist.callback(this, hw, sw);
-	}
-
-	if (!m_hist.empty() && is<CmdGetLIAddress>(m_hist.front())) {
+	} else if (!m_hist.empty() && is<CmdGetLIAddress>(m_hist.front())) {
 		// Report NanoX error faster
 		hist_err();
 	}

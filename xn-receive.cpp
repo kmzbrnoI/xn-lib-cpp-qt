@@ -153,7 +153,7 @@ void XpressNet::handleMsgCsGeneralEvent(MsgType &msg) {
 			hist_ok();
 		if (m_trk_status != TrkStatus::Off) {
 			m_trk_status = TrkStatus::Off;
-			onTrkStatusChanged(m_trk_status);
+            emit onTrkStatusChanged(m_trk_status);
 		}
 	} else if (0x01 == msg[1]) {
 		log("GET: Status On", LogLevel::Commands);
@@ -161,13 +161,13 @@ void XpressNet::handleMsgCsGeneralEvent(MsgType &msg) {
 			hist_ok();
 		if (m_trk_status != TrkStatus::On) {
 			m_trk_status = TrkStatus::On;
-			onTrkStatusChanged(m_trk_status);
+            emit onTrkStatusChanged(m_trk_status);
 		}
 	} else if (0x02 == msg[1]) {
 		log("GET: Status Programming", LogLevel::Commands);
 		if (m_trk_status != TrkStatus::Programming) {
 			m_trk_status = TrkStatus::Programming;
-			onTrkStatusChanged(m_trk_status);
+            emit onTrkStatusChanged(m_trk_status);
 		}
 	} else if (0x11 == msg[1] || 0x12 == msg[1] || 0x13 == msg[1] || 0x1F == msg[1]) {
 		log("GET: CV read error " + QString::number(msg[1]), LogLevel::Error);
@@ -202,7 +202,7 @@ void XpressNet::handleMsgCsStatus(MsgType &msg) {
 
 	if (n != m_trk_status) {
 		m_trk_status = n;
-		onTrkStatusChanged(m_trk_status);
+        emit onTrkStatusChanged(m_trk_status);
 	}
 }
 
@@ -291,7 +291,7 @@ void XpressNet::handleMsgLocoFunc(MsgType &msg) {
 		try {
 			LocoAddr addr(msg[3], msg[2]);
 			log("GET: Loco "+QString(addr)+" stolen", LogLevel::Commands);
-			this->onLocoStolen(addr);
+            emit this->onLocoStolen(addr);
 		} catch (...) {
 
 		}
@@ -338,7 +338,7 @@ void XpressNet::handleMsgAcc(MsgType &msg) {
 	    (dynamic_cast<const CmdAccInfoRequest *>(m_hist.front().cmd.get())->groupAddr == groupAddr) &&
 	    (dynamic_cast<const CmdAccInfoRequest *>(m_hist.front().cmd.get())->nibble == nibble))
 		hist_ok();
-	onAccInputChanged(groupAddr, nibble, error, inputType, state);
+    emit onAccInputChanged(groupAddr, nibble, error, inputType, state);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

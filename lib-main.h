@@ -57,7 +57,7 @@ private slots:
 	void xnOnError(QString error);
 	void xnOnConnect();
 	void xnOnDisconnect();
-	void xnOnLocoStolen(LocoAddr);
+    void xnOnLocoStolen(Xn::LocoAddr);
 	void xnOnTrkStatusChanged(Xn::TrkStatus);
 
 private:

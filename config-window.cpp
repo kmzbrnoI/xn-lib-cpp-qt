@@ -55,7 +55,8 @@ void LibMain::fillConnectionsCbs() {
 	// Speed
 	form.ui.cb_serial_speed->clear();
 	bool is_item = false;
-	for (const qint32 &br : QSerialPortInfo::standardBaudRates()) {
+    const auto& baudRates = QSerialPortInfo::standardBaudRates();
+    for (const qint32 &br : baudRates) {
 		form.ui.cb_serial_speed->addItem(QString::number(br));
 		if (br == s["XN"]["baudrate"].toInt())
 			is_item = true;
@@ -76,7 +77,8 @@ void LibMain::fillPortCb() {
 
 	form.ui.cb_serial_port->clear();
 	bool is_item = false;
-	for (const QSerialPortInfo &port : QSerialPortInfo::availablePorts()) {
+    const auto& ports = QSerialPortInfo::availablePorts();
+    for (const QSerialPortInfo &port : ports) {
 		form.ui.cb_serial_port->addItem(port.portName());
 		if (port.portName() == s["XN"]["port"].toString())
 			is_item = true;

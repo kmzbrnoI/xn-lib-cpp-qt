@@ -1,3 +1,4 @@
+#include <QSerialPortInfo>
 #include "xn.h"
 
 /* XpressNet class public methods implementation. */
@@ -5,13 +6,26 @@
 namespace Xn {
 
 void XpressNet::connect(const QString &portname, int32_t br, QSerialPort::FlowControl fc,
-                        LIType liType) {
-    log("Connecting to " + portname + " ("+interfaceName(liType)+
-        ", br=" + QString::number(br) + ", fc=" + flowControlToStr(fc)  + ") ...", LogLevel::Info);
+						LIType liType) {
+	QString port = portname;
+	log("Connecting to " + portname + " ("+liInterfaceName(liType)+
+		", br=" + QString::number(br) + ", fc=" + flowControlToStr(fc)  + ") ...", LogLevel::Info);
+
+	if (portname == "auto") {
+		const std::vector<QSerialPortInfo> &liPorts = this->ports(liType);
+		log("Automatic LI port detected", LogLevel::Info);
+
+		if (liPorts.size() == 1) {
+			log("Found single port "+liPorts[0].portName(), LogLevel::Info);
+			port = liPorts[0].portName();
+		} else {
+			throw QStrException("Found "+QString::number(liPorts.size())+" LI. Not connecting to any.");
+		}
+	}
 
 	m_serialPort.setBaudRate(br);
 	m_serialPort.setFlowControl(fc);
-	m_serialPort.setPortName(portname);
+	m_serialPort.setPortName(port);
 	m_liType = liType;
 
 	if (!m_serialPort.open(QIODevice::ReadWrite))

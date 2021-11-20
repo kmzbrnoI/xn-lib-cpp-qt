@@ -32,14 +32,24 @@ void LibMain::guiInit() {
 	form.setFixedSize(form.size());
 }
 
+void LibMain::cb_interface_type_changed(int arg) {
+	this->cb_connections_changed(arg);
+	if ((s["XN"]["port"].toString() == "auto") && (form.ui.cb_interface_type->currentText() != "uLI"))
+		s["XN"]["port"] = "";
+	this->fillPortCb();
+}
+
 void LibMain::cb_connections_changed(int) {
 	if (this->gui_config_changing)
 		return;
 
 	s["XN"]["interface"] = form.ui.cb_interface_type->currentText();
-	s["XN"]["port"] = form.ui.cb_serial_port->currentText();
 	s["XN"]["baudrate"] = form.ui.cb_serial_speed->currentText().toInt();
 	s["XN"]["flowcontrol"] = form.ui.cb_serial_flowcontrol->currentIndex();
+
+	const QString port = form.ui.cb_serial_port->currentText();
+	s["XN"]["port"] = (port.startsWith("Auto")) ? "auto" : port;
+
 }
 
 void LibMain::fillConnectionsCbs() {
@@ -55,8 +65,8 @@ void LibMain::fillConnectionsCbs() {
 	// Speed
 	form.ui.cb_serial_speed->clear();
 	bool is_item = false;
-    const auto& baudRates = QSerialPortInfo::standardBaudRates();
-    for (const qint32 &br : baudRates) {
+	const auto& baudRates = QSerialPortInfo::standardBaudRates();
+	for (const qint32 &br : baudRates) {
 		form.ui.cb_serial_speed->addItem(QString::number(br));
 		if (br == s["XN"]["baudrate"].toInt())
 			is_item = true;
@@ -76,17 +86,30 @@ void LibMain::fillPortCb() {
 	this->gui_config_changing = true;
 
 	form.ui.cb_serial_port->clear();
+
 	bool is_item = false;
-    const auto& ports = QSerialPortInfo::availablePorts();
-    for (const QSerialPortInfo &port : ports) {
+
+	if (form.ui.cb_interface_type->currentText() == "uLI") {
+		form.ui.cb_serial_port->addItem("Automaticky detekovat port uLI");
+		if (s["XN"]["port"].toString() == "auto") {
+			is_item = true;
+			form.ui.cb_serial_port->setCurrentIndex(0);
+		}
+	}
+
+	const auto& ports = QSerialPortInfo::availablePorts();
+	for (const QSerialPortInfo &port : ports) {
 		form.ui.cb_serial_port->addItem(port.portName());
 		if (port.portName() == s["XN"]["port"].toString())
 			is_item = true;
 	}
-	if (is_item)
-		form.ui.cb_serial_port->setCurrentText(s["XN"]["port"].toString());
-	else
-		form.ui.cb_serial_port->setCurrentIndex(-1);
+
+	if (s["XN"]["port"].toString() != "auto") {
+		if (is_item)
+			form.ui.cb_serial_port->setCurrentText(s["XN"]["port"].toString());
+		else
+			form.ui.cb_serial_port->setCurrentIndex(-1);
+	}
 
 	this->gui_config_changing = false;
 }

@@ -27,6 +27,7 @@ How does sending work?
 #include <QDateTime>
 #include <QObject>
 #include <QSerialPort>
+#include <QSerialPortInfo>
 #include <QTimer>
 #include <memory>
 #include <queue>
@@ -60,6 +61,9 @@ struct EWriteError : public QStrException {
 struct EInvalidTrkStatus : public QStrException {
 	EInvalidTrkStatus(const QString str) : QStrException(str) {}
 };
+struct EUnsupportedInterface : public QStrException {
+    EUnsupportedInterface(const QString str) : QStrException(str) {}
+};
 
 enum class LIType {
 	LI100,
@@ -68,8 +72,8 @@ enum class LIType {
 	LIUSBEth,
 };
 
-LIType interface(const QString &name);
-QString interfaceName(const LIType &type);
+LIType liInterface(const QString &name);
+QString liInterfaceName(const LIType &type);
 
 enum class TrkStatus {
 	Unknown = 0,
@@ -199,7 +203,8 @@ public:
 	void histClear();
 
 	static QString xnReadCVStatusToQString(ReadCVStatus st);
-	LIType liType() const;
+    static std::vector<QSerialPortInfo> ports(LIType);
+	LIType liType() const;    
 
 private slots:
 	void handleReadyRead();

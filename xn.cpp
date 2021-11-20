@@ -1,4 +1,5 @@
 #include "xn.h"
+#include "xn-win-com-discover.h"
 
 /* Global definitions & helpers of XpressNet class. Specific functions that
  * do the real work are places in xn-*.cpp (logically divided into multiple
@@ -70,7 +71,7 @@ bool XpressNet::liAcknowledgesSetAccState() const {
 
 LIType XpressNet::liType() const { return this->m_liType; }
 
-LIType interface(const QString &name) {
+LIType liInterface(const QString &name) {
 	if (name == "LI101")
 		return Xn::LIType::LI101;
 	if (name == "uLI")
@@ -80,7 +81,7 @@ LIType interface(const QString &name) {
 	return Xn::LIType::LI100;
 }
 
-QString interfaceName(const LIType &type) {
+QString liInterfaceName(const LIType &type) {
 	if (type == LIType::LI101)
 		return "LI101";
 	if (type == LIType::uLI)
@@ -98,6 +99,22 @@ QString flowControlToStr(QSerialPort::FlowControl fc) {
 	if (fc == QSerialPort::FlowControl::NoFlowControl)
 		return "no";
 	return "unknown";
+}
+
+std::vector<QSerialPortInfo> XpressNet::ports(LIType litype) {
+	if (litype != LIType::uLI)
+		throw EUnsupportedInterface("Cannot autodetect port for "+liInterfaceName(litype));
+
+#ifdef Q_OS_WIN
+	return winULIPorts();
+#else
+	std::vector<QSerialPortInfo> result;
+	QList<QSerialPortInfo> ports(QSerialPortInfo::availablePorts());
+	for (const QSerialPortInfo &info : ports)
+		if (info.description().startsWith("uLI"))
+			result.push_back(info);
+	return result;
+#endif
 }
 
 } // namespace Xn

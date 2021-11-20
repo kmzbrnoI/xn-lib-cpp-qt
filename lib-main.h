@@ -36,8 +36,8 @@ public:
 	bool opening = false;
 	unsigned int li_ver_hw = 0, li_ver_sw = 0;
 
-	LibMain();
-	~LibMain() override;
+    LibMain(QObject*);
+    virtual ~LibMain() override;
 
 	void guiInit();
 	void fillConnectionsCbs();

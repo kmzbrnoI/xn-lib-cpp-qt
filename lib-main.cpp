@@ -3,11 +3,11 @@
 namespace Xn {
 
 AppThread main_thread;
-LibMain lib;
+LibMain lib(nullptr);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-LibMain::LibMain() {
+LibMain::LibMain(QObject* parent) : QObject(parent) {
 	xn.loglevel = LogLevel::Debug;
 
 	QObject::connect(&xn, SIGNAL(onError(QString)), this, SLOT(xnOnError(QString)));

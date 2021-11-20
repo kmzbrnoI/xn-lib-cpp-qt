@@ -165,6 +165,7 @@ public:
 	static constexpr unsigned _VERSION_MINOR = XN_VERSION_MINOR;
 
 	XpressNet(QObject *parent = nullptr);
+	~XpressNet() override;
 
 	void connect(const QString &portname, int32_t br, QSerialPort::FlowControl fc, LIType liType);
 	void disconnect();

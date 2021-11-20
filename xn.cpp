@@ -22,6 +22,15 @@ XpressNet::XpressNet(QObject *parent) : QObject(parent) {
 	QObject::connect(&m_serialPort, SIGNAL(aboutToClose()), this, SLOT(sp_about_to_close()));
 }
 
+XpressNet::~XpressNet() {
+	try {
+		if (m_serialPort.isOpen())
+			m_serialPort.close();
+	}  catch (...) {
+		// No exceptions in destructor
+	}
+}
+
 void XpressNet::sp_about_to_close() {
 	m_hist_timer.stop();
 	m_out_timer.stop();

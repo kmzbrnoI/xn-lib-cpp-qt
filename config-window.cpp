@@ -9,7 +9,7 @@ namespace Xn {
 
 void LibMain::guiInit() {
 	QObject::connect(form.ui.cb_interface_type, SIGNAL(currentIndexChanged(int)), this,
-	                 SLOT(cb_connections_changed(int)));
+					 SLOT(cb_interface_type_changed(int)));
 	QObject::connect(form.ui.cb_serial_port, SIGNAL(currentIndexChanged(int)), this,
 	                 SLOT(cb_connections_changed(int)));
 	QObject::connect(form.ui.cb_serial_speed, SIGNAL(currentIndexChanged(int)), this,
@@ -27,7 +27,7 @@ void LibMain::guiInit() {
 	this->fillConnectionsCbs();
 
 	QString text;
-    text.asprintf("Nastavení XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR);
+	text.asprintf("Nastavení XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR);
 	form.setWindowTitle(text);
 	form.setFixedSize(form.size());
 }
@@ -141,17 +141,17 @@ void LibMain::userLiAddrSetErr() {
 void LibMain::b_li_addr_set_handle() {
 	int addr = form.ui.sb_li_addr->value();
 	QMessageBox::StandardButton reply = QMessageBox::question(
-	    &form, "Smazat?", "Skutečné změnit adresu LI na "+QString::number(addr)+"?",
-	    QMessageBox::Yes | QMessageBox::No
+		&form, "Smazat?", "Skutečné změnit adresu LI na "+QString::number(addr)+"?",
+		QMessageBox::Yes | QMessageBox::No
 	);
 	if (reply != QMessageBox::Yes)
 		return;
 
 	try {
 		xn.setLIAddress(
-		    addr,
-		    std::make_unique<Cb>([this](void *, void *) { userLiAddrSet(); }),
-		    std::make_unique<Cb>([this](void *, void *) { userLiAddrSetErr(); })
+			addr,
+			std::make_unique<Cb>([this](void *, void *) { userLiAddrSet(); }),
+			std::make_unique<Cb>([this](void *, void *) { userLiAddrSetErr(); })
 		);
 	} catch (const QStrException &e) {
 		userLiAddrSetErr();

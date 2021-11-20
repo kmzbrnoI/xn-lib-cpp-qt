@@ -41,12 +41,12 @@ void XpressNet::sp_about_to_close() {
 
 void XpressNet::log(const QString &message, const LogLevel loglevel) {
 	if (loglevel <= this->loglevel)
-        emit onLog(message, loglevel);
+		emit onLog(message, loglevel);
 }
 
 void XpressNet::handleError(QSerialPort::SerialPortError serialPortError) {
 	if (serialPortError != QSerialPort::NoError)
-        emit onError(m_serialPort.errorString());
+		emit onError(m_serialPort.errorString());
 }
 
 QString XpressNet::xnReadCVStatusToQString(const ReadCVStatus st) {

@@ -11,11 +11,11 @@ LibMain::LibMain(QObject* parent) : QObject(parent) {
 	xn.loglevel = LogLevel::Debug;
 
 	QObject::connect(&xn, SIGNAL(onError(QString)), this, SLOT(xnOnError(QString)));
-    QObject::connect(&xn, SIGNAL(onLog(QString, Xn::LogLevel)), this,
+	QObject::connect(&xn, SIGNAL(onLog(QString, Xn::LogLevel)), this,
 					 SLOT(xnOnLog(QString, Xn::LogLevel)));
 	QObject::connect(&xn, SIGNAL(onConnect()), this, SLOT(xnOnConnect()));
 	QObject::connect(&xn, SIGNAL(onDisconnect()), this, SLOT(xnOnDisconnect()));
-    QObject::connect(&xn, SIGNAL(onLocoStolen(Xn::LocoAddr)), this, SLOT(xnOnLocoStolen(Xn::LocoAddr)));
+	QObject::connect(&xn, SIGNAL(onLocoStolen(Xn::LocoAddr)), this, SLOT(xnOnLocoStolen(Xn::LocoAddr)));
 	QObject::connect(&xn, SIGNAL(onTrkStatusChanged(Xn::TrkStatus)), this,
 					 SLOT(xnOnTrkStatusChanged(Xn::TrkStatus)));
 

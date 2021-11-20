@@ -16,14 +16,14 @@ void Settings::load(const QString &filename, bool loadNonDefaults) {
 #endif
 	data.clear();
 
-    const auto& groups = s.childGroups();
-    for (const auto &g : groups) {
+	const auto& groups = s.childGroups();
+	for (const auto &g : groups) {
 		if ((!loadNonDefaults) && (DEFAULTS.find(g) == DEFAULTS.end()))
 			continue;
 
 		s.beginGroup(g);
-        const auto& keys = s.childKeys();
-        for (const auto &k : keys) {
+		const auto& keys = s.childKeys();
+		for (const auto &k : keys) {
 			if ((!loadNonDefaults) && (DEFAULTS.at(g).find(k) == DEFAULTS.at(g).end()))
 				continue;
 			data[g][k] = s.value(k, "");

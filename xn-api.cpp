@@ -19,13 +19,13 @@ void XpressNet::connect(const QString &portname, int32_t br, QSerialPort::FlowCo
 
 	m_hist_timer.start(_HIST_CHECK_INTERVAL);
 	log("Connected", LogLevel::Info);
-    emit onConnect();
+	emit onConnect();
 }
 
 void XpressNet::disconnect() {
 	log("Disconnecting...", LogLevel::Info);
 	m_serialPort.close();
-    emit onDisconnect();
+	emit onDisconnect();
 }
 
 bool XpressNet::connected() const { return m_serialPort.isOpen(); }

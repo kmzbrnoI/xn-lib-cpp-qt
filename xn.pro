@@ -47,7 +47,7 @@ QT += core gui serialport
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 VERSION_MAJOR = 2
-VERSION_MINOR = 3
+VERSION_MINOR = 4
 
 DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR" \
 	"VERSION_MINOR=$$VERSION_MINOR"
@@ -55,8 +55,3 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR" \
 #Target version
 VERSION = $${VERSION_MAJOR}.$${VERSION_MINOR}
 DEFINES += "VERSION=\\\"$${VERSION}\\\""
-
-
-#When >=O1, segfault happens in lib-api.cpp
-QMAKE_CXXFLAGS_RELEASE -= -O2
-QMAKE_CXXFLAGS_RELEASE += -O0

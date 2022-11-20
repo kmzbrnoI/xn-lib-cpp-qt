@@ -7,8 +7,8 @@
 
 namespace Xn {
 
-constexpr std::array<unsigned int, 1> API_SUPPORTED_VERSIONS {
-    0x0001, // v1.0
+constexpr std::array<unsigned int, 3> API_SUPPORTED_VERSIONS {
+	0x0001, 0x0100, 0x0101 // v0.1, v1.0, v1.1
 };
 
 extern "C" {
@@ -67,6 +67,7 @@ XN_SHARED_EXPORT void CALL_CONV bindAfterClose(TrkStdNotifyEvent f, void *data);
 XN_SHARED_EXPORT void CALL_CONV bindOnTrackStatusChange(TrkStatusChangedEv f, void *data);
 XN_SHARED_EXPORT void CALL_CONV bindOnLog(TrkLogEv f, void *data);
 XN_SHARED_EXPORT void CALL_CONV bindOnLocoStolen(TrkLocoEv f, void *data);
+XN_SHARED_EXPORT void CALL_CONV bindOnOpenError(TrkMsgEv f, void *data);
 
 XN_SHARED_EXPORT void CALL_CONV showConfigDialog();
 

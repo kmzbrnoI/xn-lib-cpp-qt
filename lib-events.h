@@ -17,6 +17,7 @@ using TrkStdNotifyEvent = void CALL_CONV (*)(const void *sender, void *data);
 using TrkStatusChangedEv = void CALL_CONV (*)(const void *sender, void *data, int trkStatus);
 using TrkLogEv = void CALL_CONV (*)(const void *sender, void *data, int loglevel, const uint16_t *msg);
 using TrkLocoEv = void CALL_CONV (*)(const void *sender, void *data, uint16_t addr);
+using TrkMsgEv = void CALL_CONV (*)(const void *sender, void *data, const uint16_t *msg);
 
 template <typename F>
 struct EventData {
@@ -34,6 +35,7 @@ struct XnEvents {
 	EventData<TrkLogEv> onLog;
 	EventData<TrkStatusChangedEv> onTrkStatusChanged;
 	EventData<TrkLocoEv> onLocoStolen;
+	EventData<TrkMsgEv> onOpenError;
 
 	void call(const EventData<TrkStdNotifyEvent> &e) const {
 		if (e.defined())
@@ -51,7 +53,10 @@ struct XnEvents {
 		if (e.defined())
 			e.func(this, e.data, addr.addr);
 	}
-
+	void call(const EventData<TrkMsgEv> &e, const QString &msg) const {
+		if (e.defined())
+			e.func(this, e.data, msg.utf16());
+	}
 	template <typename F>
 	static void bind(EventData<F> &event, const F &func, void *const data) {
 		event.func = func;

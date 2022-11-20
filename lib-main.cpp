@@ -92,6 +92,7 @@ void LibMain::getLIVersion() {
 		);
 	} catch (const QStrException &e) {
 		log("Get LI Version: " + e.str(), LogLevel::Error);
+		events.call(events.onOpenError, "Get LI Version: " + e.str());
 		xn.disconnect();
 	}
 }
@@ -111,12 +112,14 @@ void LibMain::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
 		);
 	} catch (const QStrException &e) {
 		log("Get LI Address: " + e.str(), LogLevel::Error);
+		events.call(events.onOpenError, "Get LI Address: " + e.str());
 		xn.disconnect();
 	}
 }
 
 void LibMain::xnOnLIVersionError(void *, void *) {
 	log("Get LI Version: no response!", LogLevel::Error);
+	events.call(events.onOpenError, "Get LI Version: no response!");
 	xn.disconnect();
 }
 
@@ -142,6 +145,7 @@ void LibMain::getCSVersion() {
 		);
 	} catch (const QStrException &e) {
 		log("Get CS Version: " + e.str(), LogLevel::Error);
+		events.call(events.onOpenError, "Get CS Version: " + e.str());
 		xn.disconnect();
 	}
 }
@@ -170,12 +174,14 @@ void LibMain::getCSStatus() {
 		);
 	} catch (const QStrException &e) {
 		log("Get CS Status: " + e.str(), LogLevel::Error);
+		events.call(events.onOpenError, "Get CS Status: " + e.str());
 		xn.disconnect();
 	}
 }
 
 void LibMain::xnOnCSStatusError(void *, void *) {
 	log("Get CS Status: no response!", LogLevel::Error);
+	events.call(events.onOpenError, "Get CS Status: no response!");
 	xn.disconnect();
 }
 

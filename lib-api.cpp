@@ -69,6 +69,7 @@ int connect() {
 		const QString errMsg = "XN connect error while opening serial port '" +
 			lib.s["XN"]["port"].toString() + "': " + e;
 		lib.log(errMsg, LogLevel::Error);
+		lib.events.call(lib.events.onOpenError, errMsg);
 		lib.events.call(lib.events.afterClose);
 		lib.guiOnClose();
 		return TRK_CANNOT_OPEN_PORT;
@@ -351,6 +352,10 @@ void bindOnLog(TrkLogEv f, void *data) {
 
 void bindOnLocoStolen(TrkLocoEv f, void *data) {
 	lib.events.bind(lib.events.onLocoStolen, f, data);
+}
+
+void bindOnOpenError(TrkMsgEv f, void *data) {
+	lib.events.bind(lib.events.onOpenError, f, data);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

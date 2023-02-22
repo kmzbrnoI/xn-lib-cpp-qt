@@ -49,7 +49,6 @@ void LibMain::cb_connections_changed(int) {
 
 	const QString port = form.ui.cb_serial_port->currentText();
 	s["XN"]["port"] = (port.startsWith("Auto")) ? "auto" : port;
-
 }
 
 void LibMain::fillConnectionsCbs() {

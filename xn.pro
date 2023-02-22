@@ -8,14 +8,14 @@ SOURCES += \
 	xn-api.cpp \
 	xn-receive.cpp \
 	xn-send.cpp \
-        xn-hist.cpp \
-        xn-win-com-discover.cpp
+	xn-hist.cpp \
+	xn-win-com-discover.cpp
 HEADERS += \
 	xn.h \
 	xn-loco-addr.h \
 	xn-commands.h \
-        q-str-exception.h \
-        xn-win-com-discover.h
+	q-str-exception.h \
+	xn-win-com-discover.h
 
 # Do not import when using as static library
 SOURCES += \
@@ -39,12 +39,12 @@ QMAKE_CXXFLAGS += -Wall -Wextra -pedantic
 win32 {
 	QMAKE_LFLAGS += -Wl,--kill-at
 	QMAKE_CXXFLAGS += -enable-stdcall-fixup
-        LIBS += -lsetupapi
+	LIBS += -lsetupapi
 }
 win64 {
 	QMAKE_LFLAGS += -Wl,--kill-at
 	QMAKE_CXXFLAGS += -enable-stdcall-fixup
-        LIBS += -lsetupapi
+	LIBS += -lsetupapi
 }
 
 QT += core gui serialport

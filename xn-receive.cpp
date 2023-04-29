@@ -28,7 +28,7 @@ void XpressNet::handleReadyRead() {
 	int length_pos = (this->m_liType == LIType::LIUSBEth ? 2 : 0);
 
 	while (m_readData.size() > length_pos &&
-	       m_readData.size() >= (m_readData[length_pos] & 0x0F)+2) {
+	       m_readData.size() >= (m_readData[length_pos] & 0x0F)+2+length_pos) {
 		unsigned int length = (m_readData[length_pos] & 0x0F)+2; // including header byte & xor
 		uint8_t x = 0;
 		for (unsigned int i = length_pos; i < length_pos+length; i++)

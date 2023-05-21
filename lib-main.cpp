@@ -12,12 +12,12 @@ LibMain::LibMain(QObject* parent) : QObject(parent) {
 
 	QObject::connect(&xn, SIGNAL(onError(QString)), this, SLOT(xnOnError(QString)));
 	QObject::connect(&xn, SIGNAL(onLog(QString, Xn::LogLevel)), this,
-					 SLOT(xnOnLog(QString, Xn::LogLevel)));
+	                 SLOT(xnOnLog(QString, Xn::LogLevel)));
 	QObject::connect(&xn, SIGNAL(onConnect()), this, SLOT(xnOnConnect()));
 	QObject::connect(&xn, SIGNAL(onDisconnect()), this, SLOT(xnOnDisconnect()));
 	QObject::connect(&xn, SIGNAL(onLocoStolen(Xn::LocoAddr)), this, SLOT(xnOnLocoStolen(Xn::LocoAddr)));
 	QObject::connect(&xn, SIGNAL(onTrkStatusChanged(Xn::TrkStatus)), this,
-					 SLOT(xnOnTrkStatusChanged(Xn::TrkStatus)));
+	                 SLOT(xnOnTrkStatusChanged(Xn::TrkStatus)));
 
 	this->config_filename = _DEFAULT_CONFIG_FILENAME;
 	s.load(this->config_filename);
@@ -47,7 +47,7 @@ void LibMain::log(const QString &msg, LogLevel loglevel) {
 
 void LibMain::xnOnLog(QString message, LogLevel loglevel) {
 	if (this->opening && (message == "Not responded to command: LI Get Address" ||
-						  message == "Not responded to command: Get Command station version"))
+	                      message == "Not responded to command: Get Command station version"))
 		loglevel = LogLevel::Warning;
 	this->events.call(this->events.onLog, loglevel, message);
 }

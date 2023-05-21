@@ -36,8 +36,8 @@ public:
 	bool opening = false;
 	unsigned int li_ver_hw = 0, li_ver_sw = 0;
 
-    LibMain(QObject*);
-    virtual ~LibMain() override;
+	LibMain(QObject*);
+	virtual ~LibMain() override;
 
 	void guiInit();
 	void fillConnectionsCbs();
@@ -50,7 +50,7 @@ public:
 private slots:
 	void b_serial_refresh_handle();
 	void cb_connections_changed(int);
-    void cb_interface_type_changed(int);
+	void cb_interface_type_changed(int);
 	void b_info_update_handle();
 	void b_li_addr_set_handle();
 
@@ -58,7 +58,7 @@ private slots:
 	void xnOnError(QString error);
 	void xnOnConnect();
 	void xnOnDisconnect();
-    void xnOnLocoStolen(Xn::LocoAddr);
+	void xnOnLocoStolen(Xn::LocoAddr);
 	void xnOnTrkStatusChanged(Xn::TrkStatus);
 
 private:

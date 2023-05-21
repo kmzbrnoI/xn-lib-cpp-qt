@@ -38,7 +38,7 @@ How does sending work?
 #include "xn-loco-addr.h"
 
 #define XN_VERSION_MAJOR 2
-#define XN_VERSION_MINOR 4
+#define XN_VERSION_MINOR 6
 
 namespace Xn {
 

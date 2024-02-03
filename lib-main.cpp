@@ -21,6 +21,7 @@ LibMain::LibMain(QObject* parent) : QObject(parent) {
 
 	this->config_filename = _DEFAULT_CONFIG_FILENAME;
 	s.load(this->config_filename);
+	this->xnSetConfig();
 	this->guiInit();
 	log("Library loaded.", LogLevel::Info);
 }
@@ -183,6 +184,24 @@ void LibMain::xnOnCSStatusError(void *, void *) {
 	log("Get CS Status: no response!", LogLevel::Error);
 	events.call(events.onOpenError, "Get CS Status: no response!");
 	xn.disconnect();
+}
+
+void LibMain::xnSetConfig() {
+	try {
+		XNConfig config;
+		bool ok;
+		config.outInterval = s["XN"]["outIntervalMs"].toUInt(&ok);
+		if (!ok) {
+			log("Unable to load xnConfig: 'outIntervalMs' is not a number!", LogLevel::Error);
+			return;
+		}
+
+		xn.setConfig(config);
+	} catch (const QStrException& e) {
+		log("Unable to load xnConfig: "+e.str(), LogLevel::Error);
+	} catch (...) {
+		log("Unable to load xnConfig: cannot set config (unknown exception)!", LogLevel::Error);
+	}
 }
 
 } // namespace Xn

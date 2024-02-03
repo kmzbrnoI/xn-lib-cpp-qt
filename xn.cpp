@@ -17,7 +17,7 @@ XpressNet::XpressNet(QObject *parent) : QObject(parent) {
 	                 SLOT(handleError(QSerialPort::SerialPortError)));
 
 	QObject::connect(&m_hist_timer, SIGNAL(timeout()), this, SLOT(m_hist_timer_tick()));
-	m_out_timer.setInterval(_OUT_TIMER_INTERVAL);
+	m_out_timer.setInterval(m_config.outInterval);
 	QObject::connect(&m_out_timer, SIGNAL(timeout()), this, SLOT(m_out_timer_tick()));
 	QObject::connect(&m_serialPort, SIGNAL(aboutToClose()), this, SLOT(sp_about_to_close()));
 }
@@ -75,10 +75,10 @@ QString XpressNet::xnReadCVStatusToQString(const ReadCVStatus st) {
 }
 
 bool XpressNet::liAcknowledgesSetAccState() const {
-	return (this->m_liType == LIType::uLI || this->m_liType == LIType::LIUSBEth);
+	return (m_liType == LIType::uLI || m_liType == LIType::LIUSBEth);
 }
 
-LIType XpressNet::liType() const { return this->m_liType; }
+LIType XpressNet::liType() const { return m_liType; }
 
 LIType liInterface(const QString &name) {
 	if (name == "LI101")
@@ -124,6 +124,18 @@ std::vector<QSerialPortInfo> XpressNet::ports(LIType litype) {
 			result.push_back(info);
 	return result;
 #endif
+}
+
+XNConfig XpressNet::config() const {
+	return m_config;
+}
+
+void XpressNet::setConfig(const XNConfig config) {
+	if ((config.outInterval < _OUT_TIMER_INTERVAL_MIN) || (config.outInterval > _OUT_TIMER_INTERVAL_MAX))
+		throw EInvalidConfig("outInterval="+QString::number(config.outInterval)+" is out of range ["+
+		      QString::number(_OUT_TIMER_INTERVAL_MIN)+"-"+QString::number(_OUT_TIMER_INTERVAL_MAX)+"]");
+	m_config = config;
+	m_out_timer.setInterval(m_config.outInterval);
 }
 
 } // namespace Xn

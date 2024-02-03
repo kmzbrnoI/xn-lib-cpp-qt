@@ -16,6 +16,7 @@ const Config DEFAULTS {
 		{"flowcontrol", 1},
 		{"loglevel", 1},
 		{"interface", "LI101"},
+		{"outIntervalMs", 50},
 	}},
 };
 

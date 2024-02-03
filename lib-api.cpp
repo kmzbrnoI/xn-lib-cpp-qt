@@ -40,6 +40,7 @@ int loadConfig(char16_t *filename) {
 	try {
 		lib.config_filename = QString::fromUtf16(filename);
 		lib.s.load(lib.config_filename);
+		lib.xnSetConfig();
 		lib.fillConnectionsCbs();
 	} catch (...) { return TRK_FILE_CANNOT_ACCESS; }
 	return 0;

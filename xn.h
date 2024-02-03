@@ -38,7 +38,7 @@ How does sending work?
 #include "xn-loco-addr.h"
 
 #define XN_VERSION_MAJOR 2
-#define XN_VERSION_MINOR 6
+#define XN_VERSION_MINOR 7
 
 namespace Xn {
 
@@ -50,7 +50,10 @@ constexpr size_t _HIST_SEND_MAX = 3;
 constexpr size_t _BUF_IN_TIMEOUT = 300; // ms
 constexpr size_t _STEPS_CNT = 28;
 constexpr size_t _MAX_HIST_BUF_COUNT = 3;
-constexpr size_t _OUT_TIMER_INTERVAL = 50; // 50 ms
+
+constexpr size_t _OUT_TIMER_INTERVAL_DEFAULT = 50; // ms
+constexpr size_t _OUT_TIMER_INTERVAL_MIN = 50; // ms
+constexpr size_t _OUT_TIMER_INTERVAL_MAX = 500; // ms
 
 struct EOpenError : public QStrException {
 	EOpenError(const QString str) : QStrException(str) {}
@@ -62,7 +65,10 @@ struct EInvalidTrkStatus : public QStrException {
 	EInvalidTrkStatus(const QString str) : QStrException(str) {}
 };
 struct EUnsupportedInterface : public QStrException {
-    EUnsupportedInterface(const QString str) : QStrException(str) {}
+	EUnsupportedInterface(const QString str) : QStrException(str) {}
+};
+struct EInvalidConfig : public QStrException {
+	EInvalidConfig(const QString str) : QStrException(str) {}
 };
 
 enum class LIType {
@@ -156,6 +162,10 @@ enum class RecvCmdType {
 	CsAccInfoResp = 0x42,
 };
 
+struct XNConfig {
+	size_t outInterval = _OUT_TIMER_INTERVAL_DEFAULT;
+};
+
 class XpressNet : public QObject {
 	Q_OBJECT
 
@@ -205,7 +215,10 @@ public:
 
 	static QString xnReadCVStatusToQString(ReadCVStatus st);
 	static std::vector<QSerialPortInfo> ports(LIType);
-	LIType liType() const;    
+	LIType liType() const;
+
+	XNConfig config() const;
+	void setConfig(const XNConfig config);
 
 private slots:
 	void handleReadyRead();
@@ -235,6 +248,7 @@ private:
 	QTimer m_out_timer;
 	TrkStatus m_trk_status = TrkStatus::Unknown;
 	LIType m_liType;
+	XNConfig m_config;
 
 	using MsgType = std::vector<uint8_t>;
 	void parseMessage(MsgType &msg);

@@ -53,7 +53,7 @@ void XpressNet::to_send(std::unique_ptr<const Cmd> &cmd, UPCb ok, UPCb err, size
 		log("ENQUEUE: " + cmd->msg(), LogLevel::Debug);
 		m_out.emplace_back(cmd, timeout(cmd.get()), no_sent, std::move(ok), std::move(err));
 	} else {
-		if (m_lastSent.addMSecs(_OUT_TIMER_INTERVAL) > QDateTime::currentDateTime()) {
+		if (m_lastSent.addMSecs(m_config.outInterval) > QDateTime::currentDateTime()) {
 			// Last command sent too early, still space in hist buffer ->
 			// queue & activate timer for next send
 			log("ENQUEUE: " + cmd->msg(), LogLevel::Debug);
@@ -81,7 +81,7 @@ void XpressNet::m_out_timer_tick() {
 }
 
 void XpressNet::send_next_out() {
-	if (m_lastSent.addMSecs(_OUT_TIMER_INTERVAL) > QDateTime::currentDateTime()) {
+	if (m_lastSent.addMSecs(m_config.outInterval) > QDateTime::currentDateTime()) {
 		if (!m_out_timer.isActive())
 			m_out_timer.start();
 		return;

@@ -46,6 +46,7 @@ public:
 	void guiOnClose();
 
 	void log(const QString &msg, LogLevel loglevel);
+	void xnSetConfig();
 
 private slots:
 	void b_serial_refresh_handle();

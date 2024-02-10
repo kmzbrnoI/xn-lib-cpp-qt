@@ -123,8 +123,12 @@ void XpressNet::setFuncD(LocoAddr addr, FD fd, UPCb ok, UPCb err) {
 	to_send(CmdSetFuncD(addr, fd), std::move(ok), std::move(err));
 }
 
-void XpressNet::readCVdirect(const uint8_t cv, ReadCV const &callback, UPCb err) {
+void XpressNet::readCVdirect(uint8_t cv, ReadCV const &callback, UPCb err) {
 	to_send(CmdReadDirect(cv, callback), nullptr, std::move(err));
+}
+
+void XpressNet::writeCVdirect(uint8_t cv, uint8_t value, UPCb ok, UPCb err) {
+	to_send(CmdWriteDirect(cv, value), std::move(ok), std::move(err));
 }
 
 void XpressNet::accInfoRequest(const uint8_t groupAddr, const bool nibble, UPCb err) {

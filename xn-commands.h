@@ -442,6 +442,20 @@ struct CmdReadDirect : public Cmd {
 	bool okResponse() const override { return true; }
 };
 
+struct CmdWriteDirect : public Cmd {
+	const uint8_t cv;
+	const uint8_t data;
+
+	CmdWriteDirect(const uint8_t cv, const uint8_t data)
+	    : cv(cv), data(data) {}
+
+	std::vector<uint8_t> getBytes() const override { return {0x23, 0x16, cv, data}; }
+	QString msg() const override {
+		return "Direct Mode Write CV " + QString::number(cv) + " = " + QString::number(data);
+	}
+	bool okResponse() const override { return true; }
+};
+
 struct CmdRequestReadResult : public Cmd {
 	const uint8_t cv;
 	ReadCV const callback;
@@ -450,7 +464,18 @@ struct CmdRequestReadResult : public Cmd {
 	    : cv(cv), callback(callback) {}
 
 	std::vector<uint8_t> getBytes() const override { return {0x21, 0x10}; }
-	QString msg() const override { return "Request for service mode results"; }
+	QString msg() const override { return "Request for service mode results (after read)"; }
+};
+
+struct CmdRequestWriteResult : public Cmd {
+	const uint8_t cv;
+	const uint8_t value;
+
+	CmdRequestWriteResult(const uint8_t cv, const uint8_t value)
+	    : cv(cv), value(value) {}
+
+	std::vector<uint8_t> getBytes() const override { return {0x21, 0x10}; }
+	QString msg() const override { return "Request for service mode results (after write)"; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////

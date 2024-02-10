@@ -95,7 +95,8 @@ void XpressNet::send_next_out() {
 
 QDateTime XpressNet::timeout(const Cmd *x) {
 	QDateTime timeout;
-	if (Xn::is<CmdReadDirect>(*x) || Xn::is<CmdRequestReadResult>(*x))
+	if (Xn::is<CmdReadDirect>(*x) || Xn::is<CmdWriteDirect>(*x) ||
+			Xn::is<CmdRequestReadResult>(*x) || Xn::is<CmdRequestWriteResult>(*x))
 		timeout = QDateTime::currentDateTime().addMSecs(_HIST_PROG_TIMEOUT);
 	else
 		timeout = QDateTime::currentDateTime().addMSecs(_HIST_TIMEOUT);

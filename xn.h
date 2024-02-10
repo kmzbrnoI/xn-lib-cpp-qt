@@ -197,6 +197,7 @@ public:
 	void pomWriteBit(LocoAddr, uint16_t cv, uint8_t biti, bool value, UPCb ok = nullptr,
 	                 UPCb err = nullptr);
 	void readCVdirect(uint8_t cv, ReadCV const &callback, UPCb err = nullptr);
+	void writeCVdirect(uint8_t cv, uint8_t value, UPCb ok = nullptr, UPCb err = nullptr);
 
 	void setSpeed(LocoAddr, uint8_t speed, Direction direction, UPCb ok = nullptr,
 	              UPCb err = nullptr);
@@ -274,7 +275,7 @@ private:
 	void handleMsgAcc(MsgType &msg);
 
 	void hist_ok();
-	void hist_err();
+	void hist_err(bool _log = true);
 	void hist_send();
 	void send_next_out();
 	void log(const QString &message, LogLevel loglevel);

@@ -20,7 +20,7 @@ void XpressNet::hist_ok() {
 		send_next_out();
 }
 
-void XpressNet::hist_err() {
+void XpressNet::hist_err(bool _log) {
 	if (m_hist.empty()) {
 		log("History buffer underflow!", LogLevel::Warning);
 		return;
@@ -29,7 +29,8 @@ void XpressNet::hist_err() {
 	HistoryItem hist = std::move(m_hist.front());
 	m_hist.pop_front();
 
-	log("Not responded to command: " + hist.cmd->msg(), LogLevel::Error);
+	if (_log)
+		log("Not responded to command: " + hist.cmd->msg(), LogLevel::Error);
 
 	if (nullptr != hist.callback_err)
 		hist.callback_err->func(this, hist.callback_err->data);

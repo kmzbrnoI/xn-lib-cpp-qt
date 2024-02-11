@@ -178,14 +178,21 @@ void XpressNet::handleMsgCsGeneralEvent(MsgType &msg) {
 		const QString message = xnReadCVStatusToQString(static_cast<ReadCVStatus>(msg[1]));
 		log("GET: Programming info: "+message, ok ? LogLevel::Info : LogLevel::Error);
 
-		if ((!m_hist.empty()) && (is<CmdRequestReadResult>(m_hist.front()))) {
-			std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
-			hist_ok();
-			const CmdRequestReadResult *cmdrrr = dynamic_cast<const CmdRequestReadResult *>(cmd.get());
-			cmdrrr->callback(this, static_cast<ReadCVStatus>(msg[1]), cmdrrr->cv, 0);
-		} else if ((!m_hist.empty()) && (!ok) && (is<CmdRequestWriteResult>(m_hist.front()))) {
-			// Error in writing is reported as hist_error
-			hist_err(false);
+		if (!m_hist.empty()) {
+			if (is<CmdRequestReadResult>(m_hist.front())) {
+				std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
+				hist_ok();
+				const CmdRequestReadResult *cmdrrr = dynamic_cast<const CmdRequestReadResult *>(cmd.get());
+				cmdrrr->callback(this, static_cast<ReadCVStatus>(msg[1]), cmdrrr->cv, 0);
+			} else if (is<CmdReadDirect>(m_hist.front())) {
+				std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
+				hist_ok();
+				const CmdReadDirect *cmdrd = dynamic_cast<const CmdReadDirect*>(cmd.get());
+				cmdrd->callback(this, static_cast<ReadCVStatus>(msg[1]), cmdrd->cv, 0);
+			} else if ((!ok) && ((is<CmdRequestWriteResult>(m_hist.front())) || (is<CmdWriteDirect>(m_hist.front())))) {
+				// Error in writing is reported as hist_error
+				hist_err(false);
+			}
 		}
 	} else if (0x80 == msg[1]) {
 		log("GET: command station reported transfer errors", LogLevel::Error);
@@ -235,24 +242,42 @@ void XpressNet::handleMsgCsVersion(MsgType &msg) {
 }
 
 void XpressNet::handleMsgCvRead(MsgType &msg) {
-	log("GET: CV " + QString::number(msg[2]) + " value=" + QString::number(msg[3]),
+	uint8_t cv = msg[2];
+	uint8_t value = msg[3];
+
+	log("GET: CV " + QString::number(cv) + " value=" + QString::number(value),
 	    LogLevel::Commands);
 
-	if (!m_hist.empty() && is<CmdRequestReadResult>(m_hist.front())) {
+	if (m_hist.empty())
+		return;
+
+	if (is<CmdRequestReadResult>(m_hist.front())) {
 		std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
 		hist_ok();
 		dynamic_cast<const CmdRequestReadResult *>(cmd.get())->callback(
-			this, ReadCVStatus::Ok, msg[2], msg[3]
+			this, ReadCVStatus::Ok, cv, value
 		);
-	} else if (!m_hist.empty() && is<CmdRequestWriteResult>(m_hist.front())) {
+	} else if (is<CmdReadDirect>(m_hist.front())) {
 		std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
-		if (msg[3] == dynamic_cast<const CmdRequestWriteResult *>(cmd.get())->value) {
+		const CmdReadDirect *cmdrd = dynamic_cast<const CmdReadDirect *>(cmd.get());
+		if (cv == cmdrd->cv) {
+			hist_ok();
+			cmdrd->callback(this, ReadCVStatus::Ok, cv, value);
+		}
+	} else if (is<CmdRequestWriteResult>(m_hist.front())) {
+		std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
+		if (value == dynamic_cast<const CmdRequestWriteResult *>(cmd.get())->value) {
 			hist_ok();
 		} else {
 			// Mismatch in written & read CV values is reported as hist_err
-			log("GET: Received value "+QString::number(msg[3])+" does not match programmed value!", LogLevel::Error);
+			log("GET: Received value "+QString::number(value)+" does not match programmed value!", LogLevel::Error);
 			hist_err(false);
 		}
+	} else if (is<CmdWriteDirect>(m_hist.front())) {
+		std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
+		if (value == dynamic_cast<const CmdWriteDirect *>(cmd.get())->data)
+			hist_ok();
+		// else mismatch -> ask for CV value again (send CmdRequestWriteResult)
 	}
 }
 

@@ -219,7 +219,7 @@ public:
 	LIType liType() const;
 
 	XNConfig config() const;
-	void setConfig(const XNConfig config);
+	void setConfig(XNConfig config);
 
 private slots:
 	void handleReadyRead();

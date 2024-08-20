@@ -159,6 +159,7 @@ enum class RecvCmdType {
 	CsX63 = 0x63,
 	CsLocoInfo = 0xE4,
 	CsLocoFunc = 0xE3,
+	CsFeedbackBroadcast = 0x40, // actually any [0x40, 0x42, 0x44, ... 0x4E], see specs
 	CsAccInfoResp = 0x42,
 };
 

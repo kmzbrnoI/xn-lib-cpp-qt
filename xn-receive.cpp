@@ -85,8 +85,12 @@ void XpressNet::parseMessage(MsgType &msg) {
 	case RecvCmdType::CsLocoFunc:
 		return handleMsgLocoFunc(msg);
 	case RecvCmdType::CsAccInfoResp:
-		return handleMsgAcc(msg);
+	case RecvCmdType::CsFeedbackBroadcast:
+		break; // intentionally nothing, see if below
 	}
+
+	if ((msg[0] & 0xF0) == static_cast<uint8_t>(RecvCmdType::CsFeedbackBroadcast))
+		return handleMsgAcc(msg);
 }
 
 void XpressNet::handleMsgLiError(MsgType &msg) {
@@ -369,20 +373,34 @@ void XpressNet::handleMsgLIAddr(MsgType &msg) {
 }
 
 void XpressNet::handleMsgAcc(MsgType &msg) {
-	uint8_t groupAddr = msg[1];
-	bool nibble = (msg[2] >> 4) & 0x1;
-	bool error = msg[2] >> 7;
-	auto inputType = static_cast<FeedbackType>((msg[2] >> 5) & 0x3);
-	AccInputsState state;
-	state.all = msg[2] & 0x0F;
-	log("GET: Acc state: group " + QString::number(groupAddr) + ", nibble " +
-		QString::number(nibble) + ", state " + QString::number(state.all, 2).rightJustified(4, '0'),
-	    LogLevel::Commands);
-	if ((!m_hist.empty()) && (is<CmdAccInfoRequest>(m_hist.front())) &&
-	    (dynamic_cast<const CmdAccInfoRequest *>(m_hist.front().cmd.get())->groupAddr == groupAddr) &&
-	    (dynamic_cast<const CmdAccInfoRequest *>(m_hist.front().cmd.get())->nibble == nibble))
-		hist_ok();
-	emit onAccInputChanged(groupAddr, nibble, error, inputType, state);
+	const uint8_t bytes = (msg[0] & 0x0F);
+	if ((bytes%2) != 0) {
+		log("GET: Invalid Feedback Broadcast length (not even), ignoring packet!", LogLevel::Warning);
+		return;
+	}
+	if (msg.size() != (bytes+2U)) {
+		log("GET: Invalid Feedback Broadcast vector length, ignoring packet!", LogLevel::Warning);
+		return;
+	}
+
+	for (unsigned i = 0; i < bytes; i += 2) {
+		uint8_t groupAddr = msg[1+i];
+		bool nibble = (msg[2+i] >> 4) & 0x1;
+		bool error = msg[2+i] >> 7;
+		auto inputType = static_cast<FeedbackType>((msg[2+i] >> 5) & 0x3);
+		AccInputsState state;
+		state.all = msg[2+i] & 0x0F;
+
+		log("GET: Acc state: group " + QString::number(groupAddr) + ", nibble " +
+		    QString::number(nibble) + ", state " + QString::number(state.all, 2).rightJustified(4, '0'),
+		    LogLevel::Commands);
+		if ((!m_hist.empty()) && (is<CmdAccInfoRequest>(m_hist.front())) &&
+		    (dynamic_cast<const CmdAccInfoRequest *>(m_hist.front().cmd.get())->groupAddr == groupAddr) &&
+		    (dynamic_cast<const CmdAccInfoRequest *>(m_hist.front().cmd.get())->nibble == nibble))
+			hist_ok();
+
+		emit onAccInputChanged(groupAddr, nibble, error, inputType, state);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

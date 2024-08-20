@@ -518,7 +518,7 @@ struct CmdAccOpRequest : public Cmd {
 		}
 		return false;
 	}
-	bool okResponse() const override { return true; } // jus for uLI
+	bool okResponse() const override { return true; } // just for uLI
 };
 
 ///////////////////////////////////////////////////////////////////////////////

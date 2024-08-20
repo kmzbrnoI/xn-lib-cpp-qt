@@ -399,6 +399,18 @@ void XpressNet::handleMsgAcc(MsgType &msg) {
 		    (dynamic_cast<const CmdAccInfoRequest *>(m_hist.front().cmd.get())->nibble == nibble))
 			hist_ok();
 
+		// Some command stations (with internal output->input feedback enabled)
+		// send Acc feedback directly after AccOpRequest. The LI does not receive any
+		// normal inquiry, thus it does not send expected "OK" response.
+		// -> Check for this situation & call hist_ok on pending CmdAccOpRequest
+		if ((!m_hist.empty()) && (is<CmdAccOpRequest>(m_hist.front()))) {
+			const auto& accOpCmd = dynamic_cast<const CmdAccOpRequest *>(m_hist.front().cmd.get());
+			unsigned int port = 8*groupAddr + 4*nibble + (accOpCmd->portAddr & 0x03);
+			bool bstate = ((state.all & (1 << (accOpCmd->portAddr & 0x03))) > 0);
+			if ((accOpCmd->portAddr == port) && (accOpCmd->state == bstate))
+				hist_ok();
+		}
+
 		emit onAccInputChanged(groupAddr, nibble, error, inputType, state);
 	}
 }

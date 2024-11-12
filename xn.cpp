@@ -16,7 +16,7 @@ XpressNet::XpressNet(QObject *parent) : QObject(parent) {
 	QObject::connect(&m_serialPort, SIGNAL(errorOccurred(QSerialPort::SerialPortError)), this,
 	                 SLOT(handleError(QSerialPort::SerialPortError)));
 
-	QObject::connect(&m_hist_timer, SIGNAL(timeout()), this, SLOT(m_hist_timer_tick()));
+	QObject::connect(&m_pending_timer, SIGNAL(timeout()), this, SLOT(m_pending_timer_tick()));
 	m_out_timer.setInterval(m_config.outInterval);
 	QObject::connect(&m_out_timer, SIGNAL(timeout()), this, SLOT(m_out_timer_tick()));
 	QObject::connect(&m_serialPort, SIGNAL(aboutToClose()), this, SLOT(sp_about_to_close()));
@@ -32,12 +32,12 @@ XpressNet::~XpressNet() {
 }
 
 void XpressNet::sp_about_to_close() {
-	m_hist_timer.stop();
+	m_pending_timer.stop();
 	m_out_timer.stop();
-	while (!m_hist.empty()) {
-		if (nullptr != m_hist.front().callback_err)
-			m_hist.front().callback_err->func(this, m_hist.front().callback_err->data);
-		m_hist.pop_front();
+	while (!m_pending.empty()) {
+		if (nullptr != m_pending.front().callback_err)
+			m_pending.front().callback_err->func(this, m_pending.front().callback_err->data);
+		m_pending.pop_front();
 	}
 	while (!m_out.empty()) {
 		if (nullptr != m_out.front().callback_err)

@@ -16,8 +16,8 @@ How does sending work?
  (3) The function ends.
  (4a) When the command station sends a proper reply, 'ok' callback is called.
  (4b) When the command station sends no reply or improper reply, the command
-      is sent again. Iff the command station does not reply for _HIST_SEND_MAX
-      times (3), 'error' callback is called.
+      is sent again. Iff the command station does not reply for _PENDING_SEND_MAX
+      times, 'error' callback is called.
 
  * Response to the user`s command is transmitted to the user as callback.
  * General callbacks are implemented as slots (see below).
@@ -42,14 +42,13 @@ How does sending work?
 
 namespace Xn {
 
-constexpr size_t _MAX_HISTORY_LEN = 32;
-constexpr size_t _HIST_CHECK_INTERVAL = 100; // ms
-constexpr size_t _HIST_TIMEOUT = 1000; // ms
-constexpr size_t _HIST_PROG_TIMEOUT = 10000; // 10 s
-constexpr size_t _HIST_SEND_MAX = 3;
+constexpr size_t _PENDING_CHECK_INTERVAL = 100; // ms
+constexpr size_t _PENDING_TIMEOUT = 1000; // ms
+constexpr size_t _PENDING_PROG_TIMEOUT = 10000; // 10 s
+constexpr size_t _PENDING_SEND_MAX = 3; // how many times to send the command till error
+constexpr size_t _PENDING_MAX_AT_ONCE = 3; // how many commands could be pending at once
 constexpr size_t _BUF_IN_TIMEOUT = 300; // ms
 constexpr size_t _STEPS_CNT = 28;
-constexpr size_t _MAX_HIST_BUF_COUNT = 3;
 
 constexpr size_t _OUT_TIMER_INTERVAL_DEFAULT = 50; // ms
 constexpr size_t _OUT_TIMER_INTERVAL_MIN = 50; // ms
@@ -101,20 +100,22 @@ struct CommandCallback {
 using Cb = CommandCallback;
 using UPCb = std::unique_ptr<CommandCallback>;
 
-struct HistoryItem {
-	HistoryItem(std::unique_ptr<const Cmd> &cmd, QDateTime timeout, size_t no_sent,
+// PendingItem represents a command sent to the LI, for which the response
+// has not arrived yet.
+struct PendingItem {
+	PendingItem(std::unique_ptr<const Cmd> &cmd, QDateTime timeout, size_t no_sent,
 	            std::unique_ptr<Cb> &&callback_ok, std::unique_ptr<Cb> &&callback_err)
 	    : cmd(std::move(cmd))
 	    , timeout(timeout)
 	    , no_sent(no_sent)
 	    , callback_ok(std::move(callback_ok))
 	    , callback_err(std::move(callback_err)) {}
-	HistoryItem(HistoryItem &&hist) noexcept
-	    : cmd(std::move(hist.cmd))
-	    , timeout(hist.timeout)
-	    , no_sent(hist.no_sent)
-	    , callback_ok(std::move(hist.callback_ok))
-	    , callback_err(std::move(hist.callback_err)) {}
+	PendingItem(PendingItem &&pending) noexcept
+	    : cmd(std::move(pending.cmd))
+	    , timeout(pending.timeout)
+	    , no_sent(pending.no_sent)
+	    , callback_ok(std::move(pending.callback_ok))
+	    , callback_err(std::move(pending.callback_err)) {}
 
 	std::unique_ptr<const Cmd> cmd;
 	QDateTime timeout;
@@ -213,7 +214,7 @@ public:
 	void accOpRequest(uint16_t portAddr, bool state, // portAddr 0-2047
 	                  UPCb ok = nullptr, UPCb err = nullptr);
 
-	void histClear();
+	void pendingClear();
 
 	static QString xnReadCVStatusToQString(ReadCVStatus st);
 	static std::vector<QSerialPortInfo> ports(LIType);
@@ -225,7 +226,7 @@ public:
 private slots:
 	void handleReadyRead();
 	void handleError(QSerialPort::SerialPortError);
-	void m_hist_timer_tick();
+	void m_pending_timer_tick();
 	void m_out_timer_tick();
 	void sp_about_to_close();
 
@@ -244,9 +245,9 @@ private:
 	QByteArray m_readData;
 	QDateTime m_receiveTimeout;
 	QDateTime m_lastSent;
-	std::deque<HistoryItem> m_hist;
-	std::deque<HistoryItem> m_out;
-	QTimer m_hist_timer;
+	std::deque<PendingItem> m_pending; // commands sent to CS with no response yet
+	std::deque<PendingItem> m_out; // commands not sent to CS yet
+	QTimer m_pending_timer;
 	QTimer m_out_timer;
 	TrkStatus m_trk_status = TrkStatus::Unknown;
 	LIType m_liType;
@@ -257,7 +258,7 @@ private:
 	void send(MsgType);
 	void send(std::unique_ptr<const Cmd>, UPCb ok = nullptr, UPCb err = nullptr,
 	          size_t no_sent = 1);
-	void to_send(HistoryItem &&, bool bypass_m_out_emptiness = false);
+	void to_send(PendingItem &&, bool bypass_m_out_emptiness = false);
 	void to_send(std::unique_ptr<const Cmd> &, UPCb ok = nullptr, UPCb err = nullptr,
 	             size_t no_sent = 1, bool bypass_m_out_emptiness = false);
 
@@ -275,21 +276,21 @@ private:
 	void handleMsgLIAddr(MsgType &msg);
 	void handleMsgAcc(MsgType &msg);
 
-	void hist_ok();
-	void hist_err(bool _log = true);
-	void hist_send();
+	void pending_ok();
+	void pending_err(bool _log = true);
+	void pending_send();
 	void send_next_out();
 	void log(const QString &message, LogLevel loglevel);
 	QDateTime timeout(const Cmd *x);
 	bool liAcknowledgesSetAccState() const;
-	bool conflictWithHistory(const Cmd &) const;
+	bool conflictWithPending(const Cmd &) const;
 	bool conflictWithOut(const Cmd &) const;
 
 	template <typename DataT, typename ItemType>
 	QString dataToStr(DataT, size_t len = 0);
 
 	template <typename Target>
-	bool is(const HistoryItem &h);
+	bool is(const PendingItem &h);
 };
 
 // Templated functions must be in header file to compile
@@ -311,7 +312,7 @@ QString XpressNet::dataToStr(DataT data, size_t len) {
 }
 
 template <typename Target>
-bool XpressNet::is(const HistoryItem &h) {
+bool XpressNet::is(const PendingItem &h) {
 	return (dynamic_cast<const Target *>(h.cmd.get()) != nullptr);
 }
 

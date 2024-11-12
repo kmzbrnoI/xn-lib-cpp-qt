@@ -31,11 +31,11 @@ void XpressNet::send(std::unique_ptr<const Cmd> cmd, UPCb ok, UPCb err, size_t n
 		send(cmd->getBytes());
 		if (Xn::is<CmdAccOpRequest>(*cmd) && !this->liAcknowledgesSetAccState() &&
 		    dynamic_cast<const CmdAccOpRequest &>(*cmd).state) {
-			// acknowledge manually, do not add to history buffer
+			// acknowledge manually, do not add to pending buffer
 			if (nullptr != ok)
 				ok->func(this, ok->data);
 		} else
-			m_hist.emplace_back(cmd, timeout(cmd.get()), no_sent, std::move(ok), std::move(err));
+			m_pending.emplace_back(cmd, timeout(cmd.get()), no_sent, std::move(ok), std::move(err));
 	} catch (QStrException &) {
 		log("Fatal error when writing command: " + cmd->msg(), LogLevel::Error);
 		if (nullptr != err)
@@ -46,15 +46,15 @@ void XpressNet::send(std::unique_ptr<const Cmd> cmd, UPCb ok, UPCb err, size_t n
 void XpressNet::to_send(std::unique_ptr<const Cmd> &cmd, UPCb ok, UPCb err, size_t no_sent,
                         bool bypass_m_out_emptiness) {
 	// Sends or queues
-	if ((m_hist.size() >= _MAX_HIST_BUF_COUNT) || (!m_out.empty() && !bypass_m_out_emptiness) ||
-	    conflictWithHistory(*cmd)) {
-		// History full -> push & do not start timer (response from CS will send automatically)
-		// We ensure history buffer never contains commands with conflict
+	if ((m_pending.size() >= _PENDING_MAX_AT_ONCE) || (!m_out.empty() && !bypass_m_out_emptiness) ||
+	    conflictWithPending(*cmd)) {
+		// Pending full -> push & do not start timer (response from CS will send the next command from m_out)
+		// We ensure pending buffer never contains commands with conflict
 		log("ENQUEUE: " + cmd->msg(), LogLevel::Debug);
 		m_out.emplace_back(cmd, timeout(cmd.get()), no_sent, std::move(ok), std::move(err));
 	} else {
 		if (m_lastSent.addMSecs(m_config.outInterval) > QDateTime::currentDateTime()) {
-			// Last command sent too early, still space in hist buffer ->
+			// Last command sent too early, still space in pending buffer ->
 			// queue & activate timer for next send
 			log("ENQUEUE: " + cmd->msg(), LogLevel::Debug);
 			m_out.emplace_back(cmd, timeout(cmd.get()), no_sent, std::move(ok), std::move(err));
@@ -66,10 +66,10 @@ void XpressNet::to_send(std::unique_ptr<const Cmd> &cmd, UPCb ok, UPCb err, size
 	}
 }
 
-void XpressNet::to_send(HistoryItem &&hist, bool bypass_m_out_emptiness) {
-	// History resending uses m_out queue (could try to resend multiple messages once)
-	std::unique_ptr<const Cmd> cmd2(std::move(hist.cmd));
-	to_send(cmd2, std::move(hist.callback_ok), std::move(hist.callback_err), hist.no_sent + 1,
+void XpressNet::to_send(PendingItem &&pending, bool bypass_m_out_emptiness) {
+	// Pending resending uses m_out queue (could try to resend multiple messages once)
+	std::unique_ptr<const Cmd> cmd2(std::move(pending.cmd));
+	to_send(cmd2, std::move(pending.callback_ok), std::move(pending.callback_err), pending.no_sent + 1,
 	        bypass_m_out_emptiness);
 }
 
@@ -87,7 +87,7 @@ void XpressNet::send_next_out() {
 		return;
 	}
 
-	HistoryItem out = std::move(m_out.front());
+	PendingItem out = std::move(m_out.front());
 	log("DEQUEUE: " + out.cmd->msg(), LogLevel::Debug);
 	m_out.pop_front();
 	to_send(std::move(out), true);
@@ -97,9 +97,9 @@ QDateTime XpressNet::timeout(const Cmd *x) {
 	QDateTime timeout;
 	if (Xn::is<CmdReadDirect>(*x) || Xn::is<CmdWriteDirect>(*x) ||
 			Xn::is<CmdRequestReadResult>(*x) || Xn::is<CmdRequestWriteResult>(*x))
-		timeout = QDateTime::currentDateTime().addMSecs(_HIST_PROG_TIMEOUT);
+		timeout = QDateTime::currentDateTime().addMSecs(_PENDING_PROG_TIMEOUT);
 	else
-		timeout = QDateTime::currentDateTime().addMSecs(_HIST_TIMEOUT);
+		timeout = QDateTime::currentDateTime().addMSecs(_PENDING_TIMEOUT);
 	return timeout;
 }
 

@@ -8,7 +8,7 @@ SOURCES += \
 	xn-api.cpp \
 	xn-receive.cpp \
 	xn-send.cpp \
-	xn-hist.cpp \
+	xn-pending.cpp \
 	xn-win-com-discover.cpp
 HEADERS += \
 	xn.h \

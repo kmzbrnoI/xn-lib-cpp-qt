@@ -31,7 +31,7 @@ void XpressNet::connect(const QString &portname, int32_t br, QSerialPort::FlowCo
 	if (!m_serialPort.open(QIODevice::ReadWrite))
 		throw EOpenError(m_serialPort.errorString());
 
-	m_hist_timer.start(_HIST_CHECK_INTERVAL);
+	m_pending_timer.start(_PENDING_CHECK_INTERVAL);
 	log("Connected", LogLevel::Info);
 	emit onConnect();
 }

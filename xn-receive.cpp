@@ -111,30 +111,30 @@ void XpressNet::handleMsgLiError(MsgType &msg) {
 	} else if (0x04 == msg[1]) {
 		log("GET: OK", LogLevel::Commands);
 
-		if (!m_hist.empty() && is<CmdReadDirect>(m_hist.front())) {
-			const auto &rd = dynamic_cast<const CmdReadDirect &>(*(m_hist.front().cmd));
-			to_send(CmdRequestReadResult(rd.cv, rd.callback), std::move(m_hist.front().callback_ok),
-			        std::move(m_hist.front().callback_err));
-		} else if (!m_hist.empty() && is<CmdWriteDirect>(m_hist.front())) {
-			const auto &wr = dynamic_cast<const CmdWriteDirect &>(*(m_hist.front().cmd));
-			to_send(CmdRequestWriteResult(wr.cv, wr.data), std::move(m_hist.front().callback_ok),
-			        std::move(m_hist.front().callback_err));
+		if (!m_pending.empty() && is<CmdReadDirect>(m_pending.front())) {
+			const auto &rd = dynamic_cast<const CmdReadDirect &>(*(m_pending.front().cmd));
+			to_send(CmdRequestReadResult(rd.cv, rd.callback), std::move(m_pending.front().callback_ok),
+			        std::move(m_pending.front().callback_err));
+		} else if (!m_pending.empty() && is<CmdWriteDirect>(m_pending.front())) {
+			const auto &wr = dynamic_cast<const CmdWriteDirect &>(*(m_pending.front().cmd));
+			to_send(CmdRequestWriteResult(wr.cv, wr.data), std::move(m_pending.front().callback_ok),
+			        std::move(m_pending.front().callback_err));
 		}
-		if (!m_hist.empty() && m_hist.front().cmd->okResponse())
-			hist_ok();
+		if (!m_pending.empty() && m_pending.front().cmd->okResponse())
+			pending_ok();
 	} else if (0x05 == msg[1]) {
 		log("GET: ERR: The Command Station is no longer providing the LI "
 		    "a timeslot for communication",
 		    LogLevel::Error);
-		this->histClear();
+		this->pendingClear();
 	} else if (0x06 == msg[1]) {
 		log("GET: ERR: Buffer overflow in the LI", LogLevel::Error);
 	} else if (0x07 == msg[1]) {
 		log("GET: INFO: The Command Station started addressing LI again", LogLevel::Info);
 	} else if (0x08 == msg[1]) {
 		log("GET: ERR: No commands can currently be sent to the Command Station", LogLevel::Error);
-		if (!m_hist.empty())
-			hist_err();
+		if (!m_pending.empty())
+			pending_err();
 	} else if (0x09 == msg[1]) {
 		log("GET: ERR: Error in the command parameters", LogLevel::Error);
 	} else if (0x0A == msg[1]) {
@@ -150,31 +150,31 @@ void XpressNet::handleMsgLiVersion(MsgType &msg) {
 	log("GET: LI version; HW: " + QString::number(hw) + ", SW: " + QString::number(sw),
 	    LogLevel::Commands);
 
-	if (!m_hist.empty() && is<CmdGetLIVersion>(m_hist.front())) {
-		std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
-		hist_ok();
-		const auto &hist = dynamic_cast<const CmdGetLIVersion &>(*cmd);
-		if (hist.callback != nullptr)
-			hist.callback(this, hw, sw);
-	} else if (!m_hist.empty() && is<CmdGetLIAddress>(m_hist.front())) {
+	if (!m_pending.empty() && is<CmdGetLIVersion>(m_pending.front())) {
+		std::unique_ptr<const Cmd> cmd = std::move(m_pending.front().cmd);
+		pending_ok();
+		const auto &pending = dynamic_cast<const CmdGetLIVersion &>(*cmd);
+		if (pending.callback != nullptr)
+			pending.callback(this, hw, sw);
+	} else if (!m_pending.empty() && is<CmdGetLIAddress>(m_pending.front())) {
 		// Report NanoX error faster
-		hist_err();
+		pending_err();
 	}
 }
 
 void XpressNet::handleMsgCsGeneralEvent(MsgType &msg) {
 	if (0x00 == msg[1]) {
 		log("GET: Status Off", LogLevel::Commands);
-		if (!m_hist.empty() && is<CmdOff>(m_hist.front()))
-			hist_ok();
+		if (!m_pending.empty() && is<CmdOff>(m_pending.front()))
+			pending_ok();
 		if (m_trk_status != TrkStatus::Off) {
 			m_trk_status = TrkStatus::Off;
 			emit onTrkStatusChanged(m_trk_status);
 		}
 	} else if (0x01 == msg[1]) {
 		log("GET: Status On", LogLevel::Commands);
-		if (!m_hist.empty() && is<CmdOn>(m_hist.front()))
-			hist_ok();
+		if (!m_pending.empty() && is<CmdOn>(m_pending.front()))
+			pending_ok();
 		if (m_trk_status != TrkStatus::On) {
 			m_trk_status = TrkStatus::On;
 			emit onTrkStatusChanged(m_trk_status);
@@ -190,20 +190,20 @@ void XpressNet::handleMsgCsGeneralEvent(MsgType &msg) {
 		const QString message = xnReadCVStatusToQString(static_cast<ReadCVStatus>(msg[1]));
 		log("GET: Programming info: "+message, ok ? LogLevel::Info : LogLevel::Error);
 
-		if (!m_hist.empty()) {
-			if (is<CmdRequestReadResult>(m_hist.front())) {
-				std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
-				hist_ok();
+		if (!m_pending.empty()) {
+			if (is<CmdRequestReadResult>(m_pending.front())) {
+				std::unique_ptr<const Cmd> cmd = std::move(m_pending.front().cmd);
+				pending_ok();
 				const CmdRequestReadResult *cmdrrr = dynamic_cast<const CmdRequestReadResult *>(cmd.get());
 				cmdrrr->callback(this, static_cast<ReadCVStatus>(msg[1]), cmdrrr->cv, 0);
-			} else if (is<CmdReadDirect>(m_hist.front())) {
-				std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
-				hist_ok();
+			} else if (is<CmdReadDirect>(m_pending.front())) {
+				std::unique_ptr<const Cmd> cmd = std::move(m_pending.front().cmd);
+				pending_ok();
 				const CmdReadDirect *cmdrd = dynamic_cast<const CmdReadDirect*>(cmd.get());
 				cmdrd->callback(this, static_cast<ReadCVStatus>(msg[1]), cmdrd->cv, 0);
-			} else if ((!ok) && ((is<CmdRequestWriteResult>(m_hist.front())) || (is<CmdWriteDirect>(m_hist.front())))) {
-				// Error in writing is reported as hist_error
-				hist_err(false);
+			} else if ((!ok) && ((is<CmdRequestWriteResult>(m_pending.front())) || (is<CmdWriteDirect>(m_pending.front())))) {
+				// Error in writing is reported as pending_error
+				pending_err(false);
 			}
 		}
 	} else if (0x80 == msg[1]) {
@@ -225,8 +225,8 @@ void XpressNet::handleMsgCsStatus(MsgType &msg) {
 	else
 		n = TrkStatus::On;
 
-	if (!m_hist.empty() && is<CmdGetCSStatus>(m_hist.front()))
-		hist_ok();
+	if (!m_pending.empty() && is<CmdGetCSStatus>(m_pending.front()))
+		pending_ok();
 
 	if (n != m_trk_status) {
 		m_trk_status = n;
@@ -242,9 +242,9 @@ void XpressNet::handleMsgCsVersion(MsgType &msg) {
 	log("GET: Command Station Version " + QString::number(major) + "." +
 		QString::number(minor) + ", id " + QString::number(id), LogLevel::Commands);
 
-	if (!m_hist.empty() && is<CmdGetCSVersion>(m_hist.front())) {
-		std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
-		hist_ok();
+	if (!m_pending.empty() && is<CmdGetCSVersion>(m_pending.front())) {
+		std::unique_ptr<const Cmd> cmd = std::move(m_pending.front().cmd);
+		pending_ok();
 		if (dynamic_cast<const CmdGetCSVersion *>(cmd.get())->callback != nullptr) {
 			dynamic_cast<const CmdGetCSVersion *>(cmd.get())->callback(
 				this, major, minor, id
@@ -260,35 +260,35 @@ void XpressNet::handleMsgCvRead(MsgType &msg) {
 	log("GET: CV " + QString::number(cv) + " value=" + QString::number(value),
 	    LogLevel::Commands);
 
-	if (m_hist.empty())
+	if (m_pending.empty())
 		return;
 
-	if (is<CmdRequestReadResult>(m_hist.front())) {
-		std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
-		hist_ok();
+	if (is<CmdRequestReadResult>(m_pending.front())) {
+		std::unique_ptr<const Cmd> cmd = std::move(m_pending.front().cmd);
+		pending_ok();
 		dynamic_cast<const CmdRequestReadResult *>(cmd.get())->callback(
 			this, ReadCVStatus::Ok, cv, value
 		);
-	} else if (is<CmdReadDirect>(m_hist.front())) {
-		std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
+	} else if (is<CmdReadDirect>(m_pending.front())) {
+		std::unique_ptr<const Cmd> cmd = std::move(m_pending.front().cmd);
 		const CmdReadDirect *cmdrd = dynamic_cast<const CmdReadDirect *>(cmd.get());
 		if (cv == cmdrd->cv) {
-			hist_ok();
+			pending_ok();
 			cmdrd->callback(this, ReadCVStatus::Ok, cv, value);
 		}
-	} else if (is<CmdRequestWriteResult>(m_hist.front())) {
-		std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
+	} else if (is<CmdRequestWriteResult>(m_pending.front())) {
+		std::unique_ptr<const Cmd> cmd = std::move(m_pending.front().cmd);
 		if (value == dynamic_cast<const CmdRequestWriteResult *>(cmd.get())->value) {
-			hist_ok();
+			pending_ok();
 		} else {
-			// Mismatch in written & read CV values is reported as hist_err
+			// Mismatch in written & read CV values is reported as pending_err
 			log("GET: Received value "+QString::number(value)+" does not match programmed value!", LogLevel::Error);
-			hist_err(false);
+			pending_err(false);
 		}
-	} else if (is<CmdWriteDirect>(m_hist.front())) {
-		std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
+	} else if (is<CmdWriteDirect>(m_pending.front())) {
+		std::unique_ptr<const Cmd> cmd = std::move(m_pending.front().cmd);
 		if (value == dynamic_cast<const CmdWriteDirect *>(cmd.get())->data)
-			hist_ok();
+			pending_ok();
 		// else mismatch -> ask for CV value again (send CmdRequestWriteResult)
 	}
 }
@@ -296,9 +296,9 @@ void XpressNet::handleMsgCvRead(MsgType &msg) {
 void XpressNet::handleMsgLocoInfo(MsgType &msg) {
 	log("GET: loco information", LogLevel::Commands);
 
-	if (!m_hist.empty() && is<CmdGetLocoInfo>(m_hist.front())) {
-		std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
-		hist_ok();
+	if (!m_pending.empty() && is<CmdGetLocoInfo>(m_pending.front())) {
+		std::unique_ptr<const Cmd> cmd = std::move(m_pending.front().cmd);
+		pending_ok();
 
 		bool used = (msg[1] >> 3) & 0x01;
 		unsigned mode = msg[1] & 0x07;
@@ -354,9 +354,9 @@ void XpressNet::handleMsgLocoFunc(MsgType &msg) {
 	} else if (msg[1] == 0x52) {
 		log("GET: Loco Func 13-28 Status", LogLevel::Commands);
 
-		if (!m_hist.empty() && is<CmdGetLocoFunc1328>(m_hist.front())) {
-			std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
-			hist_ok();
+		if (!m_pending.empty() && is<CmdGetLocoFunc1328>(m_pending.front())) {
+			std::unique_ptr<const Cmd> cmd = std::move(m_pending.front().cmd);
+			pending_ok();
 
 			if (dynamic_cast<const CmdGetLocoFunc1328 *>(cmd.get())->callback != nullptr) {
 				dynamic_cast<const CmdGetLocoFunc1328 *>(cmd.get())->callback(
@@ -369,14 +369,14 @@ void XpressNet::handleMsgLocoFunc(MsgType &msg) {
 
 void XpressNet::handleMsgLIAddr(MsgType &msg) {
 	log("GET: LI Address is " + QString::number(msg[2]), LogLevel::Commands);
-	if (!m_hist.empty() && is<CmdGetLIAddress>(m_hist.front())) {
-		std::unique_ptr<const Cmd> cmd = std::move(m_hist.front().cmd);
-		hist_ok();
+	if (!m_pending.empty() && is<CmdGetLIAddress>(m_pending.front())) {
+		std::unique_ptr<const Cmd> cmd = std::move(m_pending.front().cmd);
+		pending_ok();
 		if (dynamic_cast<const CmdGetLIAddress *>(cmd.get())->callback != nullptr) {
 			dynamic_cast<const CmdGetLIAddress *>(cmd.get())->callback(this, msg[2]);
 		}
-	} else if (!m_hist.empty() && is<CmdSetLIAddress>(m_hist.front())) {
-		hist_ok();
+	} else if (!m_pending.empty() && is<CmdSetLIAddress>(m_pending.front())) {
+		pending_ok();
 	}
 }
 
@@ -402,21 +402,21 @@ void XpressNet::handleMsgAcc(MsgType &msg) {
 		log("GET: Acc state: group " + QString::number(groupAddr) + ", nibble " +
 		    QString::number(nibble) + ", state " + QString::number(state.all, 2).rightJustified(4, '0'),
 		    LogLevel::Commands);
-		if ((!m_hist.empty()) && (is<CmdAccInfoRequest>(m_hist.front())) &&
-		    (dynamic_cast<const CmdAccInfoRequest *>(m_hist.front().cmd.get())->groupAddr == groupAddr) &&
-		    (dynamic_cast<const CmdAccInfoRequest *>(m_hist.front().cmd.get())->nibble == nibble))
-			hist_ok();
+		if ((!m_pending.empty()) && (is<CmdAccInfoRequest>(m_pending.front())) &&
+		    (dynamic_cast<const CmdAccInfoRequest *>(m_pending.front().cmd.get())->groupAddr == groupAddr) &&
+		    (dynamic_cast<const CmdAccInfoRequest *>(m_pending.front().cmd.get())->nibble == nibble))
+			pending_ok();
 
 		// Some command stations (with internal output->input feedback enabled)
 		// send Acc feedback directly after AccOpRequest. The LI does not receive any
 		// normal inquiry, thus it does not send expected "OK" response.
-		// -> Check for this situation & call hist_ok on pending CmdAccOpRequest
-		if ((!m_hist.empty()) && (is<CmdAccOpRequest>(m_hist.front()))) {
-			const auto& accOpCmd = dynamic_cast<const CmdAccOpRequest *>(m_hist.front().cmd.get());
+		// -> Check for this situation & call pending_ok on pending CmdAccOpRequest
+		if ((!m_pending.empty()) && (is<CmdAccOpRequest>(m_pending.front()))) {
+			const auto& accOpCmd = dynamic_cast<const CmdAccOpRequest *>(m_pending.front().cmd.get());
 			unsigned int port = 8*groupAddr + 4*nibble + (accOpCmd->portAddr & 0x03);
 			bool bstate = ((state.all & (1 << (accOpCmd->portAddr & 0x03))) > 0);
 			if ((accOpCmd->portAddr == port) && (accOpCmd->state == bstate))
-				hist_ok();
+				pending_ok();
 		}
 
 		emit onAccInputChanged(groupAddr, nibble, error, inputType, state);

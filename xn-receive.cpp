@@ -50,7 +50,15 @@ void XpressNet::handleReadyRead() {
 			++begin;
 
 		std::vector<uint8_t> message(begin, begin + length);
-		parseMessage(message);
+
+		try {
+			parseMessage(message);
+		} catch (const QStrException& e) {
+			log("parseMessage exception: "+e.str(), LogLevel::Error);
+		} catch (...) {
+			log("parseMessage general exception!", LogLevel::Error);
+		}
+
 		m_readData.remove(0, static_cast<int>(length_pos+length));
 	}
 }

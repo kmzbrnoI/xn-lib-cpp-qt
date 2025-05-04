@@ -79,22 +79,14 @@ chooses which version of protocol the library should use.
 
 This SW was developed in `vim` using `qmake` & `make`. Downloads are available
 in *Releases* section. It is suggested to use `clang` as a compiler, because
-then you may use `clang-tools` during development process (see below).
+then you may use `clang-tools` during development process.
 
 ### Prerequisities
 
- * Qt 5
+ * Qt 6
  * Qt's `serialport`
- * Optional: clang build tools (see below)
+ * Optional: clang build tools
  * Optional for clang: [Bear](https://github.com/rizsotto/Bear)
-
-### Example: toolchain setup on Debian
-
-```bash
-$ apt install qt5-default libqt5serialport5-dev
-$ apt install clang-7 clang-tools-7 clang-tidy-7 clang-format-7
-$ apt install bear
-```
 
 ### Build
 

@@ -37,7 +37,7 @@ public:
 	unsigned int li_ver_hw = 0, li_ver_sw = 0;
 
 	LibMain(QObject*);
-	virtual ~LibMain() override;
+	~LibMain() override;
 
 	void guiInit();
 	void fillConnectionsCbs();
@@ -87,7 +87,7 @@ struct AppThread {
 	AppThread() {
 		if (qApp == nullptr) {
 			int argc = 0;
-			QApplication* app = new QApplication(argc, nullptr);
+			auto* app = new QApplication(argc, nullptr);
 			QMetaObject::invokeMethod(qApp, "quit", Qt::QueuedConnection);
 			app->exec();
 		}

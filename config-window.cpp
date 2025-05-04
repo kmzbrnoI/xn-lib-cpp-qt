@@ -26,9 +26,7 @@ void LibMain::guiInit() {
 
 	this->fillConnectionsCbs();
 
-	QString text;
-	text.asprintf("Nastavení XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR);
-	form.setWindowTitle(text);
+	form.setWindowTitle(QString::asprintf("Nastavení XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR));
 	form.setFixedSize(form.size());
 }
 

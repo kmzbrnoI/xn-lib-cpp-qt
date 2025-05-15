@@ -58,7 +58,7 @@ void XpressNet::to_send(std::unique_ptr<const Cmd> &cmd, UPCb ok, UPCb err, size
 			// queue & activate timer for next send
 			log("ENQUEUE: " + cmd->msg(), LogLevel::Debug);
 			m_out.emplace_back(cmd, timeout(cmd.get()), no_sent, std::move(ok), std::move(err));
-			if (!m_out_timer.isActive())
+			if ((m_pending.empty()) && (!m_out_timer.isActive()))
 				m_out_timer.start();
 		} else {
 			send(std::move(cmd), std::move(ok), std::move(err), no_sent);
@@ -74,10 +74,12 @@ void XpressNet::to_send(PendingItem &&pending, bool bypass_m_out_emptiness) {
 }
 
 void XpressNet::m_out_timer_tick() {
-	if (m_out.empty())
+	if (m_out.empty()) {
 		m_out_timer.stop();
-	else
-		send_next_out();
+	} else {
+		if (m_pending.empty())
+			send_next_out();
+	}
 }
 
 void XpressNet::send_next_out() {

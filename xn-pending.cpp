@@ -57,7 +57,7 @@ void XpressNet::pending_send() {
 	log("Sending again: " + pending.cmd->msg(), LogLevel::Warning);
 
 	try {
-		to_send(std::move(pending));
+		to_send(std::move(pending), true);
 	} catch (...) {}
 }
 

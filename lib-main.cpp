@@ -99,7 +99,7 @@ void LibMain::getLIVersion() {
 }
 
 void LibMain::xnGotLIVersion(void *, unsigned hw, unsigned sw) {
-	QString version = "HW:" + QString::number(hw) + ", SW: " + QString::number(sw);
+	QString version = "HW: " + XpressNet::liVersionToStr(hw) + ", SW: " + XpressNet::liVersionToStr(sw);
 	this->li_ver_hw = hw;
 	this->li_ver_sw = sw;
 

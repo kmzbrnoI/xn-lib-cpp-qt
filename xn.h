@@ -219,6 +219,7 @@ public:
 	static QString xnReadCVStatusToQString(ReadCVStatus st);
 	static std::vector<QSerialPortInfo> ports(LIType);
 	LIType liType() const;
+	static QString liVersionToStr(unsigned version);
 
 	XNConfig config() const;
 	void setConfig(XNConfig config);
@@ -285,6 +286,7 @@ private:
 	bool liAcknowledgesSetAccState() const;
 	bool conflictWithPending(const Cmd &) const;
 	bool conflictWithOut(const Cmd &) const;
+	void checkLiVersionDeprecated(unsigned hw, unsigned sw);
 
 	template <typename DataT, typename ItemType>
 	QString dataToStr(DataT, size_t len = 0);

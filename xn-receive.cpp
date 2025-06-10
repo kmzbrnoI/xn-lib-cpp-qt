@@ -144,11 +144,12 @@ void XpressNet::handleMsgLiError(MsgType &msg) {
 }
 
 void XpressNet::handleMsgLiVersion(MsgType &msg) {
-	unsigned hw = (msg[1] & 0x0F) + 10*(msg[1] >> 4);
-	unsigned sw = (msg[2] & 0x0F) + 10*(msg[2] >> 4);
+	const unsigned hw = msg[1];
+	const unsigned sw = msg[2];
 
-	log("GET: LI version; HW: " + QString::number(hw) + ", SW: " + QString::number(sw),
+	log("GET: LI version; HW: " + XpressNet::liVersionToStr(hw) + ", SW: " + XpressNet::liVersionToStr(sw),
 	    LogLevel::Commands);
+	this->checkLiVersionDeprecated(hw, sw);
 
 	if (!m_pending.empty() && is<CmdGetLIVersion>(m_pending.front())) {
 		std::unique_ptr<const Cmd> cmd = std::move(m_pending.front().cmd);
@@ -160,6 +161,16 @@ void XpressNet::handleMsgLiVersion(MsgType &msg) {
 		// Report NanoX error faster
 		pending_err();
 	}
+}
+
+void XpressNet::checkLiVersionDeprecated(unsigned hw, unsigned sw)
+{
+	(void)hw;
+
+	const unsigned ULI_MIN_SW = 0x24;
+	if ((this->m_liType == LIType::uLI) && (sw < ULI_MIN_SW))
+		log("uLI SW version is deprecated, update at least to " + XpressNet::liVersionToStr(ULI_MIN_SW),
+		    LogLevel::Warning);
 }
 
 void XpressNet::handleMsgCsGeneralEvent(MsgType &msg) {
@@ -235,9 +246,9 @@ void XpressNet::handleMsgCsStatus(MsgType &msg) {
 }
 
 void XpressNet::handleMsgCsVersion(MsgType &msg) {
-	unsigned major = msg[2] >> 4;
-	unsigned minor =  msg[2] & 0x0F;
-	uint8_t id = msg[3];
+	const unsigned major = msg[2] >> 4;
+	const unsigned minor =  msg[2] & 0x0F;
+	const uint8_t id = msg[3];
 
 	log("GET: Command Station Version " + QString::number(major) + "." +
 		QString::number(minor) + ", id " + QString::number(id), LogLevel::Commands);

@@ -138,4 +138,9 @@ void XpressNet::setConfig(const XNConfig config) {
 	m_out_timer.setInterval(m_config.outInterval);
 }
 
+QString XpressNet::liVersionToStr(unsigned version)
+{
+	return QString::number((version >> 4) & 0xF) + "." + QString::number(version & 0xF);
+}
+
 } // namespace Xn

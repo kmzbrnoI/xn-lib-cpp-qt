@@ -144,8 +144,8 @@ void XpressNet::handleMsgLiError(MsgType &msg) {
 }
 
 void XpressNet::handleMsgLiVersion(MsgType &msg) {
-	const unsigned hw = msg[1];
-	const unsigned sw = msg[2];
+	const uint8_t hw = msg[1];
+	const uint8_t sw = msg[2];
 
 	log("GET: LI version; HW: " + XpressNet::liVersionToStr(hw) + ", SW: " + XpressNet::liVersionToStr(sw),
 	    LogLevel::Commands);
@@ -163,7 +163,7 @@ void XpressNet::handleMsgLiVersion(MsgType &msg) {
 	}
 }
 
-void XpressNet::checkLiVersionDeprecated(unsigned hw, unsigned sw)
+void XpressNet::checkLiVersionDeprecated(uint8_t hw, uint8_t sw)
 {
 	(void)hw;
 

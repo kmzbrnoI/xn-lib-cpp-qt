@@ -286,7 +286,7 @@ private:
 	bool liAcknowledgesSetAccState() const;
 	bool conflictWithPending(const Cmd &) const;
 	bool conflictWithOut(const Cmd &) const;
-	void checkLiVersionDeprecated(unsigned hw, unsigned sw);
+	void checkLiVersionDeprecated(uint8_t hw, uint8_t sw);
 
 	template <typename DataT, typename ItemType>
 	QString dataToStr(DataT, size_t len = 0);

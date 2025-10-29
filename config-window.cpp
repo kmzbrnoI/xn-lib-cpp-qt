@@ -28,7 +28,6 @@ void LibMain::guiInit() {
 
 	form.setWindowFlags(Qt::Dialog);
 	form.setWindowTitle(QString::asprintf("Nastavení XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR));
-	form.setFixedSize(form.size());
 }
 
 void LibMain::cb_interface_type_changed(int arg) {

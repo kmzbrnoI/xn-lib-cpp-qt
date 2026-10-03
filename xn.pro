@@ -4,18 +4,24 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += XN_SHARED_LIBRARY
 
 SOURCES += \
+	src/li/xn-li-com.cpp \
+	src/li/xn-li-eth.cpp \
 	src/xn.cpp \
 	src/xn-api.cpp \
 	src/xn-receive.cpp \
 	src/xn-send.cpp \
 	src/xn-pending.cpp \
-	src/xn-win-com-discover.cpp
+	src/xn-win-com-discover.cpp \
+	src/li/xn-li.cpp
 HEADERS += \
+	src/li/xn-li-com.h \
+	src/li/xn-li-eth.h \
 	src/xn.h \
 	src/xn-loco-addr.h \
 	src/xn-commands.h \
 	src/q-str-exception.h \
-	src/xn-win-com-discover.h
+	src/xn-win-com-discover.h \
+	src/li/xn-li.h
 
 # Do not import when using as static library
 SOURCES += \

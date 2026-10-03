@@ -9,7 +9,6 @@
 #include <cfgmgr32.h>   // for MAX_DEVICE_ID_LEN, CM_Get_Parent and CM_Get_Device_ID
 #define INITGUID
 #include <tchar.h>
-#include <stdio.h>
 
 #include <initguid.h>
 #include <ntdef.h>

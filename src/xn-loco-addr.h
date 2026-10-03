@@ -5,9 +5,6 @@
 This file defines XpressNET locomotive address.
 */
 
-#include <functional>
-#include <memory>
-
 #include "q-str-exception.h"
 
 namespace Xn {

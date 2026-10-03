@@ -2,7 +2,6 @@
 #define LIBAPI_H
 
 #include <array>
-#include "xn.h"
 #include "lib-api-common-def.h"
 #include "lib-events.h"
 

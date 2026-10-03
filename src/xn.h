@@ -30,7 +30,7 @@ How does sending work?
 #include <QSerialPortInfo>
 #include <QTimer>
 #include <memory>
-#include <queue>
+#include <deque>
 #include <vector>
 
 #include "q-str-exception.h"

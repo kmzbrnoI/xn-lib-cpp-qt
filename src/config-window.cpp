@@ -31,6 +31,14 @@ void LibMain::guiInit() {
 }
 
 void LibMain::cb_interface_type_changed(int arg) {
+	const bool uLI = (form.ui.cb_interface_type->currentText() == "uLI");
+	if (uLI) {
+		form.ui.cb_serial_speed->setCurrentText("19200");
+		form.ui.cb_serial_flowcontrol->setCurrentIndex(0);
+	}
+	form.ui.cb_serial_speed->setEnabled(!uLI);
+	form.ui.cb_serial_flowcontrol->setEnabled(!uLI);
+
 	this->cb_connections_changed(arg);
 	if ((s["XN"]["port"].toString() == "auto") && (form.ui.cb_interface_type->currentText() != "uLI"))
 		s["XN"]["port"] = "";

@@ -16,11 +16,11 @@ void XpressNet::send(MsgType data) {
 	}
 
 	log("PUT: " + dataToStr<MsgType, uint8_t>(data), LogLevel::RawData);
-	QByteArray qdata(reinterpret_cast<const char *>(data.data()), data.size());
+	const QByteArray qdata(reinterpret_cast<const char *>(data.data()), data.size());
 
-	qint64 sent = m_serialPort.write(qdata);
-	if (sent == -1 || sent != qdata.size())
-		throw EWriteError("No data could we written!");
+	if (!m_li)
+		throw EWriteError("LI object does not exist!");
+	m_li->send(qdata);
 }
 
 void XpressNet::send(std::unique_ptr<const Cmd> cmd, UPCb ok, UPCb err, size_t no_sent) {

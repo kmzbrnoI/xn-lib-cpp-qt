@@ -2,36 +2,30 @@
 #include "xn-win-com-discover.h"
 
 /* Global definitions & helpers of XpressNet class. Specific functions that
- * do the real work are places in xn-*.cpp (logically divided into multiple
- * shorter source codes.
+ * do the real work are placed in xn-*.cpp (logically divided into multiple
+ * shorter files.
  */
 
 namespace Xn {
 
 XpressNet::XpressNet(QObject *parent) : QObject(parent) {
-	m_serialPort.setReadBufferSize(256);
 	m_lastSent = QDateTime::currentDateTime();
-
-	QObject::connect(&m_serialPort, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
-	QObject::connect(&m_serialPort, SIGNAL(errorOccurred(QSerialPort::SerialPortError)), this,
-	                 SLOT(handleError(QSerialPort::SerialPortError)));
 
 	QObject::connect(&m_pending_timer, SIGNAL(timeout()), this, SLOT(m_pending_timer_tick()));
 	m_out_timer.setInterval(m_config.outInterval);
 	QObject::connect(&m_out_timer, SIGNAL(timeout()), this, SLOT(m_out_timer_tick()));
-	QObject::connect(&m_serialPort, SIGNAL(aboutToClose()), this, SLOT(sp_about_to_close()));
 }
 
 XpressNet::~XpressNet() {
 	try {
-		if (m_serialPort.isOpen())
-			m_serialPort.close();
+		if ((m_li) && (m_li->connected()))
+			m_li->disconnect();
 	}  catch (...) {
 		// No exceptions in destructor
 	}
 }
 
-void XpressNet::sp_about_to_close() {
+void XpressNet::li_closed() {
 	m_pending_timer.stop();
 	m_out_timer.stop();
 	while (!m_pending.empty()) {
@@ -54,9 +48,8 @@ void XpressNet::log(const QString &message, const LogLevel loglevel) {
 		emit onLog(message, loglevel);
 }
 
-void XpressNet::handleError(QSerialPort::SerialPortError serialPortError) {
-	if (serialPortError != QSerialPort::NoError)
-		emit onError(m_serialPort.errorString());
+void XpressNet::li_error(QString message) {
+	emit onError(message);
 }
 
 QString XpressNet::xnReadCVStatusToQString(const ReadCVStatus st) {
@@ -141,6 +134,14 @@ void XpressNet::setConfig(const XNConfig config) {
 QString XpressNet::liVersionToStr(unsigned version)
 {
 	return QString::number((version >> 4) & 0xF) + "." + QString::number(version & 0xF);
+}
+
+void XpressNet::liConnectSignals() {
+	if (m_li) {
+		QObject::connect(m_li.get(), SIGNAL(onReceived(QByteArray)), this, SLOT(li_received(QByteArray)));
+		QObject::connect(m_li.get(), SIGNAL(onError(QString)), this, SLOT(li_error(QString)));
+		QObject::connect(m_li.get(), SIGNAL(onClosed()), this, SLOT(li_closed()));
+	}
 }
 
 } // namespace Xn

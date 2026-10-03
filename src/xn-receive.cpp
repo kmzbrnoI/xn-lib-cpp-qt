@@ -4,14 +4,14 @@
 
 namespace Xn {
 
-void XpressNet::handleReadyRead() {
+void XpressNet::li_received(QByteArray data) {
 	// check timeout
 	if (m_receiveTimeout < QDateTime::currentDateTime() && m_readData.size() > 0) {
 		// clear input buffer when data not received for a long time
 		m_readData.clear();
 	}
 
-	m_readData.append(m_serialPort.readAll());
+	m_readData.append(data);
 	m_receiveTimeout = QDateTime::currentDateTime().addMSecs(_BUF_IN_TIMEOUT);
 
 	if (this->m_liType == LIType::LIUSBEth) {

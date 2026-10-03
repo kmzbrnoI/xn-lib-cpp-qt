@@ -5,7 +5,7 @@ DEFINES += XN_SHARED_LIBRARY
 
 SOURCES += \
 	src/li/xn-li-com.cpp \
-	src/li/xn-li-eth.cpp \
+	src/li/xn-li-net.cpp \
 	src/xn.cpp \
 	src/xn-api.cpp \
 	src/xn-receive.cpp \
@@ -15,7 +15,7 @@ SOURCES += \
 	src/li/xn-li.cpp
 HEADERS += \
 	src/li/xn-li-com.h \
-	src/li/xn-li-eth.h \
+	src/li/xn-li-net.h \
 	src/xn.h \
 	src/xn-loco-addr.h \
 	src/xn-commands.h \

@@ -36,6 +36,7 @@ How does sending work?
 #include "q-str-exception.h"
 #include "xn-commands.h"
 #include "xn-loco-addr.h"
+#include "li/xn-li.h"
 
 #define XN_VERSION_MAJOR 2
 #define XN_VERSION_MINOR 8
@@ -54,12 +55,6 @@ constexpr size_t _OUT_TIMER_INTERVAL_DEFAULT = 50; // ms
 constexpr size_t _OUT_TIMER_INTERVAL_MIN = 50; // ms
 constexpr size_t _OUT_TIMER_INTERVAL_MAX = 500; // ms
 
-struct EOpenError : public QStrException {
-	EOpenError(const QString str) : QStrException(str) {}
-};
-struct EWriteError : public QStrException {
-	EWriteError(const QString str) : QStrException(str) {}
-};
 struct EInvalidTrkStatus : public QStrException {
 	EInvalidTrkStatus(const QString str) : QStrException(str) {}
 };
@@ -179,7 +174,8 @@ public:
 	XpressNet(QObject *parent = nullptr);
 	~XpressNet() override;
 
-	void connect(const QString &portname, int32_t br, QSerialPort::FlowControl fc, LIType liType);
+	void connectCom(const QString &portname, int32_t br, QSerialPort::FlowControl fc, LIType liType);
+	void connectNet(const QString &hostname, uint16_t port, LIType liType);
 	void disconnect();
 	bool connected() const;
 
@@ -225,11 +221,11 @@ public:
 	void setConfig(XNConfig config);
 
 private slots:
-	void handleReadyRead();
-	void handleError(QSerialPort::SerialPortError);
+	void li_received(QByteArray);
+	void li_error(QString);
+	void li_closed();
 	void m_pending_timer_tick();
 	void m_out_timer_tick();
-	void sp_about_to_close();
 
 signals:
 	void onError(QString error);
@@ -242,7 +238,7 @@ signals:
 	                       Xn::AccInputsState state);
 
 private:
-	QSerialPort m_serialPort;
+	std::unique_ptr<XnLI> m_li; // interface to hardware
 	QByteArray m_readData;
 	QDateTime m_receiveTimeout;
 	QDateTime m_lastSent;
@@ -287,6 +283,7 @@ private:
 	bool conflictWithPending(const Cmd &) const;
 	bool conflictWithOut(const Cmd &) const;
 	void checkLiVersionDeprecated(uint8_t hw, uint8_t sw);
+	void liConnectSignals();
 
 	template <typename DataT, typename ItemType>
 	QString dataToStr(DataT, size_t len = 0);

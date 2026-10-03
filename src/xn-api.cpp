@@ -1,14 +1,18 @@
 #include <QSerialPortInfo>
 #include "xn.h"
+#include "li/xn-li-com.h"
+#include "li/xn-li-net.h"
 
 /* XpressNet class public methods implementation. */
 
 namespace Xn {
 
-void XpressNet::connect(const QString &portname, int32_t br, QSerialPort::FlowControl fc,
-						LIType liType) {
+void XpressNet::connectCom(const QString &portname, int32_t br, QSerialPort::FlowControl fc,
+                           LIType liType) {
+	m_liType = liType;
+
 	QString port = portname;
-	log("Connecting to " + portname + " ("+liInterfaceName(liType)+
+	log("Connecting to COM " + portname + " ("+liInterfaceName(liType)+
 		", br=" + QString::number(br) + ", fc=" + flowControlToStr(fc)  + ") ...", LogLevel::Info);
 
 	if (portname == "auto") {
@@ -23,13 +27,25 @@ void XpressNet::connect(const QString &portname, int32_t br, QSerialPort::FlowCo
 		}
 	}
 
-	m_serialPort.setBaudRate(br);
-	m_serialPort.setFlowControl(fc);
-	m_serialPort.setPortName(port);
+	m_li = std::make_unique<XnLICom>();
+	liConnectSignals();
+
+	dynamic_cast<XnLICom&>(*m_li).connect(port, br, fc);
+
+	m_pending_timer.start(_PENDING_CHECK_INTERVAL);
+	log("Connected", LogLevel::Info);
+	emit onConnect();
+}
+
+void XpressNet::connectNet(const QString &hostname, uint16_t port, LIType liType) {
 	m_liType = liType;
 
-	if (!m_serialPort.open(QIODevice::ReadWrite))
-		throw EOpenError(m_serialPort.errorString());
+	log("Connecting to host " + hostname + ":" + QString::number(port) + " ...", LogLevel::Info);
+
+	m_li = std::make_unique<XnLINet>();
+	liConnectSignals();
+
+	dynamic_cast<XnLINet&>(*m_li).connect(hostname, port);
 
 	m_pending_timer.start(_PENDING_CHECK_INTERVAL);
 	log("Connected", LogLevel::Info);
@@ -38,11 +54,16 @@ void XpressNet::connect(const QString &portname, int32_t br, QSerialPort::FlowCo
 
 void XpressNet::disconnect() {
 	log("Disconnecting...", LogLevel::Info);
-	m_serialPort.close();
+
+	if ((m_li) && (m_li->connected()))
+		m_li->disconnect();
+	else
+		log("Already disconnected.", LogLevel::Info);
+
 	emit onDisconnect();
 }
 
-bool XpressNet::connected() const { return m_serialPort.isOpen(); }
+bool XpressNet::connected() const { return (m_li && m_li->connected()); }
 TrkStatus XpressNet::getTrkStatus() const { return m_trk_status; }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -62,7 +62,7 @@ void XpressNet::pending_send() {
 }
 
 void XpressNet::m_pending_timer_tick() {
-	if (!m_serialPort.isOpen()) {
+	if ((!m_li) || (!m_li->connected())) {
 		while (!m_pending.empty())
 			pending_err();
 	}

@@ -63,9 +63,9 @@ int connect() {
 	lib.events.call(lib.events.beforeOpen);
 
 	try {
-		lib.xn.connect(lib.s["XN"]["port"].toString(), lib.s["XN"]["baudrate"].toInt(),
-		               static_cast<QSerialPort::FlowControl>(lib.s["XN"]["flowcontrol"].toInt()),
-					   Xn::liInterface(lib.s["XN"]["interface"].toString()));
+		lib.xn.connectCom(lib.s["XN"]["port"].toString(), lib.s["XN"]["baudrate"].toInt(),
+		                  static_cast<QSerialPort::FlowControl>(lib.s["XN"]["flowcontrol"].toInt()),
+		                  Xn::liInterface(lib.s["XN"]["interface"].toString()));
 	} catch (const Xn::QStrException &e) {
 		const QString errMsg = "XN connect error while opening serial port '" +
 			lib.s["XN"]["port"].toString() + "': " + e;

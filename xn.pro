@@ -4,34 +4,34 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += XN_SHARED_LIBRARY
 
 SOURCES += \
-	xn.cpp \
-	xn-api.cpp \
-	xn-receive.cpp \
-	xn-send.cpp \
-	xn-pending.cpp \
-	xn-win-com-discover.cpp
+	src/xn.cpp \
+	src/xn-api.cpp \
+	src/xn-receive.cpp \
+	src/xn-send.cpp \
+	src/xn-pending.cpp \
+	src/xn-win-com-discover.cpp
 HEADERS += \
-	xn.h \
-	xn-loco-addr.h \
-	xn-commands.h \
-	q-str-exception.h \
-	xn-win-com-discover.h
+	src/xn.h \
+	src/xn-loco-addr.h \
+	src/xn-commands.h \
+	src/q-str-exception.h \
+	src/xn-win-com-discover.h
 
 # Do not import when using as static library
 SOURCES += \
-	lib-api.cpp \
-	lib-main.cpp \
-	settings.cpp \
-	config-window.cpp
+	src/lib-api.cpp \
+	src/lib-main.cpp \
+	src/settings.cpp \
+	src/config-window.cpp
 HEADERS += \
-	lib-api.h \
-	lib-main.h \
-	lib-events.h \
-	lib-api-common-def.h \
-	settings.h \
-	lib-errors.h
+	src/lib-api.h \
+	src/lib-main.h \
+	src/lib-events.h \
+	src/lib-api-common-def.h \
+	src/settings.h \
+	src/lib-errors.h
 
-FORMS += config-window.ui
+FORMS += ui/config-window.ui
 
 CONFIG += c++14 dll
 QMAKE_CXXFLAGS += -Wall -Wextra -pedantic

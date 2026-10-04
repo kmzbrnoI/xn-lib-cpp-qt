@@ -223,6 +223,7 @@ public:
 private slots:
 	void li_received(QByteArray);
 	void li_error(QString);
+	void li_opened();
 	void li_closed();
 	void m_pending_timer_tick();
 	void m_out_timer_tick();

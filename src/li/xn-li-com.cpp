@@ -29,6 +29,7 @@ void XnLICom::connect(const QString &portname, int32_t br, QSerialPort::FlowCont
 	const bool success = m_serialPort.open(QIODevice::ReadWrite);
 	if (!success)
 		throw EOpenError(m_serialPort.errorString());
+	emit onOpened();
 }
 
 void XnLICom::disconnect() {

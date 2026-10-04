@@ -42,6 +42,7 @@ public:
 	void fillConnectionsCbs();
 	void fillPortCb();
 	void guiOnOpen();
+	void guiOnOpening();
 	void guiOnClose();
 
 	void log(const QString &msg, LogLevel loglevel);

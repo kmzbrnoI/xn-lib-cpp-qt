@@ -31,6 +31,7 @@ public:
 
 signals:
 	void onReceived(QByteArray data);
+	void onOpened();
 	void onClosed();
 	void onError(QString error);
 

@@ -25,6 +25,12 @@ XpressNet::~XpressNet() {
 	}
 }
 
+void XpressNet::li_opened() {
+	m_pending_timer.start(_PENDING_CHECK_INTERVAL);
+	log("Connected", LogLevel::Info);
+	emit onConnect();
+}
+
 void XpressNet::li_closed() {
 	m_pending_timer.stop();
 	m_out_timer.stop();
@@ -41,6 +47,7 @@ void XpressNet::li_closed() {
 	m_trk_status = TrkStatus::Unknown;
 
 	log("Disconnected", LogLevel::Info);
+	emit onDisconnect();
 }
 
 void XpressNet::log(const QString &message, const LogLevel loglevel) {
@@ -140,6 +147,7 @@ void XpressNet::liConnectSignals() {
 	if (m_li) {
 		QObject::connect(m_li.get(), SIGNAL(onReceived(QByteArray)), this, SLOT(li_received(QByteArray)));
 		QObject::connect(m_li.get(), SIGNAL(onError(QString)), this, SLOT(li_error(QString)));
+		QObject::connect(m_li.get(), SIGNAL(onOpened()), this, SLOT(li_opened()));
 		QObject::connect(m_li.get(), SIGNAL(onClosed()), this, SLOT(li_closed()));
 	}
 }

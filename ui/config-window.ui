@@ -196,6 +196,9 @@
     </item>
     <item>
      <widget class="QGroupBox" name="gb_cs_li">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -214,11 +217,7 @@
         </widget>
        </item>
        <item row="6" column="1">
-        <widget class="QSpinBox" name="sb_li_addr">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-        </widget>
+        <widget class="QSpinBox" name="sb_li_addr"/>
        </item>
        <item row="3" column="0">
         <widget class="QLabel" name="label_10">
@@ -293,9 +292,6 @@
        </item>
        <item row="6" column="2">
         <widget class="QPushButton" name="b_li_addr_set">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
          <property name="text">
           <string>Nastavit</string>
          </property>
@@ -303,9 +299,6 @@
        </item>
        <item row="2" column="2">
         <widget class="QPushButton" name="b_info_update">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
          <property name="minimumSize">
           <size>
            <width>0</width>

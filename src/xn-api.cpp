@@ -31,10 +31,6 @@ void XpressNet::connectCom(const QString &portname, int32_t br, QSerialPort::Flo
 	liConnectSignals();
 
 	dynamic_cast<XnLICom&>(*m_li).connect(port, br, fc);
-
-	m_pending_timer.start(_PENDING_CHECK_INTERVAL);
-	log("Connected", LogLevel::Info);
-	emit onConnect();
 }
 
 void XpressNet::connectNet(const QString &hostname, uint16_t port, LIType liType) {
@@ -46,10 +42,6 @@ void XpressNet::connectNet(const QString &hostname, uint16_t port, LIType liType
 	liConnectSignals();
 
 	dynamic_cast<XnLINet&>(*m_li).connect(hostname, port);
-
-	m_pending_timer.start(_PENDING_CHECK_INTERVAL);
-	log("Connected", LogLevel::Info);
-	emit onConnect();
 }
 
 void XpressNet::disconnect() {
@@ -59,8 +51,6 @@ void XpressNet::disconnect() {
 		m_li->disconnect();
 	else
 		log("Already disconnected.", LogLevel::Info);
-
-	emit onDisconnect();
 }
 
 bool XpressNet::connected() const { return (m_li && m_li->connected()); }

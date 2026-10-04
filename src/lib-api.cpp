@@ -61,6 +61,7 @@ int connect() {
 		return TRK_ALREADY_OPENNED;
 
 	lib.applyConnectionInfoFromGUI();
+	lib.guiOnOpening();
 	lib.events.call(lib.events.beforeOpen);
 
 	const bool net = lib.s["XN"]["interface"].toString().endsWith("net");

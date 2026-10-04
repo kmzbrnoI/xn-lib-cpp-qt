@@ -111,33 +111,18 @@ void LibMain::fillPortCb() {
 
 void LibMain::b_serial_refresh_handle() { this->fillPortCb(); }
 
-void LibMain::guiOnOpen() {
-	form.ui.cb_interface_type->setEnabled(false);
-	form.ui.cb_serial_port->setEnabled(false);
-	form.ui.cb_serial_speed->setEnabled(false);
-	form.ui.cb_serial_flowcontrol->setEnabled(false);
-	form.ui.b_serial_refresh->setEnabled(false);
+void LibMain::guiOnOpening() {
+	form.ui.gb_connection->setEnabled(false);
+}
 
-	form.ui.sb_li_addr->setEnabled(true);
-	form.ui.b_li_addr_set->setEnabled(true);
-	form.ui.b_info_update->setEnabled(true);
+void LibMain::guiOnOpen() {
+	this->guiOnOpening();
+	form.ui.gb_cs_li->setEnabled(true);
 }
 
 void LibMain::guiOnClose() {
-	form.ui.cb_interface_type->setEnabled(true);
-	form.ui.cb_serial_port->setEnabled(true);
-	form.ui.cb_serial_speed->setEnabled(true);
-	form.ui.cb_serial_flowcontrol->setEnabled(true);
-	form.ui.b_serial_refresh->setEnabled(true);
-
-	form.ui.l_cs_version->setText("???");
-	form.ui.l_cs_id->setText("???");
-	form.ui.l_li_version->setText("???");
-	form.ui.sb_li_addr->setEnabled(false);
-	form.ui.sb_li_addr->setValue(0);
-	form.ui.b_li_addr_set->setEnabled(false);
-	form.ui.b_info_update->setEnabled(false);
-	form.ui.l_info_datetime->setText("???");
+	form.ui.gb_connection->setEnabled(true);
+	form.ui.gb_cs_li->setEnabled(false);
 }
 
 void LibMain::b_info_update_handle() {

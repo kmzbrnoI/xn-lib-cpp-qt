@@ -60,15 +60,23 @@ int connect() {
 	if (lib.xn.connected())
 		return TRK_ALREADY_OPENNED;
 
+	lib.applyConnectionInfoFromGUI();
 	lib.events.call(lib.events.beforeOpen);
 
+	const bool net = lib.s["XN"]["interface"].toString().endsWith("net");
 	try {
-		lib.xn.connectCom(lib.s["XN"]["port"].toString(), lib.s["XN"]["baudrate"].toInt(),
-		                  static_cast<QSerialPort::FlowControl>(lib.s["XN"]["flowcontrol"].toInt()),
-		                  Xn::liInterface(lib.s["XN"]["interface"].toString()));
+		if (net) {
+			lib.xn.connectNet(lib.s["XN"]["netHost"].toString(), lib.s["XN"]["netPort"].toInt(),
+			                  Xn::liInterface(lib.s["XN"]["interface"].toString()));
+		} else {
+			lib.xn.connectCom(lib.s["XN"]["port"].toString(), lib.s["XN"]["baudrate"].toInt(),
+			                  static_cast<QSerialPort::FlowControl>(lib.s["XN"]["flowcontrol"].toInt()),
+			                  Xn::liInterface(lib.s["XN"]["interface"].toString()));
+		}
 	} catch (const Xn::QStrException &e) {
-		const QString errMsg = "XN connect error while opening serial port '" +
-			lib.s["XN"]["port"].toString() + "': " + e;
+		const QString errMsg = "XN connect error while opening " +
+			(net ? "socket to '" + lib.s["XN"]["netHost"].toString() : "serial port '" + lib.s["XN"]["port"].toString()) +
+			"': " + e;
 		lib.log(errMsg, LogLevel::Error);
 		lib.events.call(lib.events.onOpenError, errMsg);
 		lib.events.call(lib.events.afterClose);

@@ -32,7 +32,6 @@ public:
 	Settings s;
 	QString config_filename = "";
 	unsigned int api_version = 0x0001;
-	bool gui_config_changing = false;
 	bool opening = false;
 	unsigned int li_ver_hw = 0, li_ver_sw = 0;
 
@@ -47,10 +46,10 @@ public:
 
 	void log(const QString &msg, LogLevel loglevel);
 	void xnSetConfig();
+	void applyConnectionInfoFromGUI();
 
 private slots:
 	void b_serial_refresh_handle();
-	void cb_connections_changed(int);
 	void cb_interface_type_changed(int);
 	void b_info_update_handle();
 	void b_li_addr_set_handle();

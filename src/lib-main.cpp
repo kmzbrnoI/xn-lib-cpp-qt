@@ -30,6 +30,7 @@ LibMain::~LibMain() {
 	try {
 		if (xn.connected())
 			xn.disconnect();
+		applyConnectionInfoFromGUI();
 		if (this->config_filename != "")
 			this->s.save(this->config_filename);
 	} catch (...) {

@@ -9,13 +9,7 @@ namespace Xn {
 
 void LibMain::guiInit() {
 	QObject::connect(form.ui.cb_interface_type, SIGNAL(currentIndexChanged(int)), this,
-					 SLOT(cb_interface_type_changed(int)));
-	QObject::connect(form.ui.cb_serial_port, SIGNAL(currentIndexChanged(int)), this,
-	                 SLOT(cb_connections_changed(int)));
-	QObject::connect(form.ui.cb_serial_speed, SIGNAL(currentIndexChanged(int)), this,
-	                 SLOT(cb_connections_changed(int)));
-	QObject::connect(form.ui.cb_serial_flowcontrol, SIGNAL(currentIndexChanged(int)), this,
-	                 SLOT(cb_connections_changed(int)));
+	                 SLOT(cb_interface_type_changed(int)));
 
 	QObject::connect(form.ui.b_serial_refresh, SIGNAL(released()), this,
 	                 SLOT(b_serial_refresh_handle()));
@@ -30,7 +24,11 @@ void LibMain::guiInit() {
 	form.setWindowTitle(QString::asprintf("Nastavení XpressNET knihovny v%d.%d", VERSION_MAJOR, VERSION_MINOR));
 }
 
-void LibMain::cb_interface_type_changed(int arg) {
+void LibMain::cb_interface_type_changed(int) {
+	const bool net = form.ui.cb_interface_type->currentText().endsWith("net");
+	form.ui.tw_connection->setTabVisible(0, !net);
+	form.ui.tw_connection->setTabVisible(1, net);
+
 	const bool uLI = (form.ui.cb_interface_type->currentText() == "uLI");
 	if (uLI) {
 		form.ui.cb_serial_speed->setCurrentText("19200");
@@ -39,33 +37,28 @@ void LibMain::cb_interface_type_changed(int arg) {
 	form.ui.cb_serial_speed->setEnabled(!uLI);
 	form.ui.cb_serial_flowcontrol->setEnabled(!uLI);
 
-	this->cb_connections_changed(arg);
 	if ((s["XN"]["port"].toString() == "auto") && (form.ui.cb_interface_type->currentText() != "uLI"))
 		s["XN"]["port"] = "";
 	this->fillPortCb();
 }
 
-void LibMain::cb_connections_changed(int) {
-	if (this->gui_config_changing)
-		return;
-
+void LibMain::applyConnectionInfoFromGUI() {
 	s["XN"]["interface"] = form.ui.cb_interface_type->currentText();
 	s["XN"]["baudrate"] = form.ui.cb_serial_speed->currentText().toInt();
 	s["XN"]["flowcontrol"] = form.ui.cb_serial_flowcontrol->currentIndex();
+	s["XN"]["netHost"] = form.ui.le_host->text();
+	s["XN"]["netPort"] = form.ui.sb_port->value();
 
 	const QString port = form.ui.cb_serial_port->currentText();
 	s["XN"]["port"] = (port.startsWith("Auto")) ? "auto" : port;
 }
 
 void LibMain::fillConnectionsCbs() {
-	this->gui_config_changing = true;
-
 	// Interface type
 	form.ui.cb_interface_type->setCurrentText(s["XN"]["interface"].toString());
 
 	// Port
 	this->fillPortCb();
-	this->gui_config_changing = true;
 
 	// Speed
 	form.ui.cb_serial_speed->clear();
@@ -84,12 +77,11 @@ void LibMain::fillConnectionsCbs() {
 	// Flow control
 	form.ui.cb_serial_flowcontrol->setCurrentIndex(s["XN"]["flowcontrol"].toInt());
 
-	this->gui_config_changing = false;
+	form.ui.le_host->setText(s["XN"]["netHost"].toString());
+	form.ui.sb_port->setValue(s["XN"]["netPort"].toInt());
 }
 
 void LibMain::fillPortCb() {
-	this->gui_config_changing = true;
-
 	form.ui.cb_serial_port->clear();
 
 	bool is_item = false;
@@ -115,8 +107,6 @@ void LibMain::fillPortCb() {
 		else
 			form.ui.cb_serial_port->setCurrentIndex(-1);
 	}
-
-	this->gui_config_changing = false;
 }
 
 void LibMain::b_serial_refresh_handle() { this->fillPortCb(); }

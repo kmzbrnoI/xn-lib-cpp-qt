@@ -17,6 +17,8 @@ const Config DEFAULTS {
 		{"loglevel", 1},
 		{"interface", "LI101"},
 		{"outIntervalMs", 50},
+		{"netHost", "192.168.0.200"},
+		{"netPort", 5500},
 	}},
 };
 

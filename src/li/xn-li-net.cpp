@@ -49,7 +49,7 @@ void XnLINet::socketReadyRead() {
 		emit onReceived(data);
 }
 
-void XnLINet::socketErrorOccured(QAbstractSocket::SocketError error) {
+void XnLINet::socketErrorOccured(QAbstractSocket::SocketError) {
 	emit onError(this->m_socket.errorString());
 	if (this->connecting) {
 		this->connecting = false;

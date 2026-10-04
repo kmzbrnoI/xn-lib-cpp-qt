@@ -123,6 +123,12 @@ void LibMain::guiOnOpen() {
 void LibMain::guiOnClose() {
 	form.ui.gb_connection->setEnabled(true);
 	form.ui.gb_cs_li->setEnabled(false);
+
+	form.ui.l_cs_version->setText("???");
+	form.ui.l_cs_id->setText("???");
+	form.ui.l_li_version->setText("???");
+	form.ui.sb_li_addr->setValue(0);
+	form.ui.l_info_datetime->setText("???");
 }
 
 void LibMain::b_info_update_handle() {

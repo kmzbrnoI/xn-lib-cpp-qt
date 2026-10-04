@@ -89,6 +89,9 @@ struct AppThread {
 			int argc = 0;
 			auto* app = new QApplication(argc, nullptr);
 			QMetaObject::invokeMethod(qApp, "quit", Qt::QueuedConnection);
+#ifdef Q_OS_WIN32
+			app->setStyle("windowsvista");
+#endif
 			app->exec();
 		}
 	}

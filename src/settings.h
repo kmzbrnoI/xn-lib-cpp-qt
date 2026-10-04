@@ -19,6 +19,7 @@ const Config DEFAULTS {
 		{"outIntervalMs", 50},
 		{"netHost", "192.168.0.200"},
 		{"netPort", 5550},
+		{"keepAlive", true},
 	}},
 };
 

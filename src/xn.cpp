@@ -14,6 +14,7 @@ XpressNet::XpressNet(QObject *parent) : QObject(parent) {
 	QObject::connect(&m_pending_timer, SIGNAL(timeout()), this, SLOT(m_pending_timer_tick()));
 	m_out_timer.setInterval(m_config.outInterval);
 	QObject::connect(&m_out_timer, SIGNAL(timeout()), this, SLOT(m_out_timer_tick()));
+	QObject::connect(&m_keep_alive_timer, SIGNAL(timeout()), this, SLOT(m_keep_alive_timer_tick()));
 }
 
 XpressNet::~XpressNet() {
@@ -45,6 +46,8 @@ void XpressNet::li_closed() {
 		m_out.pop_front();
 	}
 	m_trk_status = TrkStatus::Unknown;
+
+	m_keep_alive_timer.stop();
 
 	log("Disconnected", LogLevel::Info);
 	emit onDisconnect();
@@ -134,6 +137,7 @@ void XpressNet::setConfig(const XNConfig config) {
 	if ((config.outInterval < _OUT_TIMER_INTERVAL_MIN) || (config.outInterval > _OUT_TIMER_INTERVAL_MAX))
 		throw EInvalidConfig("outInterval="+QString::number(config.outInterval)+" is out of range ["+
 		      QString::number(_OUT_TIMER_INTERVAL_MIN)+"-"+QString::number(_OUT_TIMER_INTERVAL_MAX)+"]");
+
 	m_config = config;
 	m_out_timer.setInterval(m_config.outInterval);
 }
@@ -150,6 +154,30 @@ void XpressNet::liConnectSignals() {
 		QObject::connect(m_li.get(), SIGNAL(onOpened()), this, SLOT(li_opened()));
 		QObject::connect(m_li.get(), SIGNAL(onClosed()), this, SLOT(li_closed()));
 	}
+}
+
+void XpressNet::m_keep_alive_timer_tick() {
+	if ((!this->connected()) || (!this->m_config.keepAlive))
+		return;
+
+	if (!m_anyCsReceived) {
+		try {
+			this->getCommandStationStatus(
+				std::make_unique<Cb>([this](void*, void*) {
+					this->m_anyCsReceived = false;
+				}),
+				std::make_unique<Cb>([this](void*, void*) {
+					this->log("Disconnecting due to Keep Alive timeout", LogLevel::Error);
+					this->disconnect();
+				})
+			);
+		} catch (const QStrException &e) {
+			log("Keep alive Get CS Status error: " + e.str(), LogLevel::Error);
+			this->disconnect();
+		}
+	}
+
+	this->m_anyCsReceived = false;
 }
 
 } // namespace Xn

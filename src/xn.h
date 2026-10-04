@@ -55,6 +55,8 @@ constexpr size_t _OUT_TIMER_INTERVAL_DEFAULT = 50; // ms
 constexpr size_t _OUT_TIMER_INTERVAL_MIN = 50; // ms
 constexpr size_t _OUT_TIMER_INTERVAL_MAX = 500; // ms
 
+constexpr size_t _KEEP_ALIVE_PERIOD = 5000; // ms
+
 struct EInvalidTrkStatus : public QStrException {
 	EInvalidTrkStatus(const QString str) : QStrException(str) {}
 };
@@ -161,6 +163,7 @@ enum class RecvCmdType {
 
 struct XNConfig {
 	size_t outInterval = _OUT_TIMER_INTERVAL_DEFAULT;
+	bool keepAlive = true;
 };
 
 class XpressNet : public QObject {
@@ -227,6 +230,7 @@ private slots:
 	void li_closed();
 	void m_pending_timer_tick();
 	void m_out_timer_tick();
+	void m_keep_alive_timer_tick();
 
 signals:
 	void onError(QString error);
@@ -247,9 +251,11 @@ private:
 	std::deque<PendingItem> m_out; // commands not sent to CS yet
 	QTimer m_pending_timer;
 	QTimer m_out_timer;
+	QTimer m_keep_alive_timer;
 	TrkStatus m_trk_status = TrkStatus::Unknown;
 	LIType m_liType;
 	XNConfig m_config;
+	bool m_anyCsReceived = false; // anything received from command station since last keep alive
 
 	using MsgType = std::vector<uint8_t>;
 	void parseMessage(MsgType &msg);

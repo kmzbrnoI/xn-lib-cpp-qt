@@ -64,7 +64,11 @@ void XpressNet::li_received(QByteArray data) {
 }
 
 void XpressNet::parseMessage(MsgType &msg) {
-	switch (static_cast<RecvCmdType>(msg[0])) {
+	const RecvCmdType cmdType = static_cast<RecvCmdType>(msg[0]);
+	if ((cmdType != RecvCmdType::LiError) && (cmdType != RecvCmdType::LiVersion) && (cmdType != RecvCmdType::LiSettings))
+		this->m_anyCsReceived = true; // data from command station (not only LI) received
+
+	switch (cmdType) {
 	case RecvCmdType::LiError:
 		return handleMsgLiError(msg);
 	case RecvCmdType::LiVersion:
@@ -110,6 +114,7 @@ void XpressNet::handleMsgLiError(MsgType &msg) {
 		log("GET: Unknown communication error", LogLevel::Error);
 	} else if (0x04 == msg[1]) {
 		log("GET: OK", LogLevel::Commands);
+		this->m_anyCsReceived = true; // this is actually a confirmation that command station received our data -> mark m_anyCsReceived = true
 
 		if (!m_pending.empty() && is<CmdReadDirect>(m_pending.front())) {
 			const auto &rd = dynamic_cast<const CmdReadDirect &>(*(m_pending.front().cmd));
@@ -242,6 +247,11 @@ void XpressNet::handleMsgCsStatus(MsgType &msg) {
 	if (n != m_trk_status) {
 		m_trk_status = n;
 		emit onTrkStatusChanged(m_trk_status);
+	}
+
+	if (!m_keep_alive_timer.isActive()) {
+		m_keep_alive_timer.start(_KEEP_ALIVE_PERIOD);
+		this->m_anyCsReceived = false;
 	}
 }
 

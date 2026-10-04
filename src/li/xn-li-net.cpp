@@ -9,6 +9,8 @@ XnLINet::XnLINet() {
 
 	QObject::connect(&m_socket, SIGNAL(errorOccurred(QAbstractSocket::SocketError)),
 	                 this, SLOT(socketErrorOccured(QAbstractSocket::SocketError)));
+
+	//m_socket.
 }
 
 void XnLINet::connect(const QString &hostname, uint16_t port) {

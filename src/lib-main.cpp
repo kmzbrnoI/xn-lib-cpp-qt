@@ -196,6 +196,7 @@ void LibMain::xnSetConfig() {
 			log("Unable to load xnConfig: 'outIntervalMs' is not a number!", LogLevel::Error);
 			return;
 		}
+		config.keepAlive = s["XN"]["keepAlive"].toBool();
 
 		xn.setConfig(config);
 	} catch (const QStrException& e) {

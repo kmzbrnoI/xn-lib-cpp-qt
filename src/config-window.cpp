@@ -31,7 +31,7 @@ void LibMain::cb_interface_type_changed(int) {
 
 	const bool uLI = (form.ui.cb_interface_type->currentText() == "uLI");
 	if (uLI) {
-		form.ui.cb_serial_speed->setCurrentText("19200");
+		form.ui.cb_serial_speed->setCurrentText("115200");
 		form.ui.cb_serial_flowcontrol->setCurrentIndex(0);
 	}
 	form.ui.cb_serial_speed->setEnabled(!uLI);

@@ -13,8 +13,13 @@ class XnLINet : public XnLI {
 	Q_OBJECT
 
 private:
+	static constexpr size_t _KEEP_ALIVE_INTERVAL_MS = 5000;
+	static constexpr size_t _KEEP_ALIVE_TIMEOUT_MS = 10000;
+
 	QTcpSocket m_socket;
 	bool connecting = false;
+
+	void setSocketKeepAliveTime(QTcpSocket &socket, size_t timeoutMs, size_t intervalMs);
 
 private slots:
 	void socketConnected();

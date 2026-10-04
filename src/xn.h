@@ -255,7 +255,6 @@ private:
 	TrkStatus m_trk_status = TrkStatus::Unknown;
 	LIType m_liType;
 	XNConfig m_config;
-	bool m_anyCsReceived = false; // anything received from command station since last keep alive
 
 	using MsgType = std::vector<uint8_t>;
 	void parseMessage(MsgType &msg);

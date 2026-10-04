@@ -9,8 +9,6 @@ XnLINet::XnLINet() {
 
 	QObject::connect(&m_socket, SIGNAL(errorOccurred(QAbstractSocket::SocketError)),
 	                 this, SLOT(socketErrorOccured(QAbstractSocket::SocketError)));
-
-	//m_socket.
 }
 
 void XnLINet::connect(const QString &hostname, uint16_t port) {
@@ -51,7 +49,7 @@ void XnLINet::socketReadyRead() {
 		emit onReceived(data);
 }
 
-void XnLINet::socketErrorOccured(QAbstractSocket::SocketError) {
+void XnLINet::socketErrorOccured(QAbstractSocket::SocketError error) {
 	emit onError(this->m_socket.errorString());
 	if (this->connecting) {
 		this->connecting = false;

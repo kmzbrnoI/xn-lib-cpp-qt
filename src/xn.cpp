@@ -160,24 +160,23 @@ void XpressNet::m_keep_alive_timer_tick() {
 	if ((!this->connected()) || (!this->m_config.keepAlive))
 		return;
 
-	if (!m_anyCsReceived) {
-		try {
-			this->getCommandStationStatus(
-				std::make_unique<Cb>([this](void*, void*) {
-					this->m_anyCsReceived = false;
-				}),
-				std::make_unique<Cb>([this](void*, void*) {
-					this->log("Disconnecting due to Keep Alive timeout", LogLevel::Error);
-					this->disconnect();
-				})
-			);
-		} catch (const QStrException &e) {
-			log("Keep alive Get CS Status error: " + e.str(), LogLevel::Error);
-			this->disconnect();
-		}
+	/* DR5000 drops TCP connection after 10 s of inactivity. This value can be configured, but 10 s is default.
+	 * Enabling TCP keep-alive is not enough as keep-alive packet is sent only when connection is idle
+	 * = no data sending NOR RECEIVING. When data are received from LI but no data are sent,
+	 * keep-alive packet is not sent and connection timeouts.
+	 */
+	try {
+		this->getCommandStationStatus(
+			nullptr,
+			std::make_unique<Cb>([this](void*, void*) {
+				this->log("Disconnecting due to Keep Alive timeout", LogLevel::Error);
+				this->disconnect();
+			})
+		);
+	} catch (const QStrException &e) {
+		log("Keep alive Get CS Status error: " + e.str(), LogLevel::Error);
+		this->disconnect();
 	}
-
-	this->m_anyCsReceived = false;
 }
 
 } // namespace Xn

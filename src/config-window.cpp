@@ -37,6 +37,12 @@ void LibMain::cb_interface_type_changed(int) {
 	form.ui.cb_serial_speed->setEnabled(!uLI);
 	form.ui.cb_serial_flowcontrol->setEnabled(!uLI);
 
+	if (form.ui.cb_interface_type->currentText().startsWith("LI-USB-Eth")) {
+		// Defaults according to "Befehlsbeschreibung XpressNet V3.6 mit LAN/USB Interface 23151 Kommunikation auf den Schnittstellen"
+		form.ui.cb_serial_speed->setCurrentText("57600");
+		form.ui.cb_serial_flowcontrol->setCurrentIndex(0);
+	}
+
 	if ((s["XN"]["port"].toString() == "auto") && (form.ui.cb_interface_type->currentText() != "uLI"))
 		s["XN"]["port"] = "";
 	this->fillPortCb();

@@ -6,15 +6,19 @@ XnLINet::XnLINet() {
 	QObject::connect(&m_socket, SIGNAL(connected()), this, SLOT(socketConnected()));
 	QObject::connect(&m_socket, SIGNAL(disconnected()), this, SLOT(socketDisconnected()));
 	QObject::connect(&m_socket, SIGNAL(readyRead()), this, SLOT(socketReadyRead()));
-
 	QObject::connect(&m_socket, SIGNAL(errorOccurred(QAbstractSocket::SocketError)),
 	                 this, SLOT(socketErrorOccured(QAbstractSocket::SocketError)));
+
+	this->m_tConnecting.setSingleShot(true);
+	this->m_tConnecting.setInterval(1000*_CONNECTING_TIMEOUT_S);
+	QObject::connect(&m_tConnecting, SIGNAL(timeout()), this, SLOT(connectingTimeout()));
 }
 
 void XnLINet::connect(const QString &hostname, uint16_t port) {
 	this->connecting = true;
 	try {
 		this->m_socket.connectToHost(hostname, port);
+		this->m_tConnecting.start();
 	} catch (...) {
 		throw EOpenError(this->m_socket.errorString());
 		this->connecting = false;
@@ -34,6 +38,7 @@ bool XnLINet::connected() const {
 }
 
 void XnLINet::socketConnected() {
+	this->m_tConnecting.stop();
 	this->connecting = false;
 	emit onOpened();
 }
@@ -55,6 +60,13 @@ void XnLINet::socketErrorOccured(QAbstractSocket::SocketError) {
 		this->connecting = false;
 		emit onClosed();
 	}
+}
+
+void XnLINet::connectingTimeout() {
+	this->connecting = false;
+	emit onError("Connecting timeout!");
+	this->disconnect();
+	emit onClosed();
 }
 
 } // namespace Xn

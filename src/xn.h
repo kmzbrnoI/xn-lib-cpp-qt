@@ -181,6 +181,7 @@ public:
 	void connectNet(const QString &hostname, uint16_t port, LIType liType);
 	void disconnect();
 	bool connected() const;
+	bool connecting() const;
 
 	TrkStatus getTrkStatus() const;
 

@@ -29,6 +29,9 @@ public:
 	virtual void send(QByteArray data) = 0;
 	virtual bool connected() const = 0;
 
+	virtual bool connecting() const
+	{ return false; }
+
 signals:
 	void onReceived(QByteArray data);
 	void onOpened();

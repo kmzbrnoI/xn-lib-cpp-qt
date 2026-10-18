@@ -56,9 +56,13 @@ void LibMain::xnOnLog(QString message, LogLevel loglevel) {
 
 void LibMain::xnOnError(QString error) {
 	// Xn error is considered fatal -> close device
-	log("XN error: " + error, LogLevel::Error);
-	if (xn.connected())
-		xn.disconnect();
+	if (xn.connecting()) {
+		lib.events.call(lib.events.onOpenError, error);
+	} else {
+		log("XN error: " + error, LogLevel::Error);
+		if (xn.connected())
+			xn.disconnect();
+	}
 }
 
 void LibMain::xnOnConnect() {

@@ -20,7 +20,7 @@ private:
 
 	QTcpSocket m_socket;
 	QTimer m_tConnecting;
-	bool connecting = false;
+	bool m_connecting = false;
 
 	void setSocketKeepAliveTime(QTcpSocket &socket, size_t timeoutMs, size_t intervalMs);
 
@@ -37,6 +37,7 @@ public:
 
 	void connect(const QString &hostname, uint16_t port);
 	void disconnect() override;
+	bool connecting() const override;
 	void send(QByteArray data) override;
 	bool connected() const override;
 

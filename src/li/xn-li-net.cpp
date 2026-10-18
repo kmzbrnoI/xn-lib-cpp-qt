@@ -15,18 +15,22 @@ XnLINet::XnLINet() {
 }
 
 void XnLINet::connect(const QString &hostname, uint16_t port) {
-	this->connecting = true;
+	this->m_connecting = true;
 	try {
 		this->m_socket.connectToHost(hostname, port);
 		this->m_tConnecting.start();
 	} catch (...) {
 		throw EOpenError(this->m_socket.errorString());
-		this->connecting = false;
+		this->m_connecting = false;
 	}
 }
 
 void XnLINet::disconnect() {
 	this->m_socket.abort();
+}
+
+bool XnLINet::connecting() const {
+	return m_connecting;
 }
 
 void XnLINet::send(QByteArray data) {
@@ -39,12 +43,12 @@ bool XnLINet::connected() const {
 
 void XnLINet::socketConnected() {
 	this->m_tConnecting.stop();
-	this->connecting = false;
+	this->m_connecting = false;
 	emit onOpened();
 }
 
 void XnLINet::socketDisconnected() {
-	this->connecting = false;
+	this->m_connecting = false;
 	emit onClosed();
 }
 
@@ -56,15 +60,15 @@ void XnLINet::socketReadyRead() {
 
 void XnLINet::socketErrorOccured(QAbstractSocket::SocketError) {
 	emit onError(this->m_socket.errorString());
-	if (this->connecting) {
-		this->connecting = false;
+	if (this->m_connecting) {
+		this->m_connecting = false;
 		emit onClosed();
 	}
 }
 
 void XnLINet::connectingTimeout() {
-	this->connecting = false;
 	emit onError("Connecting timeout!");
+	this->m_connecting = false;
 	this->disconnect();
 	emit onClosed();
 }

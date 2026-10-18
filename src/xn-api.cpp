@@ -55,6 +55,7 @@ void XpressNet::disconnect() {
 
 bool XpressNet::connected() const { return (m_li && m_li->connected()); }
 TrkStatus XpressNet::getTrkStatus() const { return m_trk_status; }
+bool XpressNet::connecting() const { return (m_li && m_li->connecting()); }
 
 ///////////////////////////////////////////////////////////////////////////////
 

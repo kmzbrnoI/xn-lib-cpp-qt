@@ -11,8 +11,7 @@ SOURCES += \
 	src/xn-receive.cpp \
 	src/xn-send.cpp \
 	src/xn-pending.cpp \
-	src/xn-win-com-discover.cpp \
-	src/li/xn-li.cpp
+	src/xn-win-com-discover.cpp
 HEADERS += \
 	src/li/xn-li-com.h \
 	src/li/xn-li-net.h \

@@ -169,8 +169,10 @@ void XpressNet::m_keep_alive_timer_tick() {
 		this->getCommandStationStatus(
 			nullptr,
 			std::make_unique<Cb>([this](void*, void*) {
-				this->log("Disconnecting due to Keep Alive timeout", LogLevel::Error);
-				this->disconnect();
+				if (this->connected()) { // disconnect can come during pending packet
+					this->log("Disconnecting due to Keep Alive timeout", LogLevel::Error);
+					this->disconnect();
+				}
 			})
 		);
 	} catch (const QStrException &e) {

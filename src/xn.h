@@ -47,7 +47,9 @@ constexpr size_t _PENDING_CHECK_INTERVAL = 100; // ms
 constexpr size_t _PENDING_TIMEOUT = 1000; // ms
 constexpr size_t _PENDING_PROG_TIMEOUT = 10000; // 10 s
 constexpr size_t _PENDING_SEND_MAX = 3; // how many times to send the command till error
-constexpr size_t _PENDING_MAX_AT_ONCE = 3; // how many commands could be pending at once
+constexpr size_t _PENDING_MAX_AT_ONCE = 1; // how many commands could be pending at once
+                                           // There was 3 here previously, but LI/CS sometimes dropped first pending packet,
+                                           // then answered the second pending -> one huge mess.
 constexpr size_t _BUF_IN_TIMEOUT = 300; // ms
 constexpr size_t _STEPS_CNT = 28;
 

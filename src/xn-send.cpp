@@ -89,10 +89,20 @@ void XpressNet::send_next_out() {
 		return;
 	}
 
-	PendingItem out = std::move(m_out.front());
-	log("DEQUEUE: " + out.cmd->msg(), LogLevel::Debug);
-	m_out.pop_front();
-	to_send(std::move(out), true);
+	bool conflict;
+	do {
+		PendingItem out = std::move(m_out.front());
+		log("DEQUEUE: " + out.cmd->msg(), LogLevel::Debug);
+		m_out.pop_front();
+		conflict = conflictWithOut(*out.cmd);
+		if (conflict) {
+			log("Not sending again, conflict: " + out.cmd->msg(), LogLevel::Warning);
+			if (nullptr != out.callback_err)
+				out.callback_err->func(this, out.callback_err->data);
+		} else {
+			to_send(std::move(out), true);
+		}
+	} while (conflict);
 }
 
 QDateTime XpressNet::timeout(const Cmd *x) {

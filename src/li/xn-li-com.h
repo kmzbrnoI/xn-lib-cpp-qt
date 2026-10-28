@@ -14,6 +14,7 @@ class XnLICom : public XnLI {
 
 private:
 	QSerialPort m_serialPort;
+	bool m_disconnecting = false;
 
 private slots:
 	void sp_readyRead();

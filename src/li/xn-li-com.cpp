@@ -22,6 +22,7 @@ XnLICom::~XnLICom() {
 }
 
 void XnLICom::connect(const QString &portname, int32_t br, QSerialPort::FlowControl fc) {
+	this->m_disconnecting = false;
 	m_serialPort.setBaudRate(br);
 	m_serialPort.setFlowControl(fc);
 	m_serialPort.setPortName(portname);
@@ -43,7 +44,7 @@ void XnLICom::send(QByteArray data) {
 }
 
 bool XnLICom::connected() const {
-	return m_serialPort.isOpen();
+	return (m_serialPort.isOpen() && (!m_disconnecting));
 }
 
 void XnLICom::sp_readyRead() {
@@ -56,6 +57,7 @@ void XnLICom::sp_error(QSerialPort::SerialPortError serialPortError) {
 }
 
 void XnLICom::sp_aboutToClose() {
+	this->m_disconnecting = true;
 	emit onClosed();
 }
 

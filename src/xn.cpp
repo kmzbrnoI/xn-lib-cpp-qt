@@ -165,12 +165,23 @@ void XpressNet::m_keep_alive_timer_tick() {
 	 * = no data sending NOR RECEIVING. When data are received from LI but no data are sent,
 	 * keep-alive packet is not sent and connection timeouts.
 	 */
+
+	if (!m_keep_alive_answered) {
+		// When packet stayed in m_out queue for long time
+		this->log("Disconnecting due to Keep Alive not sent!", LogLevel::Error);
+		this->disconnect();
+		return;
+	}
+
 	try {
+		m_keep_alive_answered = false;
 		this->getCommandStationStatus(
-			nullptr,
+			std::make_unique<Cb>([this](void*, void*) {
+				this->m_keep_alive_answered = true;
+			}),
 			std::make_unique<Cb>([this](void*, void*) {
 				if (this->connected()) { // disconnect can come during pending packet
-					this->log("Disconnecting due to Keep Alive timeout", LogLevel::Error);
+					this->log("Disconnecting due to Keep Alive timeout!", LogLevel::Error);
 					this->disconnect();
 				}
 			})

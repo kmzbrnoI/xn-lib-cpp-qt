@@ -246,8 +246,10 @@ void XpressNet::handleMsgCsStatus(MsgType &msg) {
 		emit onTrkStatusChanged(m_trk_status);
 	}
 
-	if (!m_keep_alive_timer.isActive())
+	if (!m_keep_alive_timer.isActive()) {
+		m_keep_alive_answered = true;
 		m_keep_alive_timer.start(_KEEP_ALIVE_PERIOD);
+	}
 }
 
 void XpressNet::handleMsgCsVersion(MsgType &msg) {

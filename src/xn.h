@@ -258,6 +258,7 @@ private:
 	TrkStatus m_trk_status = TrkStatus::Unknown;
 	LIType m_liType;
 	XNConfig m_config;
+	bool m_keep_alive_answered = true;
 
 	using MsgType = std::vector<uint8_t>;
 	void parseMessage(MsgType &msg);

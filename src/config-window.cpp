@@ -43,12 +43,12 @@ void LibMain::cb_interface_type_changed(int) {
 		form.ui.cb_serial_flowcontrol->setCurrentIndex(0);
 	}
 	if (form.ui.cb_interface_type->currentText() == "LI100") {
-		// Deafults according to XpressNet Specification 6/2003
+		// Defaults according to XpressNet Specification 6/2003
 		form.ui.cb_serial_speed->setCurrentText("9600");
 		form.ui.cb_serial_flowcontrol->setCurrentText("Software");
 	}
 	if (form.ui.cb_interface_type->currentText() == "LI101") {
-		// Deafults according to XpressNet Specification 6/2003
+		// Defaults according to XpressNet Specification 6/2003
 		form.ui.cb_serial_flowcontrol->setCurrentText("Hardware");
 	}
 

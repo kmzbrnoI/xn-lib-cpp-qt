@@ -1,7 +1,7 @@
 #include "xn.h"
 
 /* Handling of the pending commands = sent commands with no response from the command station
- * yes (e.g. resending data with no response etc.).
+ * yet (resending after no response etc.).
  */
 
 namespace Xn {

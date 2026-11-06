@@ -37,20 +37,26 @@ bool is(const Cmd &x) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+struct CmdOff;
+struct CmdOn;
+struct CmdEmergencyStop;
+
 struct CmdOff : public Cmd {
 	std::vector<uint8_t> getBytes() const override { return {0x21, 0x80}; }
 	QString msg() const override { return "Track Off"; }
+	bool conflict(const Cmd &cmd) const override { return is<CmdOn>(cmd); }
 };
 
 struct CmdOn : public Cmd {
 	std::vector<uint8_t> getBytes() const override { return {0x21, 0x81}; }
 	QString msg() const override { return "Track On"; }
-	bool conflict(const Cmd &cmd) const override { return is<CmdOff>(cmd); }
+	bool conflict(const Cmd &cmd) const override { return (is<CmdOff>(cmd) || is<CmdEmergencyStop>(cmd)); }
 };
 
 struct CmdEmergencyStop : public Cmd {
 	std::vector<uint8_t> getBytes() const override { return {0x80}; }
 	QString msg() const override { return "All Loco Emergency Stop"; }
+	bool conflict(const Cmd &cmd) const override { return is<CmdOn>(cmd); }
 };
 
 struct CmdEmergencyStopLoco : public Cmd {

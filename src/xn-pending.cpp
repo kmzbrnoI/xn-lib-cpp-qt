@@ -49,8 +49,7 @@ void XpressNet::pending_send() {
 		log("Not sending again, conflict: " + pending.cmd->msg(), LogLevel::Warning);
 		if (nullptr != pending.callback_err)
 			pending.callback_err->func(this, pending.callback_err->data);
-		if (!m_out.empty())
-			send_next_out();
+		send_next_out();
 		return;
 	}
 

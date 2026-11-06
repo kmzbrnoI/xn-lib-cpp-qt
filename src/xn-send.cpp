@@ -43,11 +43,9 @@ void XpressNet::send(std::unique_ptr<const Cmd> cmd, UPCb ok, UPCb err, size_t n
 	}
 }
 
-void XpressNet::to_send(std::unique_ptr<const Cmd> &cmd, UPCb ok, UPCb err, size_t no_sent,
-                        bool bypass_m_out_emptiness) {
+void XpressNet::to_send(std::unique_ptr<const Cmd> &cmd, UPCb ok, UPCb err, size_t no_sent) {
 	// Sends or queues
-	if ((m_pending.size() >= _PENDING_MAX_AT_ONCE) || (!m_out.empty() && !bypass_m_out_emptiness) ||
-	    conflictWithPending(*cmd)) {
+	if ((m_pending.size() >= _PENDING_MAX_AT_ONCE) || (!m_out.empty()) || conflictWithPending(*cmd)) {
 		// Pending full -> push & do not start timer (response from CS will send the next command from m_out)
 		// We ensure pending buffer never contains commands with conflict
 		log("ENQUEUE: " + cmd->msg(), LogLevel::Debug);
@@ -66,11 +64,10 @@ void XpressNet::to_send(std::unique_ptr<const Cmd> &cmd, UPCb ok, UPCb err, size
 	}
 }
 
-void XpressNet::to_send(PendingItem &&pending, bool bypass_m_out_emptiness) {
+void XpressNet::to_send(PendingItem &&pending) {
 	// Pending resending uses m_out queue (could try to resend multiple messages once)
 	std::unique_ptr<const Cmd> cmd2(std::move(pending.cmd));
-	to_send(cmd2, std::move(pending.callback_ok), std::move(pending.callback_err), pending.no_sent + 1,
-	        bypass_m_out_emptiness);
+	to_send(cmd2, std::move(pending.callback_ok), std::move(pending.callback_err), pending.no_sent + 1);
 }
 
 void XpressNet::m_out_timer_tick() {
@@ -100,7 +97,7 @@ void XpressNet::send_next_out() {
 			if (nullptr != out.callback_err)
 				out.callback_err->func(this, out.callback_err->data);
 		} else {
-			to_send(std::move(out), true);
+			send(std::move(out.cmd), std::move(out.callback_ok), std::move(out.callback_err), out.no_sent+1);
 		}
 	} while (conflict);
 }

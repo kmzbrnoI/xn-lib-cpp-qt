@@ -265,9 +265,9 @@ private:
 	void send(MsgType);
 	void send(std::unique_ptr<const Cmd>, UPCb ok = nullptr, UPCb err = nullptr,
 	          size_t no_sent = 1);
-	void to_send(PendingItem &&, bool bypass_m_out_emptiness = false);
+	void to_send(PendingItem &&);
 	void to_send(std::unique_ptr<const Cmd> &, UPCb ok = nullptr, UPCb err = nullptr,
-	             size_t no_sent = 1, bool bypass_m_out_emptiness = false);
+	             size_t no_sent = 1);
 
 	template <typename T>
 	void to_send(const T &&cmd, UPCb ok = nullptr, UPCb err = nullptr);

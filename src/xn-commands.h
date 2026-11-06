@@ -310,8 +310,6 @@ struct CmdSetSpeedDir : public Cmd {
 			const auto &casted = dynamic_cast<const CmdSetSpeedDir &>(cmd);
 			return (casted.loco == this->loco);
 		}
-		if (is<CmdEmergencyStop>(cmd))
-			return true;
 		if (is<CmdEmergencyStopLoco>(cmd)) {
 			const auto &casted = dynamic_cast<const CmdEmergencyStopLoco &>(cmd);
 			return (casted.loco == this->loco);

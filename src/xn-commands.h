@@ -316,10 +316,8 @@ struct CmdSetSpeedDir : public Cmd {
 			const auto &casted = dynamic_cast<const CmdSetSpeedDir &>(cmd);
 			return (casted.loco == this->loco);
 		}
-		if (is<CmdEmergencyStopLoco>(cmd)) {
-			const auto &casted = dynamic_cast<const CmdEmergencyStopLoco &>(cmd);
-			return (casted.loco == this->loco);
-		}
+		// CmdEmergencyStopLoco is intentionally not here, because it is stateful
+		// e.g. hJOP requires ok response to CmdEmergencyStopLoco, otherwise it will activate an emergency.
 		return false;
 	}
 	bool okResponse() const override { return true; }
